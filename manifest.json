@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Switchboard",
+  "version": "0.1.0",
+  "description": "A minimal, keyboard-first New Tab replacement — local link workspaces, no bookmarks, no cloud.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "bookmarks",
+    "sessions",
+    "alarms",
+    "favicon"
+  ]
+}

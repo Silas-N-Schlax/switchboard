@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --sky-deep: #07070f;
+  --sky-mid: #14122a;
+  --sky-warm: #2c1f3d;
+  --sky-amber: #3a2419;
+  --amber-soft: #58311f;
+
+  --ink: #e8e3da;
+  --ink-dim: #9b96a8;
+  --ink-faint: #625d70;
+
+  --accent: #5fc9b4;
+  --flag: #b5665f;
+
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-brd: rgba(255, 255, 255, 0.12);
+  --glass-hi: rgba(255, 255, 255, 0.18);
+
+  --font-ui: "Manrope", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-sky-duration: 0s;
+    --motion-bubble-duration: 0s;
+  }
+}
