@@ -20,6 +20,30 @@ export const ambientPalettePresets = [
 export const ambientPaletteId = "midnight-plum";
 export const ambientCustomColors = ambientColors;
 
+export const ambientCuratedSwatches = [
+  ...ambientPalettePresets.flatMap((p) => p.colors),
+  "#1a2230",
+  "#22303f",
+  "#2c3e50",
+  "#34495e",
+  "#46607a",
+  "#0d2b2b",
+  "#164545",
+  "#1f5f5f",
+  "#2a7a7a",
+  "#5fc9b4",
+  "#3d2410",
+  "#55350f",
+  "#6b4423",
+  "#8a5a2e",
+  "#a3703c",
+  "#232b1a",
+  "#34401f",
+  "#4a5427",
+  "#5c6b30",
+  "#748038",
+];
+
 // ============================================================================
 // Ambient background — bubbles
 // ============================================================================

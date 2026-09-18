@@ -1,7 +1,3 @@
-/* Appearance settings modal — layout only. Actual control styling (checkboxes, sliders,
-   dropdowns, color swatches) lives in their own reusable components: toggle-switch.css,
-   range-slider.css, select-input.css, color-swatch-input.css. Hidden by default;
-   js/features/settings.js toggles .settings-panel--open. */
 .settings-panel {
   display: none;
   position: fixed;

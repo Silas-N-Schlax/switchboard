@@ -6,7 +6,7 @@
 @import url("components/toggle-switch.css");
 @import url("components/range-slider.css");
 @import url("components/select-input.css");
-@import url("components/color-swatch-input.css");
+@import url("components/swatch-picker.css");
 
 body {
   margin: 0;

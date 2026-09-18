@@ -1,5 +1,6 @@
 import { ambientMode, updateAmbient } from "./store.js";
 import { buildRow, buildToggleSwitch } from "./controls.js";
+import { createSwatchPicker } from "./swatch-picker.js";
 import { resolveColors } from "../../render/ambient.js";
 import { ambientPalettePresets } from "../../../defaults.js";
 
@@ -29,29 +30,29 @@ function buildColorSwatches(onChange) {
   const group = document.createElement("div");
   group.className = "settings-panel__swatch-group";
 
-  const inputs = [0, 1, 2, 3].map((index) => {
-    const input = document.createElement("input");
-    input.type = "color";
-    input.className = "color-swatch-input";
-    input.setAttribute("aria-label", `Cycle color ${index + 1}`);
-    input.addEventListener("input", () => {
-      const customColors = [...resolveColors(ambientMode())];
-      customColors[index] = input.value;
-      onChange({ customColors });
+  const pickers = [0, 1, 2, 3].map((index) => {
+    const picker = createSwatchPicker({
+      ariaLabel: `Cycle color ${index + 1}`,
+      value: resolveColors(ambientMode())[index],
+      onChange: (hex) => {
+        const customColors = [...resolveColors(ambientMode())];
+        customColors[index] = hex;
+        onChange({ customColors });
+      },
     });
-    group.appendChild(input);
-    return input;
+    group.appendChild(picker.element);
+    return picker;
   });
 
   function refresh() {
     const colors = resolveColors(ambientMode());
     const isCustom = ambientMode().paletteId === CUSTOM_PALETTE_ID;
     const cycleOn = ambientMode().colorCycleEnabled;
-    inputs.forEach((input, index) => {
-      input.value = colors[index];
+    pickers.forEach((picker, index) => {
+      picker.setValue(colors[index]);
       // Editable at all only in Custom; within Custom, colors 2-4 only matter when the
       // cycle is on (the first color is always the active one otherwise).
-      input.disabled = !isCustom || (index > 0 && !cycleOn);
+      picker.setDisabled(!isCustom || (index > 0 && !cycleOn));
     });
   }
 
