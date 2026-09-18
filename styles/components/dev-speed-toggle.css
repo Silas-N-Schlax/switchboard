@@ -1,0 +1,21 @@
+/* Temporary dev-only control — see js/render/ambient.js. Remove once palette/timing
+   is settled. */
+.dev-speed-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+  background: var(--glass);
+  border: 1px solid var(--glass-brd);
+  border-radius: 6px;
+  cursor: pointer;
+
+  &.dev-speed-toggle--active {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+}

@@ -1,4 +1,11 @@
 import { SCHEMA_VERSION } from "./schema.js";
+import {
+  schemaVersion,
+  defaultTabs,
+  defaultLinks,
+  defaultSettings,
+  defaultAmbientSettings,
+} from "../defaults.js";
 
 const STORAGE_KEYS = ["schemaVersion", "tabs", "links", "settings"];
 const DEV_STORAGE_PREFIX = "switchboard:";
@@ -20,9 +27,27 @@ async function localStorageSet(partial) {
   }
 }
 
+function withDefaults(raw) {
+  return {
+    schemaVersion: raw.schemaVersion ?? schemaVersion,
+    tabs: raw.tabs ?? defaultTabs,
+    links: raw.links ?? defaultLinks,
+    settings: {
+      ...defaultSettings,
+      ...raw.settings,
+      ambientMode: {
+        ...defaultAmbientSettings,
+        ...raw.settings?.ambientMode,
+      },
+    },
+  };
+}
+
 export async function load() {
-  if (isExtensionContext) return chrome.storage.local.get(STORAGE_KEYS);
-  return localStorageGet(STORAGE_KEYS);
+  const raw = isExtensionContext
+    ? await chrome.storage.local.get(STORAGE_KEYS)
+    : await localStorageGet(STORAGE_KEYS);
+  return withDefaults(raw);
 }
 
 export async function save(partial) {
@@ -31,18 +56,19 @@ export async function save(partial) {
 }
 
 export async function isInitialized() {
-  const { schemaVersion } = isExtensionContext
+  const { schemaVersion: storedVersion } = isExtensionContext
     ? await chrome.storage.local.get("schemaVersion")
     : await localStorageGet(["schemaVersion"]);
-  return schemaVersion === SCHEMA_VERSION;
+  return storedVersion === SCHEMA_VERSION;
 }
 
 export async function seedFromDefaults() {
-  const url = isExtensionContext
-    ? chrome.runtime.getURL("defaults.json")
-    : "./defaults.json";
-  const response = await fetch(url);
-  const defaults = await response.json();
-  await save(defaults);
-  return defaults;
+  const payload = structuredClone({
+    schemaVersion,
+    tabs: defaultTabs,
+    links: defaultLinks,
+    settings: defaultSettings,
+  });
+  await save(payload);
+  return payload;
 }

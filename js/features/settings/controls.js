@@ -1,0 +1,41 @@
+export function buildRow({ labelText, control }) {
+  const row = document.createElement("label");
+  row.className = "settings-panel__row";
+  const label = document.createElement("span");
+  label.className = "settings-panel__label";
+  label.textContent = labelText;
+  row.append(label, control);
+  return row;
+}
+
+export function buildToggleSwitch(checked, onChange) {
+  const label = document.createElement("label");
+  label.className = "toggle-switch";
+
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.className = "toggle-switch__input";
+  input.checked = checked;
+  input.addEventListener("change", () => onChange(input.checked));
+
+  const track = document.createElement("span");
+  track.className = "toggle-switch__track";
+  const thumb = document.createElement("span");
+  thumb.className = "toggle-switch__thumb";
+  track.appendChild(thumb);
+
+  label.append(input, track);
+  return { element: label, input };
+}
+
+export function buildRange({ min, max, step, value, onChange }) {
+  const input = document.createElement("input");
+  input.type = "range";
+  input.className = "range-slider";
+  input.min = String(min);
+  input.max = String(max);
+  input.step = String(step);
+  input.value = String(value);
+  input.addEventListener("input", () => onChange(Number(input.value)));
+  return input;
+}

@@ -1,0 +1,51 @@
+/* Drifting soap-bubble shapes. Each bubble is one CSS animation "life" (fade in, drift,
+   fade out); js/render/ambient.js respawns it elsewhere with new randomized custom
+   properties on animationend. */
+.bubble-field {
+  position: absolute;
+  inset: 0;
+
+  .bubble-field__bubble {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size, 120px);
+    height: var(--size, 120px);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.18),
+      inset 0 -12px 20px rgba(0, 0, 0, 0.25);
+    filter: blur(1px);
+    opacity: 0;
+    animation: bubbleLife var(--duration, 22s) ease-in-out forwards;
+  }
+}
+
+@keyframes bubbleLife {
+  0% {
+    opacity: 0;
+    transform: translate(var(--start-x, 50vw), var(--start-y, 50vh)) scale(0.85);
+  }
+  12% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(var(--start-x, 50vw) + var(--drift-x, 0vw)),
+        calc(var(--start-y, 50vh) + var(--drift-y, -10vh))
+      )
+      scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-field__bubble {
+    animation: none;
+  }
+}

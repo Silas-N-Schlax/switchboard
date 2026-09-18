@@ -1,0 +1,52 @@
+/* A styled <input type="range">, thumb-colored with the accent teal. */
+.range-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 140px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-brd);
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  &::-moz-range-track {
+    background: transparent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      background: var(--ink-faint);
+    }
+
+    &::-moz-range-thumb {
+      background: var(--ink-faint);
+    }
+  }
+}

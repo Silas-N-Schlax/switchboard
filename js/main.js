@@ -1,5 +1,7 @@
 import { load, isInitialized, seedFromDefaults } from "./storage.js";
-import { setState } from "./state.js";
+import { setState, state } from "./state.js";
+import { renderAmbient } from "./render/ambient.js";
+import { initSettingsToggle } from "./features/settings/index.js";
 
 async function init() {
   const initialized = await isInitialized();
@@ -10,7 +12,9 @@ async function init() {
 }
 
 function render() {
-  // TODO: render tab dock, link grid, search bar, ambient background
+  renderAmbient(document.body, state.settings);
+  initSettingsToggle(document.body);
+  // TODO: render tab dock, link grid, search bar
 }
 
 init();

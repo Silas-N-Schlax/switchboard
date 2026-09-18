@@ -1,0 +1,126 @@
+/* Appearance settings modal — layout only. Actual control styling (checkboxes, sliders,
+   dropdowns, color swatches) lives in their own reusable components: toggle-switch.css,
+   range-slider.css, select-input.css, color-swatch-input.css. Hidden by default;
+   js/features/settings.js toggles .settings-panel--open. */
+.settings-panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+
+  &.settings-panel--open {
+    display: block;
+  }
+
+  .settings-panel__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .settings-panel__dialog {
+    position: relative;
+    z-index: 1;
+    margin: 8vh auto 0;
+    width: min(420px, calc(100vw - 32px));
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    background: var(--sky-deep);
+    border: 1px solid var(--glass-brd);
+    border-radius: 12px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    font-family: var(--font-ui);
+    color: var(--ink);
+  }
+
+  .settings-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .settings-panel__title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .settings-panel__close {
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ink);
+    }
+  }
+
+  .settings-panel__section {
+    padding: 14px 0;
+    border-top: 1px solid var(--glass-brd);
+
+    &:first-of-type {
+      border-top: none;
+    }
+  }
+
+  .settings-panel__section-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 10px;
+  }
+
+  .settings-panel__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+
+    &.settings-panel__row--disabled {
+      opacity: 0.4;
+    }
+  }
+
+  .settings-panel__label {
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+
+  .settings-panel__swatch-group {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .settings-panel__footer {
+    padding-top: 14px;
+    border-top: 1px solid var(--glass-brd);
+  }
+
+  .settings-panel__reset {
+    width: 100%;
+    padding: 8px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--ink-dim);
+    background: var(--glass);
+    border: 1px solid var(--glass-brd);
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--ink);
+      border-color: var(--glass-hi);
+    }
+  }
+}

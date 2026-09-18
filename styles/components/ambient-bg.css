@@ -1,0 +1,43 @@
+/* Full-viewport background layer. Colors (--bg-1/2/3) are driven by
+   js/render/ambient.js's day-loop blend; the values here are just a fallback. */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background-color: var(--bg-2, var(--sky-mid));
+
+  .ambient-bg__sky {
+    position: absolute;
+    inset: -10%;
+    background-image: radial-gradient(
+        circle at 20% 20%,
+        var(--bg-3, var(--sky-warm)) 0%,
+        transparent 55%
+      ),
+      radial-gradient(circle at 80% 75%, var(--bg-1, var(--sky-deep)) 0%, transparent 60%),
+      linear-gradient(
+        160deg,
+        var(--bg-1, var(--sky-deep)) 0%,
+        var(--bg-2, var(--sky-mid)) 50%,
+        var(--bg-3, var(--sky-warm)) 100%
+      );
+    background-size: 140% 140%;
+    animation: driftSky 48s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes driftSky {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg__sky {
+    animation: none;
+  }
+}

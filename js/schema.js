@@ -1,4 +1,6 @@
-export const SCHEMA_VERSION = 1;
+import { schemaVersion, defaultSettings } from "../defaults.js";
+
+export const SCHEMA_VERSION = schemaVersion;
 
 export function createLink({
   id,
@@ -31,11 +33,7 @@ export function createTab({ id, name, order = 0, shortcutKey = null } = {}) {
 
 export function createSettings(overrides = {}) {
   return {
-    showFavicons: false,
-    cacheTrimEnabled: false,
-    mostUsedTabEnabled: false,
-    ambientMode: { bubbleCount: 8 },
-    backgroundConfig: { mode: "ambient" },
+    ...defaultSettings,
     ...overrides,
   };
 }
