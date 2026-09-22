@@ -9,6 +9,7 @@ export const schemaVersion = 1;
 export const ambientColorCycleEnabled = true;
 export const ambientColors = ["#0d0c1c", "#2c1f3d", "#3a2419", "#2a1420"];
 export const ambientSegmentHours = 3;
+export const ambientTickIntervalMs = 15000;
 
 export const ambientPalettePresets = [
   { id: "midnight-plum", name: "Midnight Plum", colors: ambientColors },

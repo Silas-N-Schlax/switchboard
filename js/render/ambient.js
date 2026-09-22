@@ -4,6 +4,7 @@ import {
   ambientPaletteId,
   ambientCustomColors,
   ambientSegmentHours,
+  ambientTickIntervalMs,
   bubblesEnabled as defaultBubblesEnabled,
   bubbleCount as defaultBubbleCount,
   bubbleCountMin,
@@ -30,17 +31,6 @@ const ANCHOR_MINUTES = 8 * 60; // 8am
 const prefersReducedMotion = window.matchMedia?.(
   "(prefers-reduced-motion: reduce)"
 ).matches;
-
-const DEV_SEGMENT_SECONDS = 10;
-
-let devFastForward = false;
-let devFastForwardStartedAt = null;
-
-window.__switchboardDevSpeed = (on = true) => {
-  devFastForward = on;
-  devFastForwardStartedAt = on ? Date.now() : null;
-  console.log(`[switchboard] dev fast-forward ${on ? "ON" : "off"}`);
-};
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -83,19 +73,10 @@ function getCurrentBlend({ colors, colorCycleEnabled, segmentHours }) {
 
   const segmentMinutes = segmentHours * 60;
   const cycleMinutes = segmentMinutes * colors.length;
-  const devCycleSeconds = DEV_SEGMENT_SECONDS * colors.length;
 
-  let elapsed;
-  if (devFastForward) {
-    const elapsedSeconds = (Date.now() - devFastForwardStartedAt) / 1000;
-    const minutesPerRealSecond = cycleMinutes / devCycleSeconds;
-    elapsed = (elapsedSeconds * minutesPerRealSecond) % cycleMinutes;
-  } else {
-    const now = new Date();
-    const minutesSinceMidnight =
-      now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-    elapsed = (minutesSinceMidnight - ANCHOR_MINUTES + 1440) % cycleMinutes;
-  }
+  const now = new Date();
+  const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  const elapsed = (minutesSinceMidnight - ANCHOR_MINUTES + 1440) % cycleMinutes;
 
   const segmentIndex = Math.floor(elapsed / segmentMinutes) % colors.length;
   const progress = (elapsed % segmentMinutes) / segmentMinutes;
@@ -160,20 +141,6 @@ function createBubbleField(container, { count, sizeMultiplier, speedMultiplier }
   return field;
 }
 
-function createDevSpeedToggle() {
-  const button = document.createElement("button");
-  button.className = "dev-speed-toggle";
-  button.type = "button";
-  button.textContent = "⏩ dev: speed cycle";
-  button.setAttribute("aria-label", "Toggle fast-forwarded color-loop preview");
-  button.addEventListener("click", () => {
-    window.__switchboardDevSpeed(!devFastForward);
-    button.classList.toggle("dev-speed-toggle--active", devFastForward);
-  });
-  return button;
-  // to be deleted before end of development
-}
-
 let renderGeneration = 0;
 
 export function renderAmbient(root = document.body, settings = {}) {
@@ -185,7 +152,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   const colorCycleEnabled = ambientMode.colorCycleEnabled ?? ambientColorCycleEnabled;
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
   const bubblesOn = ambientMode.bubblesEnabled ?? defaultBubblesEnabled;
-  
+
   const bubbleCount = Math.max(bubbleCountMin, ambientMode.bubbleCount ?? defaultBubbleCount);
   const sizeMultiplier = clamp(
     ambientMode.bubbleSizeMultiplier ?? defaultBubbleSizeMultiplier,
@@ -213,10 +180,6 @@ export function renderAmbient(root = document.body, settings = {}) {
     createBubbleField(container, { count: bubbleCount, sizeMultiplier, speedMultiplier });
   }
 
-  if (!document.querySelector(".dev-speed-toggle")) {
-    root.appendChild(createDevSpeedToggle());
-  }
-
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 
   function tick() {
@@ -227,10 +190,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   let lastTickAt = 0;
   function scheduleNextTick(timestamp) {
     if (myGeneration !== renderGeneration) return; // superseded by a newer render
-    // Recompute colors often enough to look smooth: every ~100ms during the 10s/segment
-    // dev preview, every ~15s during the real hours/segment cycle.
-    const interval = devFastForward ? 100 : 15000;
-    if (timestamp - lastTickAt >= interval) {
+    if (timestamp - lastTickAt >= ambientTickIntervalMs) {
       lastTickAt = timestamp;
       tick();
     } else {
