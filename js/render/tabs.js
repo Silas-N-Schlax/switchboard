@@ -107,6 +107,7 @@ export function renderTabs(container, onChange) {
   if (isNew) {
     makeSortable(dock, {
       selector: ".tab-dock__tab",
+      axis: "x",
       onReorder: async (tabId, index) => {
         await reorderTab(tabId, index);
         onChange();

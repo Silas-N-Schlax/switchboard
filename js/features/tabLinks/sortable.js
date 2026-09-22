@@ -1,6 +1,6 @@
 import { sortDragThresholdPx, sortFlipDurationMs } from "../../../defaults.js";
 
-export function makeSortable(container, { selector, onReorder }) {
+export function makeSortable(container, { selector, onReorder, axis = "y" }) {
   let dragEl = null;
   let ghost = null;
   let pointerId = null;
@@ -9,6 +9,7 @@ export function makeSortable(container, { selector, onReorder }) {
   let startY = 0;
   let offsetX = 0;
   let offsetY = 0;
+  let reorderLocked = false;
 
   function items() {
     return [...container.querySelectorAll(selector)];
@@ -55,6 +56,7 @@ export function makeSortable(container, { selector, onReorder }) {
 
   function startDrag(item, originTarget, ev) {
     dragging = true;
+    reorderLocked = false;
     suppressNextClick(originTarget);
     const rect = item.getBoundingClientRect();
     offsetX = ev.clientX - rect.left;
@@ -83,6 +85,8 @@ export function makeSortable(container, { selector, onReorder }) {
   }
 
   function maybeReorderDom(ev) {
+    if (reorderLocked) return;
+
     const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(selector);
     if (!target || target === dragEl || !container.contains(target)) return;
 
@@ -91,13 +95,30 @@ export function makeSortable(container, { selector, onReorder }) {
     const targetIndex = all.indexOf(target);
     if (dragIndex === -1 || targetIndex === -1) return;
 
+    const rect = target.getBoundingClientRect();
+    const movingForward = dragIndex < targetIndex;
+    const pastMidpoint =
+      axis === "y"
+        ? movingForward
+          ? ev.clientY > rect.top + rect.height / 2
+          : ev.clientY < rect.top + rect.height / 2
+        : movingForward
+          ? ev.clientX > rect.left + rect.width / 2
+          : ev.clientX < rect.left + rect.width / 2;
+    if (!pastMidpoint) return;
+
     const oldRects = recordRects();
-    if (dragIndex < targetIndex) {
+    if (movingForward) {
       target.after(dragEl);
     } else {
       target.before(dragEl);
     }
     playFlip(oldRects);
+
+    reorderLocked = true;
+    setTimeout(() => {
+      reorderLocked = false;
+    }, sortFlipDurationMs);
   }
 
   function endDrag() {
@@ -115,9 +136,7 @@ export function makeSortable(container, { selector, onReorder }) {
     if (e.button !== 0) return;
     const item = e.target.closest(selector);
     if (!item) return;
-    // Buttons (delete/remove) keep a deterministic click target; anchors (link labels)
-    // may still start a drag, but their navigation is suppressed only if a drag actually
-    // happens (see suppressNextClick below), so a plain click still navigates normally.
+
     const interactiveButton = e.target.closest("button");
     if (interactiveButton && interactiveButton !== item) return;
 
