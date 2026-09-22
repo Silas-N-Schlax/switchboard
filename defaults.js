@@ -63,6 +63,9 @@ export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multi
 // ============================================================================
 export const defaultTabs = [{ id: "tab-1", name: "All", order: 0, shortcutKey: "1" }];
 export const defaultLinks = [];
+export const linkListSplitThreshold = 6;
+export const sortDragThresholdPx = 4;
+export const sortFlipDurationMs = 180;
 
 // ============================================================================
 // General settings

@@ -1,0 +1,83 @@
+let modalEl = null;
+let submitHandler = null;
+
+function closeModal() {
+  modalEl.classList.remove("link-modal--open");
+  modalEl.querySelector("form").reset();
+}
+
+function buildModal() {
+  const modal = document.createElement("div");
+  modal.className = "link-modal";
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "link-modal__backdrop";
+
+  const dialog = document.createElement("div");
+  dialog.className = "link-modal__dialog";
+
+  const header = document.createElement("div");
+  header.className = "link-modal__header";
+  const title = document.createElement("h2");
+  title.className = "link-modal__title";
+  title.textContent = "Add link";
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "link-modal__close";
+  close.textContent = "×";
+  close.setAttribute("aria-label", "Close");
+  header.append(title, close);
+
+  const form = document.createElement("form");
+  form.className = "link-modal__form";
+
+  const labelInput = document.createElement("input");
+  labelInput.type = "text";
+  labelInput.className = "link-modal__input";
+  labelInput.placeholder = "Label";
+  labelInput.required = true;
+  labelInput.autocomplete = "off";
+
+  const urlInput = document.createElement("input");
+  urlInput.type = "text";
+  urlInput.className = "link-modal__input";
+  urlInput.placeholder = "URL";
+  urlInput.required = true;
+  urlInput.autocomplete = "off";
+
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.className = "link-modal__submit";
+  submit.textContent = "Add link";
+
+  form.append(labelInput, urlInput, submit);
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const label = labelInput.value.trim();
+    const url = urlInput.value.trim();
+    if (!label || !url) return;
+    submitHandler?.({ label, url });
+    closeModal();
+  });
+
+  close.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", closeModal);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("link-modal--open")) closeModal();
+  });
+
+  dialog.append(header, form);
+  modal.append(backdrop, dialog);
+  modal.__labelInput = labelInput;
+  return modal;
+}
+
+export function openAddLinkModal(root, onSubmit) {
+  if (!modalEl) {
+    modalEl = buildModal();
+    root.appendChild(modalEl);
+  }
+  submitHandler = onSubmit;
+  modalEl.classList.add("link-modal--open");
+  modalEl.__labelInput.focus();
+}

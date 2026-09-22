@@ -1,12 +1,18 @@
 import { load, isInitialized, seedFromDefaults } from "./storage.js";
 import { setState, state } from "./state.js";
 import { renderAmbient } from "./render/ambient.js";
+import { renderTabs } from "./render/tabs.js";
+import { renderLinks } from "./render/links.js";
 import { initSettingsToggle } from "./features/settings/index.js";
+import { sortedTabs } from "./features/tabLinks/store.js";
 
 async function init() {
   const initialized = await isInitialized();
   const data = initialized ? await load() : await seedFromDefaults();
   setState(data);
+  if (!state.activeTabId) {
+    state.activeTabId = sortedTabs()[0]?.id ?? null;
+  }
   console.log("[switchboard] initialized:", initialized, data);
   render();
 }
@@ -14,7 +20,13 @@ async function init() {
 function render() {
   renderAmbient(document.body, state.settings);
   initSettingsToggle(document.body);
-  // TODO: render tab dock, link grid, search bar
+  renderTabLinks();
+  // TODO: render search bar
+}
+
+function renderTabLinks() {
+  renderTabs(document.body, renderTabLinks);
+  renderLinks(document.body, renderTabLinks);
 }
 
 init();
