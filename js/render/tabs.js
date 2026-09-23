@@ -7,6 +7,9 @@ import {
   setActiveTab,
 } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
+import { registerTabSwitchKeybinds } from "../features/tabLinks/tabSwitchKeybinds.js";
+import { getKeybind } from "../features/keybinds/registry.js";
+import { maxTabs } from "../../defaults.js";
 
 function buildAddControl(onAdd) {
   const wrap = document.createElement("div");
@@ -69,7 +72,8 @@ export function renderTabs(container, onChange) {
 
     const badge = document.createElement("span");
     badge.className = "tab-dock__badge";
-    badge.textContent = tab.shortcutKey ?? String(index + 1);
+    badge.textContent =
+      index < maxTabs ? getKeybind(`tab-switch-${index + 1}`) ?? "" : "";
 
     const name = document.createElement("span");
     name.className = "tab-dock__name";
@@ -97,12 +101,16 @@ export function renderTabs(container, onChange) {
     dock.appendChild(el);
   });
 
-  dock.appendChild(
-    buildAddControl(async (name) => {
-      await addTab(name);
-      onChange();
-    })
-  );
+  if (tabs.length < maxTabs) {
+    dock.appendChild(
+      buildAddControl(async (name) => {
+        await addTab(name);
+        onChange();
+      })
+    );
+  }
+
+  registerTabSwitchKeybinds(onChange);
 
   if (isNew) {
     makeSortable(dock, {

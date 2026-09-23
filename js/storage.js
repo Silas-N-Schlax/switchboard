@@ -5,6 +5,7 @@ import {
   defaultLinks,
   defaultSettings,
   defaultAmbientSettings,
+  defaultKeybinds,
 } from "../defaults.js";
 
 const STORAGE_KEYS = ["schemaVersion", "tabs", "links", "settings"];
@@ -38,6 +39,10 @@ function withDefaults(raw) {
       ambientMode: {
         ...defaultAmbientSettings,
         ...raw.settings?.ambientMode,
+      },
+      keybinds: {
+        ...defaultKeybinds,
+        ...raw.settings?.keybinds,
       },
     },
   };

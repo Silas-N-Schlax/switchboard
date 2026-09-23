@@ -67,6 +67,25 @@ export const defaultLinks = [];
 export const linkListSplitThreshold = 6;
 export const sortDragThresholdPx = 4;
 export const sortFlipDurationMs = 180;
+export const maxTabs = 9;
+
+// ============================================================================
+// Keybinds
+// ============================================================================
+// Single source of truth for every registered keybind's default key. Stored
+// per-user in settings.keybinds (see defaultSettings below) so any binding
+// here can be overridden without touching this file.
+export const defaultKeybinds = {
+  "tab-switch-1": "1",
+  "tab-switch-2": "2",
+  "tab-switch-3": "3",
+  "tab-switch-4": "4",
+  "tab-switch-5": "5",
+  "tab-switch-6": "6",
+  "tab-switch-7": "7",
+  "tab-switch-8": "8",
+  "tab-switch-9": "9",
+};
 
 // ============================================================================
 // General settings
@@ -95,4 +114,5 @@ export const defaultSettings = {
   mostUsedTabEnabled,
   ambientMode: defaultAmbientSettings,
   backgroundConfig: { mode: "ambient" },
+  keybinds: defaultKeybinds,
 };

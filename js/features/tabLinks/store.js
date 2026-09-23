@@ -1,6 +1,7 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { createTab, createLink } from "../../schema.js";
+import { maxTabs } from "../../../defaults.js";
 
 function nextOrder(items) {
   return items.length ? Math.max(...items.map((i) => i.order)) + 1 : 0;
@@ -27,6 +28,7 @@ export function setActiveTab(tabId) {
 }
 
 export async function addTab(name) {
+  if (state.tabs.length >= maxTabs) return null;
   const tab = createTab({ id: crypto.randomUUID(), name, order: nextOrder(state.tabs) });
   state.tabs.push(tab);
   state.activeTabId = tab.id;

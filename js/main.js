@@ -5,6 +5,7 @@ import { renderTabs } from "./render/tabs.js";
 import { renderLinks } from "./render/links.js";
 import { initSettingsToggle } from "./features/settings/index.js";
 import { sortedTabs } from "./features/tabLinks/store.js";
+import { initKeybindListener } from "./features/keybinds/registry.js";
 
 async function init() {
   const initialized = await isInitialized();
@@ -14,6 +15,7 @@ async function init() {
     state.activeTabId = sortedTabs()[0]?.id ?? null;
   }
   console.log("[switchboard] initialized:", initialized, data);
+  initKeybindListener();
   render();
 }
 
