@@ -91,7 +91,6 @@ export const defaultKeybinds = {
 // ============================================================================
 // Search
 // ============================================================================
-export const searchMaxResults = 32;
 // Border shown around the search bar when the current query has no link matches
 // and Enter would fall back to a Google search. Not yet wired to settings —
 // hardcoded for now, but kept here so it's a one-line change to make it

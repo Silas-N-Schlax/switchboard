@@ -1,6 +1,5 @@
 import { state } from "../../state.js";
 import { sortedTabs } from "../tabLinks/store.js";
-import { searchMaxResults } from "../../../defaults.js";
 
 export function searchLinks(query) {
   const q = query.trim().toLowerCase();
@@ -20,6 +19,5 @@ export function searchLinks(query) {
       return { link, tabName: tabNames.get(link.tabId) ?? "", rank };
     })
     .filter(Boolean)
-    .sort((a, b) => a.rank - b.rank || a.link.label.localeCompare(b.link.label))
-    .slice(0, searchMaxResults);
+    .sort((a, b) => a.rank - b.rank || a.link.label.localeCompare(b.link.label));
 }
