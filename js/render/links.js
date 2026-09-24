@@ -2,6 +2,7 @@ import { linksForTab, activeTab, isHomeTab, addLink, deleteLink, reorderLink } f
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
 import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
+import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { linkListSplitThreshold } from "../../defaults.js";
 
 export function renderLinks(container, onChange) {
@@ -46,7 +47,13 @@ export function renderLinks(container, onChange) {
     url.className = "link-list__url";
     url.textContent = link.url;
 
-    row.append(anchor, url);
+    row.append(anchor);
+
+    if (link.shortcutKey) {
+      row.appendChild(buildShortcutBadges(link.shortcutKey));
+    }
+
+    row.append(url);
 
     if (searching) {
       const tabBadge = document.createElement("span");
@@ -75,10 +82,10 @@ export function renderLinks(container, onChange) {
     addTile.className = "link-list__add-tile";
     addTile.textContent = "+ Add link";
     addTile.addEventListener("click", () => {
-      openAddLinkModal(document.body, async ({ label, url }) => {
+      openAddLinkModal(document.body, async ({ label, url, shortcutKey }) => {
         const currentTab = activeTab();
         if (!currentTab) return;
-        await addLink(currentTab.id, { label, url });
+        await addLink(currentTab.id, { label, url, shortcutKey });
         onChange();
       });
     });

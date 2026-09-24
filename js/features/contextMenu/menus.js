@@ -18,9 +18,9 @@ function linkMenuItems(link, onChange) {
         openLinkModal(document.body, {
           title: "Update link",
           submitLabel: "Save",
-          initial: { label: link.label, url: link.url },
-          onSubmit: async ({ label, url }) => {
-            await updateLink(link.id, { label, url });
+          initial: { id: link.id, label: link.label, url: link.url, shortcutKey: link.shortcutKey },
+          onSubmit: async ({ label, url, shortcutKey }) => {
+            await updateLink(link.id, { label, url, shortcutKey });
             onChange();
           },
         }),

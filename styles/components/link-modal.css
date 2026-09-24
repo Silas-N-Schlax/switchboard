@@ -55,6 +55,65 @@
     }
   }
 
+  .link-modal__url-error {
+    margin: -4px 0 0;
+    font-size: 12px;
+    color: var(--flag);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  .link-modal__shortcut-label {
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .link-modal__shortcut-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .link-modal__shortcut-input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-height: 20px;
+    padding: 8px 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-brd);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+
+  .link-modal__shortcut-placeholder {
+    color: var(--ink-faint);
+    font-family: var(--font-ui);
+    font-size: 13px;
+  }
+
+  .link-modal__shortcut-clear {
+    flex-shrink: 0;
+  }
+
+  .link-modal__shortcut-error {
+    margin: -4px 0 0;
+    font-size: 12px;
+    color: var(--flag);
+    min-height: 14px;
+  }
+
   .link-modal__submit {
     margin-top: 4px;
     padding: 10px;

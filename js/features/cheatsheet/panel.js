@@ -1,5 +1,6 @@
 import { state } from "../../state.js";
 import { listKeybinds, registerKeybind } from "../keybinds/registry.js";
+import { buildShortcutBadges } from "../keybinds/shortcutBadges.js";
 import { defaultKeybinds } from "../../../defaults.js";
 
 function isCustomKeybind(id) {
@@ -15,11 +16,10 @@ function buildRow({ id, description, key }) {
   label.className = "cheatsheet-panel__description";
   label.textContent = description ?? id;
 
-  const badge = document.createElement("span");
-  badge.className = "keybind-badge cheatsheet-panel__key";
-  badge.textContent = key ?? "";
+  const badges = buildShortcutBadges(key);
+  badges.classList.add("cheatsheet-panel__key");
 
-  row.append(label, badge);
+  row.append(label, badges);
   return row;
 }
 
@@ -70,7 +70,12 @@ function buildPanel() {
     const custom = all.filter((k) => isCustomKeybind(k.id));
     const standard = all.filter((k) => !isCustomKeybind(k.id));
 
+    const links = state.links
+      .filter((l) => l.shortcutKey)
+      .map((l) => ({ id: l.id, description: l.label, key: l.shortcutKey }));
+
     if (standard.length) body.appendChild(buildSection("Shortcuts", standard));
+    if (links.length) body.appendChild(buildSection("Links", links));
     if (custom.length) body.appendChild(buildSection("Custom", custom));
   }
 

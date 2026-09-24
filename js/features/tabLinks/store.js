@@ -7,7 +7,7 @@ function nextOrder(items) {
   return items.length ? Math.max(...items.map((i) => i.order)) + 1 : 0;
 }
 
-function normalizeUrl(url) {
+export function normalizeUrl(url) {
   return /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : `https://${url}`;
 }
 
@@ -91,24 +91,26 @@ export async function reorderTab(tabId, targetIndex) {
   await save({ tabs: state.tabs });
 }
 
-export async function addLink(tabId, { label, url }) {
+export async function addLink(tabId, { label, url, shortcutKey = null }) {
   const link = createLink({
     id: crypto.randomUUID(),
     label,
     url: normalizeUrl(url),
     tabId,
     order: nextOrder(linksForTab(tabId)),
+    shortcutKey,
   });
   state.links.push(link);
   await save({ links: state.links });
   return link;
 }
 
-export async function updateLink(linkId, { label, url }) {
+export async function updateLink(linkId, { label, url, shortcutKey }) {
   const link = state.links.find((l) => l.id === linkId);
   if (!link) return;
   if (label !== undefined) link.label = label;
   if (url !== undefined) link.url = normalizeUrl(url);
+  if (shortcutKey !== undefined) link.shortcutKey = shortcutKey;
   await save({ links: state.links });
 }
 

@@ -22,7 +22,7 @@
 
   .link-list__row {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto auto auto;
     align-items: center;
     gap: 12px;
     padding: 10px 14px;
@@ -124,7 +124,7 @@
    them — flattened here on purpose. */
 .link-list__row.is-ghost {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
