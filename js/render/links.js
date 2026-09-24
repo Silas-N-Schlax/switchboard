@@ -1,6 +1,7 @@
-import { linksForTab, activeTab, addLink, deleteLink, reorderLink } from "../features/tabLinks/store.js";
+import { linksForTab, activeTab, isHomeTab, addLink, deleteLink, reorderLink } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
+import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
 import { linkListSplitThreshold } from "../../defaults.js";
 
 export function renderLinks(container, onChange) {
@@ -16,13 +17,24 @@ export function renderLinks(container, onChange) {
   const tab = activeTab();
   if (!tab) return;
 
-  const links = linksForTab(tab.id);
+  const home = isHomeTab(tab);
+  const searching = home && getSearchQuery().trim().length > 0;
+  const tabNameByLinkId = searching
+    ? new Map(getSearchMatches().map((m) => [m.link.id, m.tabName]))
+    : null;
+
+  const links = searching ? getSearchMatches().map((m) => m.link) : linksForTab(tab.id);
   list.classList.toggle("link-list--split", links.length >= linkListSplitThreshold);
 
   links.forEach((link) => {
     const row = document.createElement("div");
     row.className = "link-list__row";
-    row.dataset.dragId = link.id;
+    if (searching) {
+      row.classList.add("link-list__row--static");
+      row.dataset.noDrag = "true";
+    } else {
+      row.dataset.dragId = link.id;
+    }
 
     const anchor = document.createElement("a");
     anchor.className = "link-list__label";
@@ -34,33 +46,44 @@ export function renderLinks(container, onChange) {
     url.className = "link-list__url";
     url.textContent = link.url;
 
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "link-list__delete";
-    remove.textContent = "×";
-    remove.setAttribute("aria-label", `Delete ${link.label}`);
-    remove.addEventListener("click", async () => {
-      await deleteLink(link.id);
-      onChange();
-    });
+    row.append(anchor, url);
 
-    row.append(anchor, url, remove);
+    if (searching) {
+      const tabBadge = document.createElement("span");
+      tabBadge.className = "link-list__row-tab";
+      tabBadge.textContent = tabNameByLinkId.get(link.id) ?? "";
+      row.appendChild(tabBadge);
+    } else {
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "link-list__delete";
+      remove.textContent = "×";
+      remove.setAttribute("aria-label", `Delete ${link.label}`);
+      remove.addEventListener("click", async () => {
+        await deleteLink(link.id);
+        onChange();
+      });
+      row.appendChild(remove);
+    }
+
     list.appendChild(row);
   });
 
-  const addTile = document.createElement("button");
-  addTile.type = "button";
-  addTile.className = "link-list__add-tile";
-  addTile.textContent = "+ Add link";
-  addTile.addEventListener("click", () => {
-    openAddLinkModal(document.body, async ({ label, url }) => {
-      const currentTab = activeTab();
-      if (!currentTab) return;
-      await addLink(currentTab.id, { label, url });
-      onChange();
+  if (!home) {
+    const addTile = document.createElement("button");
+    addTile.type = "button";
+    addTile.className = "link-list__add-tile";
+    addTile.textContent = "+ Add link";
+    addTile.addEventListener("click", () => {
+      openAddLinkModal(document.body, async ({ label, url }) => {
+        const currentTab = activeTab();
+        if (!currentTab) return;
+        await addLink(currentTab.id, { label, url });
+        onChange();
+      });
     });
-  });
-  list.appendChild(addTile);
+    list.appendChild(addTile);
+  }
 
   if (isNew) {
     makeSortable(list, {

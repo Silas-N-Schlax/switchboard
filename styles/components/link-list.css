@@ -36,6 +36,29 @@
     }
   }
 
+  .link-list__row--static {
+    cursor: pointer;
+    touch-action: auto;
+    background: rgba(95, 201, 180, 0.08);
+    border-color: rgba(95, 201, 180, 0.35);
+
+    &:hover {
+      background: rgba(95, 201, 180, 0.14);
+      border-color: var(--accent);
+    }
+  }
+
+  .link-list__row-tab {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(95, 201, 180, 0.16);
+    border: 1px solid rgba(95, 201, 180, 0.35);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+  }
+
   .link-list__label {
     color: var(--ink);
     font-size: 13px;

@@ -135,7 +135,7 @@ export function makeSortable(container, { selector, onReorder, axis = "y" }) {
   function onPointerDown(e) {
     if (e.button !== 0) return;
     const item = e.target.closest(selector);
-    if (!item) return;
+    if (!item || item.dataset.noDrag) return;
 
     const interactiveField = e.target.closest("button, input");
     if (interactiveField && interactiveField !== item) return;

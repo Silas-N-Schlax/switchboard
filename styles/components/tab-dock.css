@@ -42,18 +42,6 @@
     }
   }
 
-  .tab-dock__badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--glass-brd);
-    font-family: var(--font-mono);
-    font-size: 10px;
-  }
-
   .tab-dock__remove {
     background: none;
     border: none;
@@ -150,18 +138,6 @@
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: 13px;
-
-  .tab-dock__badge {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--glass-brd);
-    font-family: var(--font-mono);
-    font-size: 10px;
-  }
 
   .tab-dock__remove {
     display: none;

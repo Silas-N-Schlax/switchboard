@@ -6,10 +6,12 @@
 @import url("components/range-slider.css");
 @import url("components/select-input.css");
 @import url("components/swatch-picker.css");
+@import url("components/keybind-badge.css");
 @import url("components/tab-dock.css");
 @import url("components/link-list.css");
 @import url("components/link-modal.css");
 @import url("components/context-menu.css");
+@import url("components/search-bar.css");
 
 body {
   margin: 0;

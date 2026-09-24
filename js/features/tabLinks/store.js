@@ -23,6 +23,12 @@ export function activeTab() {
   return state.tabs.find((t) => t.id === state.activeTabId) ?? sortedTabs()[0] ?? null;
 }
 
+// The tab in slot 1 (keybind "1") doubles as the search-first home view — see
+// js/render/search.js and the "no add-link tile" guard in js/render/links.js.
+export function isHomeTab(tab) {
+  return !!tab && sortedTabs()[0]?.id === tab.id;
+}
+
 export function setActiveTab(tabId) {
   state.activeTabId = tabId;
 }

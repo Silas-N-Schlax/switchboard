@@ -62,7 +62,7 @@ export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multi
 // ============================================================================
 // Tabs & links
 // ============================================================================
-export const defaultTabs = [{ id: "tab-1", name: "All", order: 0, shortcutKey: "1" }];
+export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: "1" }];
 export const defaultLinks = [];
 export const linkListSplitThreshold = 6;
 export const sortDragThresholdPx = 4;
@@ -85,7 +85,18 @@ export const defaultKeybinds = {
   "tab-switch-7": "7",
   "tab-switch-8": "8",
   "tab-switch-9": "9",
+  "search-focus": "s",
 };
+
+// ============================================================================
+// Search
+// ============================================================================
+export const searchMaxResults = 32;
+// Border shown around the search bar when the current query has no link matches
+// and Enter would fall back to a Google search. Not yet wired to settings —
+// hardcoded for now, but kept here so it's a one-line change to make it
+// user-customizable later.
+export const searchGoogleModeColor = "#b5665f";
 
 // ============================================================================
 // General settings

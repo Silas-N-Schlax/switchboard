@@ -75,7 +75,7 @@ export function renderTabs(container, onChange) {
     el.dataset.dragId = tab.id;
 
     const badge = document.createElement("span");
-    badge.className = "tab-dock__badge";
+    badge.className = "keybind-badge";
     badge.textContent =
       index < maxTabs ? getKeybind(`tab-switch-${index + 1}`) ?? "" : "";
 

@@ -3,6 +3,7 @@ import { setState, state } from "./state.js";
 import { renderAmbient } from "./render/ambient.js";
 import { renderTabs } from "./render/tabs.js";
 import { renderLinks } from "./render/links.js";
+import { renderSearch } from "./render/search.js";
 import { initSettingsToggle } from "./features/settings/index.js";
 import { sortedTabs } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
@@ -25,12 +26,12 @@ function render() {
   renderAmbient(document.body, state.settings);
   initSettingsToggle(document.body);
   renderTabLinks();
-  // TODO: render search bar
 }
 
 function renderTabLinks() {
   renderTabs(document.body, renderTabLinks);
   renderLinks(document.body, renderTabLinks);
+  renderSearch(document.body, renderTabLinks);
 }
 
 init();
