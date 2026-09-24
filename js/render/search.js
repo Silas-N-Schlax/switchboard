@@ -1,6 +1,6 @@
 import { searchLinks } from "../features/search/store.js";
 import { registerKeybind, getKeybind } from "../features/keybinds/registry.js";
-import { activeTab, isHomeTab } from "../features/tabLinks/store.js";
+import { activeTab, isHomeTab, setActiveTab, sortedTabs } from "../features/tabLinks/store.js";
 import { setSearchQuery, clearSearchQuery, getSearchMatches } from "../features/search/state.js";
 import { searchGoogleModeColor } from "../../defaults.js";
 
@@ -72,7 +72,10 @@ function build(container) {
   registerKeybind("search-focus", {
     description: "Focus search",
     handler: () => {
-      if (!isHomeTab(activeTab())) return;
+      if (!isHomeTab(activeTab())) {
+        setActiveTab(sortedTabs()[0]?.id);
+        onChangeRef?.();
+      }
       inputEl.focus();
       inputEl.select();
     },
