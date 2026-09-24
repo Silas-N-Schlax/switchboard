@@ -1,0 +1,25 @@
+/* Reusable scrollbar restyle — apply `.custom-scrollbar` to any scrollable
+   container to swap the native OS scrollbar for a thin, on-brand one. */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-hi) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--glass-hi);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent);
+  }
+}

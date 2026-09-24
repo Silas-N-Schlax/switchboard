@@ -9,7 +9,7 @@ export function renderLinks(container, onChange) {
   const isNew = !list;
   if (isNew) {
     list = document.createElement("div");
-    list.className = "link-list";
+    list.className = "link-list custom-scrollbar";
     container.appendChild(list);
   }
   list.innerHTML = "";
