@@ -20,7 +20,6 @@ function buildModal() {
   header.className = "link-modal__header";
   const title = document.createElement("h2");
   title.className = "link-modal__title";
-  title.textContent = "Add link";
   const close = document.createElement("button");
   close.type = "button";
   close.className = "link-modal__close";
@@ -48,7 +47,6 @@ function buildModal() {
   const submit = document.createElement("button");
   submit.type = "submit";
   submit.className = "link-modal__submit";
-  submit.textContent = "Add link";
 
   form.append(labelInput, urlInput, submit);
   form.addEventListener("submit", (e) => {
@@ -68,16 +66,27 @@ function buildModal() {
 
   dialog.append(header, form);
   modal.append(backdrop, dialog);
+  modal.__titleEl = title;
+  modal.__submitEl = submit;
   modal.__labelInput = labelInput;
+  modal.__urlInput = urlInput;
   return modal;
 }
 
-export function openAddLinkModal(root, onSubmit) {
+export function openLinkModal(root, { title = "Add link", submitLabel = "Add link", initial = {}, onSubmit }) {
   if (!modalEl) {
     modalEl = buildModal();
     root.appendChild(modalEl);
   }
   submitHandler = onSubmit;
+  modalEl.__titleEl.textContent = title;
+  modalEl.__submitEl.textContent = submitLabel;
+  modalEl.__labelInput.value = initial.label ?? "";
+  modalEl.__urlInput.value = initial.url ?? "";
   modalEl.classList.add("link-modal--open");
   modalEl.__labelInput.focus();
+}
+
+export function openAddLinkModal(root, onSubmit) {
+  openLinkModal(root, { onSubmit });
 }

@@ -9,6 +9,7 @@
 @import url("components/tab-dock.css");
 @import url("components/link-list.css");
 @import url("components/link-modal.css");
+@import url("components/context-menu.css");
 
 body {
   margin: 0;

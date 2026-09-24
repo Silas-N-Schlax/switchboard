@@ -5,9 +5,11 @@ import {
   deleteTab,
   reorderTab,
   setActiveTab,
+  updateTab,
 } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { registerTabSwitchKeybinds } from "../features/tabLinks/tabSwitchKeybinds.js";
+import { getRenamingTabId, endRenameTab } from "../features/tabLinks/renameState.js";
 import { getKeybind } from "../features/keybinds/registry.js";
 import { maxTabs } from "../../defaults.js";
 
@@ -64,8 +66,10 @@ export function renderTabs(container, onChange) {
   const current = activeTab();
 
   tabs.forEach((tab, index) => {
-    const el = document.createElement("button");
-    el.type = "button";
+    const renaming = getRenamingTabId() === tab.id;
+
+    const el = document.createElement(renaming ? "div" : "button");
+    if (!renaming) el.type = "button";
     el.className = "tab-dock__tab";
     if (current && tab.id === current.id) el.classList.add("tab-dock__tab--active");
     el.dataset.dragId = tab.id;
@@ -74,10 +78,6 @@ export function renderTabs(container, onChange) {
     badge.className = "tab-dock__badge";
     badge.textContent =
       index < maxTabs ? getKeybind(`tab-switch-${index + 1}`) ?? "" : "";
-
-    const name = document.createElement("span");
-    name.className = "tab-dock__name";
-    name.textContent = tab.name;
 
     const remove = document.createElement("button");
     remove.type = "button";
@@ -92,13 +92,38 @@ export function renderTabs(container, onChange) {
       onChange();
     });
 
-    el.append(badge, name, remove);
-    el.addEventListener("click", async () => {
-      setActiveTab(tab.id);
-      onChange();
-    });
-
-    dock.appendChild(el);
+    if (renaming) {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "tab-dock__rename-input";
+      input.value = tab.name;
+      input.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") {
+          const value = input.value.trim();
+          if (value) await updateTab(tab.id, { name: value });
+          endRenameTab(onChange);
+        } else if (e.key === "Escape") {
+          endRenameTab(onChange);
+        }
+      });
+      input.addEventListener("blur", () => endRenameTab(onChange));
+      el.append(badge, input, remove);
+      dock.appendChild(el);
+      requestAnimationFrame(() => {
+        input.focus();
+        input.select();
+      });
+    } else {
+      const name = document.createElement("span");
+      name.className = "tab-dock__name";
+      name.textContent = tab.name;
+      el.append(badge, name, remove);
+      el.addEventListener("click", async () => {
+        setActiveTab(tab.id);
+        onChange();
+      });
+      dock.appendChild(el);
+    }
   });
 
   if (tabs.length < maxTabs) {

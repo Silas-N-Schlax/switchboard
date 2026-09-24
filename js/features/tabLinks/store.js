@@ -36,6 +36,35 @@ export async function addTab(name) {
   return tab;
 }
 
+export async function updateTab(tabId, { name }) {
+  const tab = state.tabs.find((t) => t.id === tabId);
+  if (!tab) return;
+  if (name !== undefined) tab.name = name;
+  await save({ tabs: state.tabs });
+}
+
+export async function duplicateTab(tabId) {
+  if (state.tabs.length >= maxTabs) return null;
+  const source = state.tabs.find((t) => t.id === tabId);
+  if (!source) return null;
+
+  const tab = createTab({
+    id: crypto.randomUUID(),
+    name: `${source.name} copy`,
+    order: nextOrder(state.tabs),
+  });
+  state.tabs.push(tab);
+
+  const links = linksForTab(tabId).map((l) =>
+    createLink({ id: crypto.randomUUID(), label: l.label, url: l.url, tabId: tab.id, order: l.order })
+  );
+  state.links.push(...links);
+  state.activeTabId = tab.id;
+
+  await save({ tabs: state.tabs, links: state.links });
+  return tab;
+}
+
 export async function deleteTab(tabId) {
   state.tabs = state.tabs.filter((t) => t.id !== tabId);
   state.links = state.links.filter((l) => l.tabId !== tabId);
@@ -63,6 +92,30 @@ export async function addLink(tabId, { label, url }) {
     url: normalizeUrl(url),
     tabId,
     order: nextOrder(linksForTab(tabId)),
+  });
+  state.links.push(link);
+  await save({ links: state.links });
+  return link;
+}
+
+export async function updateLink(linkId, { label, url }) {
+  const link = state.links.find((l) => l.id === linkId);
+  if (!link) return;
+  if (label !== undefined) link.label = label;
+  if (url !== undefined) link.url = normalizeUrl(url);
+  await save({ links: state.links });
+}
+
+export async function duplicateLink(linkId) {
+  const source = state.links.find((l) => l.id === linkId);
+  if (!source) return null;
+
+  const link = createLink({
+    id: crypto.randomUUID(),
+    label: `${source.label} copy`,
+    url: source.url,
+    tabId: source.tabId,
+    order: nextOrder(linksForTab(source.tabId)),
   });
   state.links.push(link);
   await save({ links: state.links });

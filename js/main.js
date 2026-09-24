@@ -6,6 +6,7 @@ import { renderLinks } from "./render/links.js";
 import { initSettingsToggle } from "./features/settings/index.js";
 import { sortedTabs } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
+import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
 
 async function init() {
   const initialized = await isInitialized();
@@ -16,6 +17,7 @@ async function init() {
   }
   console.log("[switchboard] initialized:", initialized, data);
   initKeybindListener();
+  initGlobalContextMenu(renderTabLinks);
   render();
 }
 

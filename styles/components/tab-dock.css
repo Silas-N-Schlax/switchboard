@@ -68,6 +68,21 @@
     }
   }
 
+  .tab-dock__rename-input {
+    width: 100px;
+    padding: 5px 10px;
+    background: var(--glass);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 13px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
   .tab-dock__add-wrap {
     display: flex;
     align-items: center;
