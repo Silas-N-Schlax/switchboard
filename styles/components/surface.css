@@ -10,6 +10,13 @@
   animation: surface-in var(--duration-fast) ease-out;
 }
 
+/* Applied alongside `.surface` for true modal dialogs (settings, link, cheat sheet) —
+   a bit more see-through than menus/popovers, per the user's ask to lighten only the
+   modal panels while leaving the context menu and swatch popover as they were. */
+.surface--modal {
+  background: var(--surface-bg-modal);
+}
+
 /* Opacity-only — some consumers (e.g. the swatch popover) already own a static
    `transform` for positioning, and animating transform here would fight it. */
 @keyframes surface-in {

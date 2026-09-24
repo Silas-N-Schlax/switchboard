@@ -14,7 +14,7 @@ function buildModal() {
   backdrop.className = "link-modal__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "link-modal__dialog surface";
+  dialog.className = "link-modal__dialog surface surface--modal";
 
   const header = document.createElement("div");
   header.className = "link-modal__header";

@@ -19,6 +19,7 @@
   --glass-hi: rgba(255, 255, 255, 0.18);
 
   --surface-bg: rgba(7, 7, 15, 0.92);
+  --surface-bg-modal: rgba(7, 7, 15, 0.55);
   --overlay-bg: rgba(0, 0, 0, 0.5);
 
   --radius-sm: 6px;

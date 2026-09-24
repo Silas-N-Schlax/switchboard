@@ -13,7 +13,7 @@ function buildPanel() {
   backdrop.className = "settings-panel__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "settings-panel__dialog surface custom-scrollbar";
+  dialog.className = "settings-panel__dialog surface surface--modal custom-scrollbar";
 
   const header = document.createElement("div");
   header.className = "settings-panel__header";

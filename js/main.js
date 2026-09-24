@@ -5,6 +5,7 @@ import { renderTabs } from "./render/tabs.js";
 import { renderLinks } from "./render/links.js";
 import { renderSearch } from "./render/search.js";
 import { initSettingsToggle } from "./features/settings/index.js";
+import { initCheatsheetToggle } from "./features/cheatsheet/index.js";
 import { sortedTabs } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
 import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
@@ -25,6 +26,7 @@ async function init() {
 function render() {
   renderAmbient(document.body, state.settings);
   initSettingsToggle(document.body);
+  initCheatsheetToggle(document.body);
   renderTabLinks();
 }
 

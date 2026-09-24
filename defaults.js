@@ -86,6 +86,7 @@ export const defaultKeybinds = {
   "tab-switch-8": "8",
   "tab-switch-9": "9",
   "search-focus": "s",
+  "cheatsheet-open": "/",
 };
 
 // ============================================================================
