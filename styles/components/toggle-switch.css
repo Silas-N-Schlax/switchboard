@@ -43,7 +43,7 @@
   .toggle-switch__track {
     width: 36px;
     height: 20px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--glass);
     border: 1px solid var(--glass-brd);
     transition: background 0.15s ease, border-color 0.15s ease;

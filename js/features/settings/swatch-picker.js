@@ -37,7 +37,7 @@ export function createSwatchPicker({ ariaLabel, value, onChange }) {
   trigger.setAttribute("aria-label", ariaLabel);
 
   const popover = document.createElement("div");
-  popover.className = "swatch-picker__popover";
+  popover.className = "swatch-picker__popover surface";
 
   const options = [];
   const pageElements = pages.map((pageColors) => {

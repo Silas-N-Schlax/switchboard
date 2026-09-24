@@ -10,10 +10,10 @@ function buildPanel() {
   panel.className = "settings-panel";
 
   const backdrop = document.createElement("div");
-  backdrop.className = "settings-panel__backdrop";
+  backdrop.className = "settings-panel__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "settings-panel__dialog";
+  dialog.className = "settings-panel__dialog surface custom-scrollbar";
 
   const header = document.createElement("div");
   header.className = "settings-panel__header";
@@ -22,7 +22,7 @@ function buildPanel() {
   title.textContent = "Appearance";
   const close = document.createElement("button");
   close.type = "button";
-  close.className = "settings-panel__close";
+  close.className = "settings-panel__close dialog-close";
   close.textContent = "×";
   close.setAttribute("aria-label", "Close settings");
   header.append(title, close);

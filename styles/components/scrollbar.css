@@ -16,7 +16,7 @@
     background-color: var(--glass-hi);
     background-clip: padding-box;
     border: 2px solid transparent;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
   }
 
   &::-webkit-scrollbar-thumb:hover {

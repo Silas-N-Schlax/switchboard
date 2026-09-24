@@ -19,7 +19,7 @@ export function openContextMenu(x, y, items) {
   if (!items.length) return;
 
   const menu = document.createElement("div");
-  menu.className = "context-menu";
+  menu.className = "context-menu surface";
 
   items.forEach((item) => {
     if (item.divider) {

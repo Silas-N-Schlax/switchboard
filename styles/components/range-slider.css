@@ -4,7 +4,7 @@
   -webkit-appearance: none;
   width: 140px;
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--glass);
   border: 1px solid var(--glass-brd);
   cursor: pointer;

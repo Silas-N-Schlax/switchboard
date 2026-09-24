@@ -16,11 +16,11 @@
     padding: 14px 44px 14px 18px;
     background: var(--glass);
     border: 1px solid var(--glass-brd);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--ink);
     font-family: var(--font-ui);
     font-size: 15px;
-    backdrop-filter: blur(12px);
+    backdrop-filter: var(--blur-sm);
     transition: border-color 0.15s ease;
 
     &::placeholder {

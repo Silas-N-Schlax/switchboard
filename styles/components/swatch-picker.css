@@ -43,15 +43,12 @@
     top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
+    transform-origin: top center;
     z-index: 30;
     width: 168px;
     padding: 10px;
     flex-direction: column;
     gap: 8px;
-    background: var(--sky-deep);
-    border: 1px solid var(--glass-brd);
-    border-radius: 10px;
-    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
 
     &.swatch-picker__popover--open {
       display: flex;
@@ -85,7 +82,7 @@
     color: var(--ink-dim);
     background: var(--glass);
     border: 1px solid var(--glass-brd);
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
 
     &:hover:not(:disabled) {

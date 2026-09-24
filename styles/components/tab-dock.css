@@ -10,8 +10,8 @@
   padding: 6px;
   background: var(--glass);
   border: 1px solid var(--glass-brd);
-  border-radius: 999px;
-  backdrop-filter: blur(12px);
+  border-radius: var(--radius-pill);
+  backdrop-filter: var(--blur-sm);
 
   .tab-dock__tab {
     display: flex;
@@ -20,7 +20,7 @@
     padding: 6px 10px 6px 6px;
     background: none;
     border: none;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--ink-dim);
     font-family: var(--font-ui);
     font-size: 13px;
@@ -61,7 +61,7 @@
     padding: 5px 10px;
     background: var(--glass);
     border: 1px solid var(--accent);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--ink);
     font-family: var(--font-ui);
     font-size: 13px;
@@ -101,7 +101,7 @@
     padding: 5px 10px;
     background: var(--glass);
     border: 1px solid var(--glass-brd);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--ink);
     font-family: var(--font-ui);
     font-size: 13px;
@@ -132,9 +132,9 @@
   gap: 6px;
   padding: 6px 10px 6px 6px;
   background: var(--glass-hi);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: grabbing;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-float);
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: 13px;

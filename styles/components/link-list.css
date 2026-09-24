@@ -28,7 +28,7 @@
     padding: 10px 14px;
     background: var(--glass);
     border: 1px solid var(--glass-brd);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     cursor: grab;
     touch-action: none;
 
@@ -52,7 +52,7 @@
   .link-list__row-tab {
     flex-shrink: 0;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(95, 201, 180, 0.16);
     border: 1px solid rgba(95, 201, 180, 0.35);
     font-family: var(--font-mono);
@@ -106,7 +106,7 @@
     padding: 10px 14px;
     background: none;
     border: 1px dashed var(--glass-brd);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     color: var(--ink-faint);
     font-family: var(--font-ui);
     font-size: 13px;
@@ -130,9 +130,9 @@
   padding: 10px 14px;
   background: var(--glass);
   border: 1px solid var(--glass-hi);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: grabbing;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-float);
   transform: scale(1.02);
 
   .link-list__label {

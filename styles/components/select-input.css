@@ -13,7 +13,7 @@
   background-repeat: no-repeat;
   background-position: right 10px center;
   border: 1px solid var(--glass-brd);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 
   &:hover {

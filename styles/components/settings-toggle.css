@@ -13,7 +13,7 @@
   color: var(--ink-dim);
   background: var(--glass);
   border: 1px solid var(--glass-brd);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 
   &:hover {

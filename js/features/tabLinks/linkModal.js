@@ -11,10 +11,10 @@ function buildModal() {
   modal.className = "link-modal";
 
   const backdrop = document.createElement("div");
-  backdrop.className = "link-modal__backdrop";
+  backdrop.className = "link-modal__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "link-modal__dialog";
+  dialog.className = "link-modal__dialog surface";
 
   const header = document.createElement("div");
   header.className = "link-modal__header";
@@ -22,7 +22,7 @@ function buildModal() {
   title.className = "link-modal__title";
   const close = document.createElement("button");
   close.type = "button";
-  close.className = "link-modal__close";
+  close.className = "link-modal__close dialog-close";
   close.textContent = "×";
   close.setAttribute("aria-label", "Close");
   header.append(title, close);

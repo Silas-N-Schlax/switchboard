@@ -1,0 +1,8 @@
+/* Shared full-screen dimming scrim behind a modal dialog. Context menus and popovers
+   don't use this — they're lightweight and dismiss on outside click instead; a scrim
+   is reserved for true modals (settings, link add/update). */
+.overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-bg);
+}
