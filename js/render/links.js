@@ -3,7 +3,57 @@ import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
 import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
 import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
+import { getKeybind } from "../features/keybinds/registry.js";
+import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
 import { linkListSplitThreshold } from "../../defaults.js";
+
+function buildLaunchBar(tab) {
+  const groupLinks = launchGroupLinks(tab.id);
+  if (!groupLinks.length) return null;
+
+  const bar = document.createElement("button");
+  bar.type = "button";
+  bar.className = "launch-bar";
+  bar.setAttribute("aria-label", `Launch ${groupLinks.map((l) => l.label).join(", ")}`);
+
+  const title = document.createElement("span");
+  title.className = "launch-bar__title";
+  title.textContent = "▶ Launch";
+
+  const steps = document.createElement("span");
+  steps.className = "launch-bar__steps";
+  groupLinks.forEach((link, i) => {
+    if (i > 0) {
+      const arrow = document.createElement("span");
+      arrow.className = "launch-bar__arrow";
+      arrow.textContent = "→";
+      arrow.setAttribute("aria-hidden", "true");
+      steps.appendChild(arrow);
+    }
+    const step = document.createElement("span");
+    step.className = "launch-bar__step";
+    const index = document.createElement("span");
+    index.className = "launch-index";
+    index.textContent = i + 1;
+    const label = document.createElement("span");
+    label.className = "launch-bar__step-label";
+    label.textContent = link.label;
+    step.append(index, label);
+    steps.appendChild(step);
+  });
+  bar.append(title, steps);
+
+  const key = getKeybind("launch-group");
+  if (key) {
+    const hint = document.createElement("span");
+    hint.className = "keybind-badge launch-bar__hint";
+    hint.textContent = key.toUpperCase();
+    bar.appendChild(hint);
+  }
+
+  bar.addEventListener("click", () => launchGroup(tab.id));
+  return bar;
+}
 
 export function renderLinks(container, onChange) {
   let list = container.querySelector(".link-list");
@@ -27,6 +77,10 @@ export function renderLinks(container, onChange) {
   const links = searching ? getSearchMatches().map((m) => m.link) : linksForTab(tab.id);
   list.classList.toggle("link-list--split", links.length >= linkListSplitThreshold);
 
+  const launchBar = searching ? null : buildLaunchBar(tab);
+  if (launchBar) list.appendChild(launchBar);
+  const launchIndexById = new Map(launchGroupLinks(tab.id).map((l, i) => [l.id, i + 1]));
+
   links.forEach((link) => {
     const row = document.createElement("div");
     row.className = "link-list__row";
@@ -46,6 +100,15 @@ export function renderLinks(container, onChange) {
     const url = document.createElement("span");
     url.className = "link-list__url";
     url.textContent = link.url;
+
+    if (!searching && launchIndexById.has(link.id)) {
+      row.classList.add("link-list__row--launch");
+      const index = document.createElement("span");
+      index.className = "launch-index link-list__launch-index";
+      index.textContent = launchIndexById.get(link.id);
+      index.title = "Launch order";
+      row.appendChild(index);
+    }
 
     row.append(anchor);
 

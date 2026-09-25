@@ -10,6 +10,7 @@ import { sortedTabs } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
 import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
 import { initLinkShortcutListener } from "./features/tabLinks/linkShortcuts.js";
+import { initLaunchGroups } from "./features/launchGroups/index.js";
 
 async function init() {
   const initialized = await isInitialized();
@@ -21,6 +22,7 @@ async function init() {
   console.log("[switchboard] initialized:", initialized, data);
   initKeybindListener();
   initLinkShortcutListener();
+  initLaunchGroups(renderTabLinks);
   initGlobalContextMenu(renderTabLinks);
   render();
 }

@@ -1,0 +1,80 @@
+/* Same footprint as a link row (full width, padding, radius) so the list stays one
+   clean column, but kept low-contrast with no accent edge — the "▶ Launch" label and
+   divider identify it; accent color only shows up on hover/focus. */
+.launch-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-md);
+  color: var(--ink-faint);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--duration-base) ease, background var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    color: var(--ink-dim);
+    background: rgba(95, 201, 180, 0.05);
+    border-color: rgba(95, 201, 180, 0.3);
+
+    .launch-bar__title {
+      color: var(--accent);
+    }
+
+    .launch-index,
+    .launch-bar__hint {
+      opacity: 1;
+    }
+  }
+
+  .launch-bar__title {
+    flex-shrink: 0;
+    font-weight: 600;
+    transition: color var(--duration-base) ease;
+  }
+
+  .launch-bar__steps {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  }
+
+  .launch-bar__step {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .launch-index {
+    opacity: 0.7;
+    transition: opacity var(--duration-base) ease;
+  }
+
+  .launch-bar__arrow {
+    flex-shrink: 0;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  .launch-bar__hint {
+    opacity: 0.6;
+    transition: opacity var(--duration-base) ease;
+  }
+}

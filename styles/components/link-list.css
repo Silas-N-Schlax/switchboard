@@ -37,6 +37,19 @@
     }
   }
 
+  .link-list__row--launch {
+    position: relative;
+    padding-left: 38px;
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+
+  .link-list__launch-index {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
   .link-list__row--static {
     cursor: pointer;
     touch-action: auto;
@@ -157,5 +170,17 @@
 
   .link-list__delete {
     display: none;
+  }
+
+  &.link-list__row--launch {
+    padding-left: 38px;
+    box-shadow: var(--shadow-float), inset 3px 0 0 var(--accent);
+  }
+
+  .link-list__launch-index {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }

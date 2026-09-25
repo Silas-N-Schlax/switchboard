@@ -1,7 +1,21 @@
 import { state } from "../../state.js";
 import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
-import { deleteLink, updateLink, duplicateLink, deleteTab, duplicateTab } from "../tabLinks/store.js";
+import {
+  deleteLink,
+  updateLink,
+  duplicateLink,
+  deleteTab,
+  duplicateTab,
+  activeTab,
+} from "../tabLinks/store.js";
+import {
+  launchGroup,
+  hasLaunchGroup,
+  setLinkLaunchGroup,
+  clearLaunchGroup,
+  openLaunchGroupEditor,
+} from "../launchGroups/index.js";
 import { openLinkModal } from "../tabLinks/linkModal.js";
 import { beginRenameTab } from "../tabLinks/renameState.js";
 import { maxTabs } from "../../../defaults.js";
@@ -24,6 +38,13 @@ function linkMenuItems(link, onChange) {
             onChange();
           },
         }),
+    },
+    {
+      label: link.launchGroup ? "Remove from launch group" : "Add to launch group",
+      onSelect: async () => {
+        await setLinkLaunchGroup(link.id, !link.launchGroup);
+        onChange();
+      },
     },
     {
       label: "Copy link URL",
@@ -54,6 +75,23 @@ function tabMenuItems(tab, onChange) {
       onSelect: () => beginRenameTab(tab.id, onChange),
     },
     {
+      label: "Launch group",
+      disabled: !hasLaunchGroup(tab.id),
+      onSelect: () => launchGroup(tab.id),
+    },
+    {
+      label: "Edit launch group…",
+      onSelect: () => openLaunchGroupEditor(document.body, tab.id, onChange),
+    },
+    {
+      label: "Clear launch group",
+      disabled: !hasLaunchGroup(tab.id),
+      onSelect: async () => {
+        await clearLaunchGroup(tab.id);
+        onChange();
+      },
+    },
+    {
       label: "Duplicate",
       disabled: state.tabs.length >= maxTabs,
       onSelect: async () => {
@@ -75,6 +113,21 @@ function tabMenuItems(tab, onChange) {
   ];
 }
 
+function launchBarMenuItems(tab, onChange) {
+  return [
+    { label: "Launch", onSelect: () => launchGroup(tab.id) },
+    { label: "Edit…", onSelect: () => openLaunchGroupEditor(document.body, tab.id, onChange) },
+    { divider: true },
+    {
+      label: "Clear launch group",
+      onSelect: async () => {
+        await clearLaunchGroup(tab.id);
+        onChange();
+      },
+    },
+  ];
+}
+
 function defaultMenuItems() {
   return [{ label: "Open settings", onSelect: () => openSettings(document.body) }];
 }
@@ -86,6 +139,11 @@ function resolveMenuItems(target, onChange) {
   if (linkRow) {
     const link = state.links.find((l) => l.id === linkRow.dataset.dragId);
     if (link) return linkMenuItems(link, onChange);
+  }
+
+  if (target.closest(".launch-bar")) {
+    const tab = activeTab();
+    if (tab) return launchBarMenuItems(tab, onChange);
   }
 
   const tabEl = target.closest(".tab-dock__tab");

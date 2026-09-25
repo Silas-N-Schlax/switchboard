@@ -1,6 +1,7 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { defaultKeybinds } from "../../../defaults.js";
+import { serializeShortcutEvent } from "./shortcutFormat.js";
 
 // The standard for registering a keybind anywhere in the app: call
 // registerKeybind(id, {...}) with a stable id and a default key already
@@ -41,8 +42,12 @@ function isTypingTarget(el) {
   );
 }
 
+// Bare keys match on e.key (so "?"-style characters work across layouts); combos are
+// stored in the canonical "Shift+L" form and matched the same way link shortcuts are.
 function matchesKey(e, key) {
-  return key != null && e.key === key && !e.ctrlKey && !e.metaKey && !e.altKey;
+  if (key == null) return false;
+  if (key.length > 1 && key.includes("+")) return serializeShortcutEvent(e) === key;
+  return e.key === key && !e.ctrlKey && !e.metaKey && !e.altKey;
 }
 
 function onKeyDown(e) {

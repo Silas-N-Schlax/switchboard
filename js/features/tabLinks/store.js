@@ -140,6 +140,10 @@ export async function reorderLink(linkId, targetTabId, targetIndex) {
   if (!link) return;
   const sourceTabId = link.tabId;
   link.tabId = targetTabId;
+  if (sourceTabId !== targetTabId) {
+    link.launchGroup = false;
+    link.launchOrder = null;
+  }
 
   const targetLinks = linksForTab(targetTabId).filter((l) => l.id !== linkId);
   targetLinks.splice(targetIndex, 0, link);

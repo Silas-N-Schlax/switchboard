@@ -1,0 +1,22 @@
+/* The ordinal marking a link's position in its tab's launch group — shared by the
+   launch bar, grouped link rows, and the launch group editor so the sequence reads
+   the same everywhere. Circular on purpose: keycaps are rounded squares, so the shape
+   alone says "position", never "shortcut". */
+.launch-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(95, 201, 180, 0.16);
+  border: 1px solid rgba(95, 201, 180, 0.45);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}

@@ -16,6 +16,9 @@
 @import url("components/scrollbar.css");
 @import url("components/tab-dock.css");
 @import url("components/link-list.css");
+@import url("components/launch-index.css");
+@import url("components/launch-bar.css");
+@import url("components/launch-editor.css");
 @import url("components/link-modal.css");
 @import url("components/context-menu.css");
 @import url("components/search-bar.css");
