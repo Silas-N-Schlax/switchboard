@@ -4,6 +4,7 @@ import { renderAmbient } from "../../render/ambient.js";
 import { defaultAmbientSettings } from "../../../defaults.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBubblesSection } from "./bubbles-section.js";
+import { buildStatsSection } from "./stats-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
 
@@ -25,7 +26,7 @@ function buildPanel() {
   header.className = "settings-panel__header";
   const title = document.createElement("h2");
   title.className = "settings-panel__title";
-  title.textContent = "Appearance";
+  title.textContent = "Settings";
   const close = document.createElement("button");
   close.type = "button";
   close.className = "settings-panel__close dialog-close";
@@ -35,6 +36,7 @@ function buildPanel() {
 
   const colorSection = buildColorSection();
   const bubblesSection = buildBubblesSection();
+  const statsSection = buildStatsSection();
 
   const footer = document.createElement("div");
   footer.className = "settings-panel__footer";
@@ -51,7 +53,7 @@ function buildPanel() {
   });
   footer.appendChild(resetButton);
 
-  dialog.append(header, colorSection.element, bubblesSection.element, footer);
+  dialog.append(header, colorSection.element, bubblesSection.element, statsSection.element, footer);
   panel.append(backdrop, dialog);
 
   close.addEventListener("click", closeSettings);
@@ -108,7 +110,7 @@ export function initSettingsToggle(root = document.body) {
   button.type = "button";
   button.className = "settings-toggle";
   button.textContent = "⚙";
-  button.setAttribute("aria-label", "Open appearance settings");
+  button.setAttribute("aria-label", "Open settings");
   button.addEventListener("click", () => openSettings(root));
   root.appendChild(button);
 }

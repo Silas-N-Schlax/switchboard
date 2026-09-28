@@ -11,6 +11,7 @@ export function createLink({
   shortcutKey = null,
   launchGroup = false,
   launchOrder = null,
+  createdAt = Date.now(),
 } = {}) {
   return {
     id,
@@ -26,11 +27,12 @@ export function createLink({
     lastChecked: null,
     healthStatus: "unknown",
     firstFailedAt: null,
+    createdAt,
   };
 }
 
-export function createTab({ id, name, order = 0, shortcutKey = null } = {}) {
-  return { id, name, order, shortcutKey };
+export function createTab({ id, name, order = 0, shortcutKey = null, createdAt = Date.now() } = {}) {
+  return { id, name, order, shortcutKey, createdAt };
 }
 
 export function createSettings(overrides = {}) {

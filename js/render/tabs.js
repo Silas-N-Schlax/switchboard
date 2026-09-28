@@ -125,7 +125,7 @@ export function renderTabs(container, onChange) {
       name.textContent = tab.name;
       el.append(badge, name, remove);
       el.addEventListener("click", async () => {
-        setActiveTab(tab.id);
+        setActiveTab(tab.id, "click");
         onChange();
       });
       dock.appendChild(el);

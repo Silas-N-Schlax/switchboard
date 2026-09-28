@@ -110,6 +110,7 @@ export const searchGoogleModeColor = "#b5665f";
 export const showFavicons = false;
 export const cacheTrimEnabled = false;
 export const mostUsedTabEnabled = false;
+export const statsEnabled = true;
 
 // ============================================================================
 // Composed defaults — the shapes js/schema.js and js/storage.js actually consume
@@ -129,6 +130,7 @@ export const defaultSettings = {
   showFavicons,
   cacheTrimEnabled,
   mostUsedTabEnabled,
+  statsEnabled,
   defaultTabId,
   ambientMode: defaultAmbientSettings,
   backgroundConfig: { mode: "ambient" },

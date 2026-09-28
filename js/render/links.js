@@ -5,7 +5,34 @@ import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
 import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { getKeybind } from "../features/keybinds/registry.js";
 import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
+import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
 import { linkListSplitThreshold } from "../../defaults.js";
+
+function recordOpen(link, e, searching) {
+  if (searching) {
+    recordEvent(StatEvent.search, { outcome: "link" });
+    return recordLinkOpen(link, "search");
+  }
+  return recordLinkOpen(link, e.detail === 0 ? "keyboard" : "click");
+}
+
+// Plain clicks navigate this tab away, so the stat write is awaited first; modified and
+// middle clicks leave this page open and can record in the background.
+function trackOpens(anchor, link, searching) {
+  anchor.addEventListener("click", (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      recordOpen(link, e, searching);
+      return;
+    }
+    e.preventDefault();
+    recordOpen(link, e, searching).then(() => {
+      window.location.href = link.url;
+    });
+  });
+  anchor.addEventListener("auxclick", (e) => {
+    if (e.button === 1) recordOpen(link, e, searching);
+  });
+}
 
 function buildLaunchBar(tab) {
   const groupLinks = launchGroupLinks(tab.id);
@@ -96,6 +123,7 @@ export function renderLinks(container, onChange) {
     anchor.href = link.url;
     anchor.textContent = link.label;
     anchor.draggable = false;
+    trackOpens(anchor, link, searching);
 
     const url = document.createElement("span");
     url.className = "link-list__url";

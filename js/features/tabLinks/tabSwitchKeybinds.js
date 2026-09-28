@@ -17,7 +17,7 @@ export function registerTabSwitchKeybinds(onChange) {
     registerKeybind(id, {
       description: `Switch to tab ${i + 1} (${tab.name})`,
       handler: () => {
-        setActiveTab(tab.id);
+        setActiveTab(tab.id, "key");
         onChange();
       },
     });

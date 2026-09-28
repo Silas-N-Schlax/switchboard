@@ -3,6 +3,7 @@ import { registerKeybind, getKeybind } from "../features/keybinds/registry.js";
 import { activeTab, isHomeTab, setActiveTab, sortedTabs } from "../features/tabLinks/store.js";
 import { setSearchQuery, clearSearchQuery, getSearchMatches } from "../features/search/state.js";
 import { searchGoogleModeColor } from "../../defaults.js";
+import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
 
 function googleSearchUrl(query) {
   return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
@@ -49,13 +50,20 @@ function build(container) {
     onChangeRef?.();
   });
 
-  inputEl.addEventListener("keydown", (e) => {
+  inputEl.addEventListener("keydown", async (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       const query = inputEl.value.trim();
       if (!query) return;
       const top = getSearchMatches()[0];
-      go(top ? top.link.url : googleSearchUrl(query));
+      if (top) {
+        recordEvent(StatEvent.search, { outcome: "link" });
+        await recordLinkOpen(top.link, "search");
+        go(top.link.url);
+      } else {
+        await recordEvent(StatEvent.search, { outcome: "google" });
+        go(googleSearchUrl(query));
+      }
     } else if (e.key === "Escape") {
       inputEl.value = "";
       clearSearchQuery();
@@ -73,7 +81,7 @@ function build(container) {
     description: "Focus search",
     handler: () => {
       if (!isHomeTab(activeTab())) {
-        setActiveTab(sortedTabs()[0]?.id);
+        setActiveTab(sortedTabs()[0]?.id, "search");
         onChangeRef?.();
       }
       inputEl.focus();

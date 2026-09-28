@@ -2,6 +2,7 @@ import { activeTab } from "../tabLinks/store.js";
 import { registerKeybind } from "../keybinds/registry.js";
 import { launchGroupLinks } from "./store.js";
 import { openLaunchGroupEditor } from "./editor.js";
+import { recordEvent, recordLinkOpen, StatEvent } from "../stats/recorder.js";
 
 const hasTabsApi = typeof chrome !== "undefined" && !!chrome.tabs?.create;
 
@@ -26,6 +27,8 @@ export async function launchGroup(tabId = activeTab()?.id) {
   if (!tabId) return;
   const links = launchGroupLinks(tabId);
   if (!links.length) return;
+  recordEvent(StatEvent.launch, { tabId, count: links.length });
+  await Promise.all(links.map((link) => recordLinkOpen(link, "launch")));
   await openInOrder(links);
 }
 

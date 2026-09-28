@@ -2,6 +2,7 @@ import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { createTab, createLink } from "../../schema.js";
 import { maxTabs } from "../../../defaults.js";
+import { recordEvent, StatEvent } from "../stats/recorder.js";
 
 function nextOrder(items) {
   return items.length ? Math.max(...items.map((i) => i.order)) + 1 : 0;
@@ -44,7 +45,8 @@ export async function setDefaultTab(tabId) {
   await save({ settings: state.settings });
 }
 
-export function setActiveTab(tabId) {
+export function setActiveTab(tabId, via) {
+  if (tabId && tabId !== activeTab()?.id) recordEvent(StatEvent.tabSwitch, { tabId, via });
   state.activeTabId = tabId;
 }
 
@@ -54,14 +56,17 @@ export async function addTab(name) {
   state.tabs.push(tab);
   state.activeTabId = tab.id;
   await save({ tabs: state.tabs });
+  recordEvent(StatEvent.tabAdd, { tabId: tab.id, name });
   return tab;
 }
 
 export async function updateTab(tabId, { name }) {
   const tab = state.tabs.find((t) => t.id === tabId);
   if (!tab) return;
-  if (name !== undefined) tab.name = name;
+  if (name === undefined || name === tab.name) return;
+  tab.name = name;
   await save({ tabs: state.tabs });
+  recordEvent(StatEvent.tabRename, { tabId, name });
 }
 
 export async function duplicateTab(tabId) {
@@ -83,10 +88,16 @@ export async function duplicateTab(tabId) {
   state.activeTabId = tab.id;
 
   await save({ tabs: state.tabs, links: state.links });
+  recordEvent(StatEvent.tabAdd, { tabId: tab.id, name: tab.name, via: "duplicate" });
+  links.forEach((l) =>
+    recordEvent(StatEvent.linkAdd, { linkId: l.id, tabId: tab.id, label: l.label, url: l.url, via: "duplicate" })
+  );
   return tab;
 }
 
 export async function deleteTab(tabId) {
+  const tab = state.tabs.find((t) => t.id === tabId);
+  const removedLinks = linksForTab(tabId);
   state.tabs = state.tabs.filter((t) => t.id !== tabId);
   state.links = state.links.filter((l) => l.tabId !== tabId);
   if (state.activeTabId === tabId) {
@@ -94,6 +105,10 @@ export async function deleteTab(tabId) {
   }
   if (state.settings.defaultTabId === tabId) state.settings.defaultTabId = null;
   await save({ tabs: state.tabs, links: state.links, settings: state.settings });
+  removedLinks.forEach((l) =>
+    recordEvent(StatEvent.linkDelete, { linkId: l.id, tabId, label: l.label, url: l.url, via: "tab-delete" })
+  );
+  if (tab) recordEvent(StatEvent.tabDelete, { tabId, name: tab.name, linkCount: removedLinks.length });
 }
 
 export async function reorderTab(tabId, targetIndex) {
@@ -118,6 +133,7 @@ export async function addLink(tabId, { label, url, shortcutKey = null }) {
   });
   state.links.push(link);
   await save({ links: state.links });
+  recordEvent(StatEvent.linkAdd, { linkId: link.id, tabId, label: link.label, url: link.url });
   return link;
 }
 
@@ -128,6 +144,7 @@ export async function updateLink(linkId, { label, url, shortcutKey }) {
   if (url !== undefined) link.url = normalizeUrl(url);
   if (shortcutKey !== undefined) link.shortcutKey = shortcutKey;
   await save({ links: state.links });
+  recordEvent(StatEvent.linkUpdate, { linkId, label: link.label, url: link.url });
 }
 
 export async function duplicateLink(linkId) {
@@ -143,12 +160,15 @@ export async function duplicateLink(linkId) {
   });
   state.links.push(link);
   await save({ links: state.links });
+  recordEvent(StatEvent.linkAdd, { linkId: link.id, tabId: link.tabId, label: link.label, url: link.url, via: "duplicate" });
   return link;
 }
 
 export async function deleteLink(linkId) {
+  const link = state.links.find((l) => l.id === linkId);
   state.links = state.links.filter((l) => l.id !== linkId);
   await save({ links: state.links });
+  if (link) recordEvent(StatEvent.linkDelete, { linkId, tabId: link.tabId, label: link.label, url: link.url });
 }
 
 export async function reorderLink(linkId, targetTabId, targetIndex) {
@@ -174,4 +194,7 @@ export async function reorderLink(linkId, targetTabId, targetIndex) {
   }
 
   await save({ links: state.links });
+  if (sourceTabId !== targetTabId) {
+    recordEvent(StatEvent.linkMove, { linkId, fromTabId: sourceTabId, toTabId: targetTabId });
+  }
 }

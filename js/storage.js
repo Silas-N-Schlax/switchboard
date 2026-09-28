@@ -55,6 +55,13 @@ export async function load() {
   return withDefaults(raw);
 }
 
+export async function loadKey(key) {
+  const result = isExtensionContext
+    ? await chrome.storage.local.get(key)
+    : await localStorageGet([key]);
+  return result[key];
+}
+
 export async function save(partial) {
   if (isExtensionContext) return chrome.storage.local.set(partial);
   return localStorageSet(partial);
