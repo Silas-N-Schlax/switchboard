@@ -89,6 +89,7 @@ export const defaultKeybinds = {
   "tab-switch-9": "9",
   "search-focus": "s",
   "cheatsheet-open": "/",
+  "settings-open": ",",
   "launch-group": "l",
   "launch-group-edit": "Shift+L",
 };

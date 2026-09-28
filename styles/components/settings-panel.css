@@ -19,6 +19,10 @@
     padding: 20px;
     font-family: var(--font-ui);
     color: var(--ink);
+
+    &:focus {
+      outline: none;
+    }
   }
 
   .settings-panel__header {

@@ -44,6 +44,10 @@ function isTypingTarget(el) {
 
 // Bare keys match on e.key (so "?"-style characters work across layouts); combos are
 // stored in the canonical "Shift+L" form and matched the same way link shortcuts are.
+export function matchesKeybind(e, id) {
+  return matchesKey(e, getKeybind(id));
+}
+
 function matchesKey(e, key) {
   if (key == null) return false;
   if (key.length > 1 && key.includes("+")) return serializeShortcutEvent(e) === key;

@@ -14,6 +14,12 @@ function closeOpenPopover() {
   openPopover = null;
 }
 
+export function dismissSwatchPopover() {
+  if (!openPopover) return false;
+  closeOpenPopover();
+  return true;
+}
+
 document.addEventListener("click", (event) => {
   if (openPopover && !openPopover.parentElement.contains(event.target)) {
     closeOpenPopover();

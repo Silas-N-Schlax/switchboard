@@ -4,6 +4,11 @@ import { renderAmbient } from "../../render/ambient.js";
 import { defaultAmbientSettings } from "../../../defaults.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBubblesSection } from "./bubbles-section.js";
+import { dismissSwatchPopover } from "./swatch-picker.js";
+import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
+
+let panelEl = null;
+let returnFocusEl = null;
 
 function buildPanel() {
   const panel = document.createElement("div");
@@ -14,6 +19,7 @@ function buildPanel() {
 
   const dialog = document.createElement("div");
   dialog.className = "settings-panel__dialog surface surface--modal custom-scrollbar";
+  dialog.tabIndex = -1;
 
   const header = document.createElement("div");
   header.className = "settings-panel__header";
@@ -48,25 +54,55 @@ function buildPanel() {
   dialog.append(header, colorSection.element, bubblesSection.element, footer);
   panel.append(backdrop, dialog);
 
-  function closePanel() {
-    panel.classList.remove("settings-panel--open");
-  }
-  close.addEventListener("click", closePanel);
-  backdrop.addEventListener("click", closePanel);
+  close.addEventListener("click", closeSettings);
+  backdrop.addEventListener("click", closeSettings);
+  panel.addEventListener("keydown", onPanelKeyDown);
 
   return panel;
 }
 
-export function openSettings(root = document.body) {
-  let panel = document.querySelector(".settings-panel");
-  if (!panel) {
-    panel = buildPanel();
-    root.appendChild(panel);
+function onPanelKeyDown(e) {
+  // Contain every key so app keybinds and link shortcuts can't fire behind the modal.
+  e.stopPropagation();
+  if (e.key === "Escape") {
+    e.preventDefault();
+    if (!dismissSwatchPopover()) closeSettings();
+  } else if (matchesKeybind(e, "settings-open") && e.target.tagName !== "INPUT") {
+    e.preventDefault();
+    closeSettings();
   }
-  panel.classList.add("settings-panel--open");
+}
+
+function isOpen() {
+  return panelEl?.classList.contains("settings-panel--open") ?? false;
+}
+
+export function closeSettings() {
+  if (!isOpen()) return;
+  dismissSwatchPopover();
+  panelEl.classList.remove("settings-panel--open");
+  if (panelEl.contains(document.activeElement)) document.activeElement.blur();
+  if (returnFocusEl?.isConnected) returnFocusEl.focus();
+  returnFocusEl = null;
+}
+
+export function openSettings(root = document.body) {
+  if (!panelEl) {
+    panelEl = buildPanel();
+    root.appendChild(panelEl);
+  }
+  if (isOpen()) return;
+  returnFocusEl = document.activeElement;
+  panelEl.classList.add("settings-panel--open");
+  panelEl.querySelector(".settings-panel__dialog").focus();
 }
 
 export function initSettingsToggle(root = document.body) {
+  registerKeybind("settings-open", {
+    description: "Open settings",
+    handler: () => openSettings(root),
+  });
+
   if (document.querySelector(".settings-toggle")) return;
   const button = document.createElement("button");
   button.type = "button";

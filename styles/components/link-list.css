@@ -35,6 +35,11 @@
     &.is-dragging-source {
       opacity: 0.35;
     }
+
+    &:has(.link-list__label:focus-visible) {
+      background: var(--glass-hi);
+      border-color: var(--accent);
+    }
   }
 
   .link-list__row--launch {
@@ -56,7 +61,8 @@
     background: rgba(95, 201, 180, 0.08);
     border-color: rgba(95, 201, 180, 0.35);
 
-    &:hover {
+    &:hover,
+    &:has(.link-list__label:focus-visible) {
       background: rgba(95, 201, 180, 0.14);
       border-color: var(--accent);
     }
@@ -82,8 +88,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       color: var(--accent);
+    }
+
+    &:focus-visible {
+      outline: none;
     }
   }
 
