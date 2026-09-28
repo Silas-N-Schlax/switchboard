@@ -6,7 +6,7 @@ import { renderLinks } from "./render/links.js";
 import { renderSearch } from "./render/search.js";
 import { initSettingsToggle } from "./features/settings/index.js";
 import { initCheatsheetToggle } from "./features/cheatsheet/index.js";
-import { sortedTabs } from "./features/tabLinks/store.js";
+import { defaultTab } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
 import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
 import { initLinkShortcutListener } from "./features/tabLinks/linkShortcuts.js";
@@ -18,7 +18,7 @@ async function init() {
   const data = initialized ? await load() : await seedFromDefaults();
   setState(data);
   if (!state.activeTabId) {
-    state.activeTabId = sortedTabs()[0]?.id ?? null;
+    state.activeTabId = defaultTab()?.id ?? null;
   }
   console.log("[switchboard] initialized:", initialized, data);
   initKeybindListener();

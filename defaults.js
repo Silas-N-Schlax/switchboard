@@ -70,6 +70,7 @@ export const linkListSplitThreshold = 6;
 export const sortDragThresholdPx = 4;
 export const sortFlipDurationMs = 180;
 export const maxTabs = 9;
+export const defaultTabId = null;
 
 // ============================================================================
 // Keybinds
@@ -128,6 +129,7 @@ export const defaultSettings = {
   showFavicons,
   cacheTrimEnabled,
   mostUsedTabEnabled,
+  defaultTabId,
   ambientMode: defaultAmbientSettings,
   backgroundConfig: { mode: "ambient" },
   keybinds: defaultKeybinds,

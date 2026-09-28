@@ -5,6 +5,7 @@ import {
   deleteTab,
   reorderTab,
   setActiveTab,
+  defaultTab,
   updateTab,
 } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
@@ -64,6 +65,7 @@ export function renderTabs(container, onChange) {
 
   const tabs = sortedTabs();
   const current = activeTab();
+  const defaultTabId = defaultTab()?.id;
 
   tabs.forEach((tab, index) => {
     const renaming = getRenamingTabId() === tab.id;
@@ -72,6 +74,10 @@ export function renderTabs(container, onChange) {
     if (!renaming) el.type = "button";
     el.className = "tab-dock__tab";
     if (current && tab.id === current.id) el.classList.add("tab-dock__tab--active");
+    if (tab.id === defaultTabId) {
+      el.classList.add("tab-dock__tab--default");
+      el.title = "Default tab — opens first in a new tab";
+    }
     el.dataset.dragId = tab.id;
 
     const badge = document.createElement("span");

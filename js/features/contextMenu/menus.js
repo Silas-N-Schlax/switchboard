@@ -8,6 +8,10 @@ import {
   deleteTab,
   duplicateTab,
   activeTab,
+  isHomeTab,
+  defaultTab,
+  isExplicitDefaultTab,
+  setDefaultTab,
 } from "../tabLinks/store.js";
 import {
   launchGroup,
@@ -68,12 +72,33 @@ function linkMenuItems(link, onChange) {
   ];
 }
 
+function defaultTabMenuItem(tab, onChange) {
+  if (isExplicitDefaultTab(tab)) {
+    return {
+      label: "Remove as default",
+      onSelect: async () => {
+        await setDefaultTab(null);
+        onChange();
+      },
+    };
+  }
+  return {
+    label: "Set as default",
+    disabled: defaultTab()?.id === tab.id,
+    onSelect: async () => {
+      await setDefaultTab(isHomeTab(tab) ? null : tab.id);
+      onChange();
+    },
+  };
+}
+
 function tabMenuItems(tab, onChange) {
   return [
     {
       label: "Rename",
       onSelect: () => beginRenameTab(tab.id, onChange),
     },
+    defaultTabMenuItem(tab, onChange),
     {
       label: "Launch group",
       disabled: !hasLaunchGroup(tab.id),

@@ -29,6 +29,21 @@ export function isHomeTab(tab) {
   return !!tab && sortedTabs()[0]?.id === tab.id;
 }
 
+// Null (or a deleted tab's id) falls back to slot 1, so slot 1 is the default until
+// another tab is explicitly chosen.
+export function defaultTab() {
+  return state.tabs.find((t) => t.id === state.settings.defaultTabId) ?? sortedTabs()[0] ?? null;
+}
+
+export function isExplicitDefaultTab(tab) {
+  return !!tab && state.settings.defaultTabId === tab.id;
+}
+
+export async function setDefaultTab(tabId) {
+  state.settings.defaultTabId = tabId;
+  await save({ settings: state.settings });
+}
+
 export function setActiveTab(tabId) {
   state.activeTabId = tabId;
 }
@@ -77,7 +92,8 @@ export async function deleteTab(tabId) {
   if (state.activeTabId === tabId) {
     state.activeTabId = sortedTabs()[0]?.id ?? null;
   }
-  await save({ tabs: state.tabs, links: state.links });
+  if (state.settings.defaultTabId === tabId) state.settings.defaultTabId = null;
+  await save({ tabs: state.tabs, links: state.links, settings: state.settings });
 }
 
 export async function reorderTab(tabId, targetIndex) {
