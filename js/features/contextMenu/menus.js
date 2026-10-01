@@ -1,6 +1,8 @@
 import { state } from "../../state.js";
 import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
+import { openCheatsheet } from "../cheatsheet/index.js";
+import { getKeybind } from "../keybinds/registry.js";
 import {
   deleteLink,
   updateLink,
@@ -31,7 +33,12 @@ function linkMenuItems(link, onChange) {
       onSelect: () => window.open(link.url, "_blank", "noopener"),
     },
     {
-      label: "Update link",
+      label: "Copy URL",
+      onSelect: () => navigator.clipboard.writeText(link.url).catch(() => {}),
+    },
+    { divider: true },
+    {
+      label: "Update link…",
       onSelect: () =>
         openLinkModal(document.body, {
           title: "Update link",
@@ -51,10 +58,6 @@ function linkMenuItems(link, onChange) {
       },
     },
     {
-      label: "Copy link URL",
-      onSelect: () => navigator.clipboard.writeText(link.url).catch(() => {}),
-    },
-    {
       label: "Duplicate",
       onSelect: async () => {
         await duplicateLink(link.id);
@@ -64,6 +67,7 @@ function linkMenuItems(link, onChange) {
     { divider: true },
     {
       label: "Delete",
+      danger: true,
       onSelect: async () => {
         await deleteLink(link.id);
         onChange();
@@ -92,6 +96,11 @@ function defaultTabMenuItem(tab, onChange) {
   };
 }
 
+// Keybinds act on the active tab, so a hint is only truthful on that tab's menu.
+function activeTabHint(tab, keybindId) {
+  return activeTab()?.id === tab.id ? getKeybind(keybindId) : null;
+}
+
 function tabMenuItems(tab, onChange) {
   return [
     {
@@ -99,23 +108,28 @@ function tabMenuItems(tab, onChange) {
       onSelect: () => beginRenameTab(tab.id, onChange),
     },
     defaultTabMenuItem(tab, onChange),
+    { divider: true },
     {
       label: "Launch group",
+      hint: activeTabHint(tab, "launch-group"),
       disabled: !hasLaunchGroup(tab.id),
       onSelect: () => launchGroup(tab.id),
     },
     {
       label: "Edit launch group…",
+      hint: activeTabHint(tab, "launch-group-edit"),
       onSelect: () => openLaunchGroupEditor(document.body, tab.id, onChange),
     },
     {
       label: "Clear launch group",
+      danger: true,
       disabled: !hasLaunchGroup(tab.id),
       onSelect: async () => {
         await clearLaunchGroup(tab.id);
         onChange();
       },
     },
+    { divider: true },
     {
       label: "Duplicate",
       disabled: state.tabs.length >= maxTabs,
@@ -127,6 +141,7 @@ function tabMenuItems(tab, onChange) {
     { divider: true },
     {
       label: "Delete",
+      danger: true,
       disabled: state.tabs.length <= 1,
       onSelect: async () => {
         if (state.tabs.length <= 1) return;
@@ -140,11 +155,16 @@ function tabMenuItems(tab, onChange) {
 
 function launchBarMenuItems(tab, onChange) {
   return [
-    { label: "Launch", onSelect: () => launchGroup(tab.id) },
-    { label: "Edit…", onSelect: () => openLaunchGroupEditor(document.body, tab.id, onChange) },
+    { label: "Launch", hint: getKeybind("launch-group"), onSelect: () => launchGroup(tab.id) },
+    {
+      label: "Edit…",
+      hint: getKeybind("launch-group-edit"),
+      onSelect: () => openLaunchGroupEditor(document.body, tab.id, onChange),
+    },
     { divider: true },
     {
       label: "Clear launch group",
+      danger: true,
       onSelect: async () => {
         await clearLaunchGroup(tab.id);
         onChange();
@@ -154,7 +174,14 @@ function launchBarMenuItems(tab, onChange) {
 }
 
 function defaultMenuItems() {
-  return [{ label: "Open settings", onSelect: () => openSettings(document.body) }];
+  return [
+    { label: "Settings", hint: getKeybind("settings-open"), onSelect: () => openSettings(document.body) },
+    {
+      label: "Keyboard shortcuts",
+      hint: getKeybind("cheatsheet-open"),
+      onSelect: () => openCheatsheet(document.body),
+    },
+  ];
 }
 
 // Every right-click resolves to exactly one of these three item sets — link

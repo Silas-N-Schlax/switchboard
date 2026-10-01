@@ -2,6 +2,7 @@ import { isModifierOnlyKey, serializeShortcutEvent } from "../keybinds/shortcutF
 import { buildShortcutBadges } from "../keybinds/shortcutBadges.js";
 import { findShortcutConflict } from "../keybinds/shortcutValidation.js";
 import { normalizeUrl } from "./store.js";
+import { buildDialogHeader } from "../dialog/chrome.js";
 
 const HOSTNAME_PATTERN = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
 
@@ -52,6 +53,19 @@ function setShortcut(value) {
   modalEl.__shortcutError.textContent = "";
 }
 
+function buildHint(key, label) {
+  const hint = document.createElement("span");
+  hint.className = "dialog-hint";
+  const cap = document.createElement("span");
+  cap.className = "keybind-badge";
+  cap.textContent = key;
+  const text = document.createElement("span");
+  text.className = "dialog-hint__label";
+  text.textContent = label;
+  hint.append(cap, text);
+  return hint;
+}
+
 function buildModal() {
   const modal = document.createElement("div");
   modal.className = "link-modal";
@@ -60,18 +74,9 @@ function buildModal() {
   backdrop.className = "link-modal__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "link-modal__dialog surface surface--modal";
+  dialog.className = "link-modal__dialog dialog surface surface--modal";
 
-  const header = document.createElement("div");
-  header.className = "link-modal__header";
-  const title = document.createElement("h2");
-  title.className = "link-modal__title";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "link-modal__close dialog-close";
-  close.textContent = "×";
-  close.setAttribute("aria-label", "Close");
-  header.append(title, close);
+  const { header, titleEl: title, close } = buildDialogHeader({ title: "Add link" });
 
   const form = document.createElement("form");
   form.className = "link-modal__form";
@@ -99,7 +104,7 @@ function buildModal() {
   });
 
   const shortcutFieldLabel = document.createElement("label");
-  shortcutFieldLabel.className = "link-modal__shortcut-label";
+  shortcutFieldLabel.className = "dialog-group__label";
   shortcutFieldLabel.textContent = "Shortcut";
   const optional = document.createElement("span");
   optional.className = "link-modal__optional";
@@ -157,7 +162,23 @@ function buildModal() {
   submit.type = "submit";
   submit.className = "link-modal__submit";
 
-  form.append(labelInput, urlInput, urlError, shortcutFieldLabel, shortcutRow, shortcutError, submit);
+  const fields = document.createElement("div");
+  fields.className = "link-modal__fields dialog-group__panel";
+  fields.append(labelInput, urlInput);
+
+  const shortcutField = document.createElement("div");
+  shortcutField.className = "dialog-group";
+  shortcutField.append(shortcutFieldLabel, shortcutRow, shortcutError);
+
+  const body = document.createElement("div");
+  body.className = "dialog__body";
+  body.append(fields, urlError, shortcutField);
+
+  const footer = document.createElement("div");
+  footer.className = "dialog__footer link-modal__footer";
+  footer.append(buildHint("↵", "save"), submit);
+
+  form.append(body, footer);
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const label = labelInput.value.trim();
@@ -173,8 +194,13 @@ function buildModal() {
 
   close.addEventListener("click", closeModal);
   backdrop.addEventListener("click", closeModal);
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("link-modal--open")) closeModal();
+  modal.addEventListener("keydown", (e) => {
+    // Contain every key so app keybinds and link shortcuts can't fire behind the modal.
+    e.stopPropagation();
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeModal();
+    }
   });
 
   dialog.append(header, form);

@@ -2,38 +2,63 @@ import { state } from "../../state.js";
 import { listKeybinds, registerKeybind } from "../keybinds/registry.js";
 import { buildShortcutBadges } from "../keybinds/shortcutBadges.js";
 import { defaultKeybinds } from "../../../defaults.js";
+import { buildDialogHeader, buildDialogGroup } from "../dialog/chrome.js";
 
 function isCustomKeybind(id) {
   const override = state.settings?.keybinds?.[id];
   return override != null && override !== defaultKeybinds[id];
 }
 
-function buildRow({ id, description, key }) {
+const GROUPS = [
+  { title: "Navigate", ids: (id) => id.startsWith("tab-switch-") || id === "search-focus" },
+  { title: "Launch groups", ids: (id) => id.startsWith("launch-group") },
+];
+
+function buildRow({ description, key, badges = null }) {
   const row = document.createElement("div");
   row.className = "cheatsheet-panel__row";
 
   const label = document.createElement("span");
   label.className = "cheatsheet-panel__description";
-  label.textContent = description ?? id;
+  label.textContent = description;
 
-  const badges = buildShortcutBadges(key);
-  badges.classList.add("cheatsheet-panel__key");
+  const keys = badges ?? buildShortcutBadges(key);
+  keys.classList.add("cheatsheet-panel__key");
 
-  row.append(label, badges);
+  row.append(label, keys);
   return row;
 }
 
+function buildRange(first, last) {
+  const badges = buildShortcutBadges(first);
+  if (last && last !== first) {
+    const dash = document.createElement("span");
+    dash.className = "cheatsheet-panel__range";
+    dash.textContent = "–";
+    badges.append(dash, ...buildShortcutBadges(last).children);
+  }
+  return badges;
+}
+
+// The nine "switch to tab N" binds read as one row while they still sit on their
+// default consecutive digits; a rebound one falls through to the Custom group.
+function collapseTabSwitches(entries) {
+  const tabs = entries.filter((e) => e.id.startsWith("tab-switch-"));
+  if (tabs.length < 2) return entries;
+  const collapsed = {
+    id: "tab-switch",
+    description: "Switch to tab",
+    badges: buildRange(tabs[0].key, tabs.at(-1).key),
+  };
+  const firstIndex = entries.indexOf(tabs[0]);
+  const rest = entries.filter((e) => !tabs.includes(e));
+  rest.splice(firstIndex, 0, collapsed);
+  return rest;
+}
+
 function buildSection(title, entries) {
-  const section = document.createElement("div");
-  section.className = "cheatsheet-panel__section";
-
-  const heading = document.createElement("h3");
-  heading.className = "cheatsheet-panel__heading";
-  heading.textContent = title;
-
-  section.appendChild(heading);
-  entries.forEach((entry) => section.appendChild(buildRow(entry)));
-  return section;
+  const { group } = buildDialogGroup({ label: title, rows: entries.map(buildRow) });
+  return group;
 }
 
 function buildPanel() {
@@ -44,22 +69,15 @@ function buildPanel() {
   backdrop.className = "cheatsheet-panel__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "cheatsheet-panel__dialog surface surface--modal custom-scrollbar";
+  dialog.className = "cheatsheet-panel__dialog dialog surface surface--modal";
 
-  const header = document.createElement("div");
-  header.className = "cheatsheet-panel__header";
-  const title = document.createElement("h2");
-  title.className = "cheatsheet-panel__title";
-  title.textContent = "Keyboard shortcuts";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "cheatsheet-panel__close dialog-close";
-  close.textContent = "×";
-  close.setAttribute("aria-label", "Close keyboard shortcuts");
-  header.append(title, close);
+  const { header, close } = buildDialogHeader({
+    title: "Keyboard shortcuts",
+    closeLabel: "Close keyboard shortcuts",
+  });
 
   const body = document.createElement("div");
-  body.className = "cheatsheet-panel__body";
+  body.className = "dialog__body custom-scrollbar";
 
   dialog.append(header, body);
   panel.append(backdrop, dialog);
@@ -68,13 +86,18 @@ function buildPanel() {
     body.innerHTML = "";
     const all = listKeybinds();
     const custom = all.filter((k) => isCustomKeybind(k.id));
-    const standard = all.filter((k) => !isCustomKeybind(k.id));
+    let remaining = all.filter((k) => !isCustomKeybind(k.id));
+
+    GROUPS.forEach(({ title, ids }) => {
+      const entries = remaining.filter((k) => ids(k.id));
+      remaining = remaining.filter((k) => !ids(k.id));
+      if (entries.length) body.appendChild(buildSection(title, collapseTabSwitches(entries)));
+    });
+    if (remaining.length) body.appendChild(buildSection("General", remaining));
 
     const links = state.links
       .filter((l) => l.shortcutKey)
       .map((l) => ({ id: l.id, description: l.label, key: l.shortcutKey }));
-
-    if (standard.length) body.appendChild(buildSection("Shortcuts", standard));
     if (links.length) body.appendChild(buildSection("Links", links));
     if (custom.length) body.appendChild(buildSection("Custom", custom));
   }

@@ -1,6 +1,7 @@
 import { state } from "../../state.js";
 import { linksForTab, displayHost } from "../tabLinks/store.js";
 import { makeSortable } from "../tabLinks/sortable.js";
+import { buildDialogHeader } from "../dialog/chrome.js";
 import { launchGroupLinks, setLinkLaunchGroup, reorderLaunchGroup } from "./store.js";
 
 let editor = null;
@@ -44,26 +45,22 @@ function buildItem(link, launchIndex, draggable) {
 }
 
 function hint(keys, label) {
-  const wrap = el("span", "launch-editor__hint");
+  const wrap = el("span", "dialog-hint");
   keys.forEach((k) => wrap.appendChild(el("span", "keybind-badge", k)));
-  wrap.appendChild(el("span", "launch-editor__hint-label", label));
+  wrap.appendChild(el("span", "dialog-hint__label", label));
   return wrap;
 }
 
 function build(root) {
   const modal = el("div", "launch-editor");
   const backdrop = el("div", "launch-editor__backdrop overlay-backdrop");
-  const dialog = el("div", "launch-editor__dialog surface surface--modal");
+  const dialog = el("div", "launch-editor__dialog dialog surface surface--modal");
 
-  const header = el("div", "launch-editor__header");
-  const titleWrap = el("div", "launch-editor__title-wrap");
-  const title = el("h2", "launch-editor__title", "Launch group");
-  const tabName = el("span", "launch-editor__tab");
-  titleWrap.append(title, tabName);
-  const close = el("button", "launch-editor__close dialog-close", "×");
-  close.type = "button";
-  close.setAttribute("aria-label", "Close launch group editor");
-  header.append(titleWrap, close);
+  const { header, subtitleEl: tabName, close } = buildDialogHeader({
+    title: "Launch group",
+    subtitle: "",
+    closeLabel: "Close launch group editor",
+  });
 
   const filter = el("input", "launch-editor__filter");
   filter.type = "text";
@@ -71,7 +68,10 @@ function build(root) {
   filter.autocomplete = "off";
   filter.spellcheck = false;
 
-  const body = el("div", "launch-editor__body custom-scrollbar");
+  const filterWrap = el("div", "launch-editor__filter-wrap");
+  filterWrap.appendChild(filter);
+
+  const body = el("div", "launch-editor__body dialog__body custom-scrollbar");
   const groupHeading = el("h3", "launch-editor__heading", "Launch order");
   const groupList = el("div", "launch-editor__list");
   const empty = el("p", "launch-editor__empty");
@@ -79,15 +79,14 @@ function build(root) {
   const restList = el("div", "launch-editor__list");
   body.append(groupHeading, groupList, empty, restHeading, restList);
 
-  const footer = el("div", "launch-editor__footer");
+  const footer = el("div", "dialog__footer");
   footer.append(
     hint(["↑", "↓"], "move"),
     hint(["space"], "toggle"),
-    hint(["⌥", "↑", "↓"], "reorder"),
-    hint(["esc"], "close")
+    hint(["⌥", "↑", "↓"], "reorder")
   );
 
-  dialog.append(header, filter, body, footer);
+  dialog.append(header, filterWrap, body, footer);
   modal.append(backdrop, dialog);
   root.appendChild(modal);
 

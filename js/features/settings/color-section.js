@@ -1,10 +1,19 @@
 import { ambientMode, updateAmbient } from "./store.js";
 import { buildRow, buildToggleSwitch } from "./controls.js";
 import { createSwatchPicker } from "./swatch-picker.js";
+import { buildDialogGroup } from "../dialog/chrome.js";
 import { resolveColors } from "../../render/ambient.js";
-import { ambientPalettePresets } from "../../../defaults.js";
+import { ambientPalettePresets, ambientPaletteId } from "../../../defaults.js";
 
 const CUSTOM_PALETTE_ID = "custom";
+
+// A stored id can outlive its preset (e.g. the removed "Daylight"); resolveColors already
+// falls back to the default colors, so the select just needs to show the same thing.
+function selectablePaletteId() {
+  const id = ambientMode().paletteId;
+  const known = id === CUSTOM_PALETTE_ID || ambientPalettePresets.some((p) => p.id === id);
+  return known ? id : ambientPaletteId;
+}
 
 function buildPaletteSelect(onChange) {
   const select = document.createElement("select");
@@ -21,7 +30,7 @@ function buildPaletteSelect(onChange) {
   customOption.textContent = "Custom";
   select.appendChild(customOption);
 
-  select.value = ambientMode().paletteId;
+  select.value = selectablePaletteId();
   select.addEventListener("change", () => onChange(select.value));
   return select;
 }
@@ -60,12 +69,6 @@ function buildColorSwatches(onChange) {
 }
 
 export function buildColorSection() {
-  const section = document.createElement("div");
-  section.className = "settings-panel__section";
-  const title = document.createElement("div");
-  title.className = "settings-panel__section-title";
-  title.textContent = "Color cycle";
-
   const { group: swatchGroup, refresh: refreshSwatches } = buildColorSwatches(updateAmbient);
 
   const { element: cycleToggle, input: cycleInput } = buildToggleSwitch(
@@ -83,14 +86,15 @@ export function buildColorSection() {
   });
   const paletteRow = buildRow({ labelText: "Palette", control: paletteSelect });
 
-  section.append(title, paletteRow, cycleRow, swatchGroup);
+  const colorsRow = buildRow({ labelText: "Colors", control: swatchGroup, tag: "div" });
+  const { group } = buildDialogGroup({ label: "Background", rows: [paletteRow, cycleRow, colorsRow] });
 
   function refresh() {
     cycleInput.checked = ambientMode().colorCycleEnabled;
-    paletteSelect.value = ambientMode().paletteId;
+    paletteSelect.value = selectablePaletteId();
     refreshSwatches();
   }
   refresh();
 
-  return { element: section, refresh };
+  return { element: group, refresh };
 }

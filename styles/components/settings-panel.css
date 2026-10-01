@@ -11,59 +11,32 @@
   }
 
   .settings-panel__dialog {
-    position: relative;
-    z-index: 1;
-    width: min(420px, calc(100vw - 32px));
-    max-height: 80vh;
-    overflow-y: auto;
-    padding: var(--space-6);
-    box-sizing: border-box;
-    font-family: var(--font-ui);
-    color: var(--ink);
-
-    &:focus {
-      outline: none;
-    }
-  }
-
-  .settings-panel__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-  }
-
-  .settings-panel__title {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: 600;
-  }
-
-  .settings-panel__section {
-    padding: var(--space-4) 0;
-    border-top: 1px solid var(--glass-brd);
-
-    &:first-of-type {
-      border-top: none;
-    }
-  }
-
-  .settings-panel__section-title {
-    margin-bottom: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--ink);
+    --dialog-width: 420px;
   }
 
   .settings-panel__row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 6px 0;
+    gap: var(--space-4);
+    min-height: 40px;
+    padding: 6px var(--space-3);
+    box-sizing: border-box;
 
     &.settings-panel__row--disabled {
-      opacity: 0.4;
+      .settings-panel__label,
+      .range-slider {
+        opacity: 0.4;
+      }
+    }
+
+    .select-input {
+      width: auto;
+      min-width: 150px;
+    }
+
+    .range-slider {
+      width: 132px;
     }
   }
 
@@ -72,39 +45,23 @@
     color: var(--ink-dim);
   }
 
-  .settings-panel__note {
-    margin: 4px 0 0;
-    font-size: var(--text-sm);
-    line-height: 1.5;
-    color: var(--ink-faint);
-  }
-
   .settings-panel__swatch-group {
     display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 10px;
-  }
-
-  .settings-panel__footer {
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--glass-brd);
+    gap: var(--space-2);
   }
 
   .settings-panel__reset {
-    width: 100%;
-    padding: 8px;
+    padding: 4px 0;
+    background: none;
+    border: none;
+    color: var(--ink-faint);
     font-family: var(--font-ui);
-    font-size: 13px;
-    color: var(--ink-dim);
-    background: var(--glass);
-    border: 1px solid var(--glass-brd);
-    border-radius: var(--radius-sm);
+    font-size: var(--text-sm);
     cursor: pointer;
+    transition: color var(--duration-fast) ease;
 
     &:hover {
       color: var(--ink);
-      border-color: var(--glass-hi);
     }
   }
 }

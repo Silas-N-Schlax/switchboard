@@ -1,5 +1,5 @@
-export function buildRow({ labelText, control }) {
-  const row = document.createElement("label");
+export function buildRow({ labelText, control, tag = "label" }) {
+  const row = document.createElement(tag);
   row.className = "settings-panel__row";
   const label = document.createElement("span");
   label.className = "settings-panel__label";

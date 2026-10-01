@@ -1,46 +1,80 @@
 .context-menu {
   position: fixed;
   z-index: 40;
-  min-width: 200px;
-  padding: 6px;
+  min-width: 188px;
+  padding: var(--space-1);
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-menu), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   font-family: var(--font-ui);
   transform-origin: top left;
+  animation: context-menu-in 0.14s var(--ease-out);
 
   .context-menu__item {
-    padding: 9px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: 7px 10px;
     background: none;
     border: none;
-    border-radius: 7px;
+    border-radius: var(--radius-sm);
     color: var(--ink-dim);
     font-family: var(--font-ui);
-    font-size: 13px;
+    font-size: var(--text-md);
     text-align: left;
     cursor: pointer;
-    transition: background 0.1s ease, color 0.1s ease;
+    transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 
     &:hover:not(:disabled),
     &:focus-visible {
       color: var(--ink);
-      background: var(--glass-hi);
+      background: var(--glass);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: -2px;
+      outline: none;
+      box-shadow: inset 0 0 0 1px var(--accent-line);
     }
 
     &:disabled {
       color: var(--ink-faint);
-      cursor: not-allowed;
+      opacity: 0.6;
+      cursor: default;
     }
+
+    .shortcut-badges {
+      opacity: 0.75;
+    }
+  }
+
+  .context-menu__item--danger:hover:not(:disabled),
+  .context-menu__item--danger:focus-visible {
+    color: var(--flag);
+    background: color-mix(in oklch, var(--flag) 12%, transparent);
   }
 
   .context-menu__divider {
     height: 1px;
-    margin: 4px 2px;
-    background: var(--glass-brd);
+    margin: var(--space-1) 6px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+}
+
+@keyframes context-menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .context-menu {
+    animation: none;
   }
 }

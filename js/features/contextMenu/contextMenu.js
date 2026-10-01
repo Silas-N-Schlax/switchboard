@@ -1,3 +1,5 @@
+import { buildShortcutBadges } from "../keybinds/shortcutBadges.js";
+
 let openMenuEl = null;
 
 function closeMenu() {
@@ -31,7 +33,12 @@ export function openContextMenu(x, y, items) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "context-menu__item";
-    button.textContent = item.label;
+    if (item.danger) button.classList.add("context-menu__item--danger");
+    const label = document.createElement("span");
+    label.className = "context-menu__label";
+    label.textContent = item.label;
+    button.appendChild(label);
+    if (item.hint) button.appendChild(buildShortcutBadges(item.hint));
     button.disabled = !!item.disabled;
     button.addEventListener("click", () => {
       closeMenu();

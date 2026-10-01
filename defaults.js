@@ -15,7 +15,6 @@ export const ambientTickIntervalMs = 15000;
 
 export const ambientPalettePresets = [
   { id: "midnight-plum", name: "Midnight Plum", colors: ambientColors },
-  { id: "daylight", name: "Daylight", colors: ["#eae6df", "#ded2d8", "#e4cdb2", "#dcbcb6"] },
   { id: "deep-ocean", name: "Deep Ocean", colors: ["#061318", "#0b2530", "#123a44", "#0a2e3a"] },
   { id: "forest-dusk", name: "Forest Dusk", colors: ["#0a120a", "#122417", "#1c3324", "#26301a"] },
   { id: "rosewood", name: "Rosewood", colors: ["#160b10", "#2a1420", "#3a1a2a", "#4a2030"] },

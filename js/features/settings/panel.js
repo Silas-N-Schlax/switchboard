@@ -7,6 +7,7 @@ import { buildBubblesSection } from "./bubbles-section.js";
 import { buildStatsSection } from "./stats-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
+import { buildDialogHeader } from "../dialog/chrome.js";
 
 let panelEl = null;
 let returnFocusEl = null;
@@ -19,31 +20,21 @@ function buildPanel() {
   backdrop.className = "settings-panel__backdrop overlay-backdrop";
 
   const dialog = document.createElement("div");
-  dialog.className = "settings-panel__dialog surface surface--modal custom-scrollbar";
+  dialog.className = "settings-panel__dialog dialog surface surface--modal";
   dialog.tabIndex = -1;
 
-  const header = document.createElement("div");
-  header.className = "settings-panel__header";
-  const title = document.createElement("h2");
-  title.className = "settings-panel__title";
-  title.textContent = "Settings";
-  const close = document.createElement("button");
-  close.type = "button";
-  close.className = "settings-panel__close dialog-close";
-  close.textContent = "×";
-  close.setAttribute("aria-label", "Close settings");
-  header.append(title, close);
+  const { header, close } = buildDialogHeader({ title: "Settings", closeLabel: "Close settings" });
 
   const colorSection = buildColorSection();
   const bubblesSection = buildBubblesSection();
   const statsSection = buildStatsSection();
 
   const footer = document.createElement("div");
-  footer.className = "settings-panel__footer";
+  footer.className = "dialog__footer";
   const resetButton = document.createElement("button");
   resetButton.type = "button";
   resetButton.className = "settings-panel__reset";
-  resetButton.textContent = "Reset to defaults";
+  resetButton.textContent = "Reset appearance";
   resetButton.addEventListener("click", async () => {
     state.settings.ambientMode = { ...defaultAmbientSettings };
     await save({ settings: state.settings });
@@ -53,7 +44,11 @@ function buildPanel() {
   });
   footer.appendChild(resetButton);
 
-  dialog.append(header, colorSection.element, bubblesSection.element, statsSection.element, footer);
+  const body = document.createElement("div");
+  body.className = "dialog__body custom-scrollbar";
+  body.append(colorSection.element, bubblesSection.element, statsSection.element);
+
+  dialog.append(header, body, footer);
   panel.append(backdrop, dialog);
 
   close.addEventListener("click", closeSettings);

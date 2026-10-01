@@ -11,45 +11,7 @@
   }
 
   .cheatsheet-panel__dialog {
-    position: relative;
-    z-index: 1;
-    width: min(520px, calc(100vw - 32px));
-    max-height: 76vh;
-    overflow-y: auto;
-    padding: var(--space-6);
-    box-sizing: border-box;
-    font-family: var(--font-ui);
-    color: var(--ink);
-  }
-
-  .cheatsheet-panel__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-4);
-  }
-
-  .cheatsheet-panel__title {
-    margin: 0;
-    font-size: var(--text-lg);
-    font-weight: 600;
-  }
-
-  .cheatsheet-panel__section {
-    padding: var(--space-4) 0;
-    border-top: 1px solid var(--glass-brd);
-
-    &:first-of-type {
-      padding-top: 0;
-      border-top: none;
-    }
-  }
-
-  .cheatsheet-panel__heading {
-    margin: 0 0 var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--ink);
+    --dialog-width: 440px;
   }
 
   .cheatsheet-panel__row {
@@ -57,21 +19,26 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--space-5);
-    padding: 7px var(--space-2);
-    margin: 0 calc(-1 * var(--space-2));
-    border-radius: var(--radius-sm);
+    min-height: 40px;
+    padding: 6px var(--space-3);
+    box-sizing: border-box;
+  }
 
-    &:hover {
-      background: var(--glass);
-    }
+  .cheatsheet-panel__description {
+    min-width: 0;
+    font-size: var(--text-md);
+    color: var(--ink-dim);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .cheatsheet-panel__key {
     flex-shrink: 0;
   }
 
-  .cheatsheet-panel__description {
-    font-size: var(--text-md);
-    color: var(--ink-dim);
+  .cheatsheet-panel__range {
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
   }
 }

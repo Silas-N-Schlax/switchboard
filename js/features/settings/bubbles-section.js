@@ -4,6 +4,7 @@
 
 import { ambientMode, updateAmbient } from "./store.js";
 import { buildRow, buildToggleSwitch, buildRange } from "./controls.js";
+import { buildDialogGroup } from "../dialog/chrome.js";
 import {
   bubbleCountMin,
   bubbleSizeMultiplierMin,
@@ -12,12 +13,6 @@ import {
 } from "../../../defaults.js";
 
 export function buildBubblesSection() {
-  const section = document.createElement("div");
-  section.className = "settings-panel__section";
-  const title = document.createElement("div");
-  title.className = "settings-panel__section-title";
-  title.textContent = "Bubbles";
-
   const rows = [];
 
   const countRange = buildRange({
@@ -63,7 +58,7 @@ export function buildBubblesSection() {
   );
   const bubblesRow = buildRow({ labelText: "Show bubbles", control: bubblesToggle });
 
-  section.append(title, bubblesRow, ...rows);
+  const { group } = buildDialogGroup({ label: "Bubbles", rows: [bubblesRow, ...rows] });
 
   function refresh() {
     bubblesInput.checked = ambientMode().bubblesEnabled;
@@ -74,5 +69,5 @@ export function buildBubblesSection() {
   }
   refresh();
 
-  return { element: section, refresh };
+  return { element: group, refresh };
 }

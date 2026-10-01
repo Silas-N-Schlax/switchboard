@@ -68,5 +68,7 @@ const DISPLAY_SYMBOLS = { Ctrl: "⌃", Meta: "⌘", Alt: "⌥", Shift: "⇧" };
 
 export function formatShortcutParts(canonical) {
   if (!canonical) return [];
-  return canonical.split("+").map((part) => DISPLAY_SYMBOLS[part] ?? part);
+  return canonical
+    .split("+")
+    .map((part) => DISPLAY_SYMBOLS[part] ?? (part.length === 1 ? part.toUpperCase() : part));
 }

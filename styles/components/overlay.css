@@ -5,4 +5,18 @@
   position: absolute;
   inset: 0;
   background: var(--overlay-bg);
+  backdrop-filter: blur(3px);
+  animation: overlay-in 0.2s ease-out;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay-backdrop {
+    animation: none;
+  }
 }
