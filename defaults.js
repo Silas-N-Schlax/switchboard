@@ -109,7 +109,6 @@ export const searchGoogleModeColor = "#b5665f";
 // ============================================================================
 export const showFavicons = false;
 export const cacheTrimEnabled = false;
-export const mostUsedTabEnabled = false;
 export const statsEnabled = true;
 
 // ============================================================================
@@ -129,7 +128,6 @@ export const defaultAmbientSettings = {
 export const defaultSettings = {
   showFavicons,
   cacheTrimEnabled,
-  mostUsedTabEnabled,
   statsEnabled,
   defaultTabId,
   ambientMode: defaultAmbientSettings,

@@ -1,5 +1,5 @@
 import { state } from "../../state.js";
-import { linksForTab } from "../tabLinks/store.js";
+import { linksForTab, displayHost } from "../tabLinks/store.js";
 import { makeSortable } from "../tabLinks/sortable.js";
 import { launchGroupLinks, setLinkLaunchGroup, reorderLaunchGroup } from "./store.js";
 
@@ -7,14 +7,6 @@ let editor = null;
 let tabId = null;
 let onChangeRef = null;
 let returnFocusEl = null;
-
-function hostname(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
 
 function matches(link, query) {
   if (!query) return true;
@@ -45,7 +37,7 @@ function buildItem(link, launchIndex, draggable) {
     el("span", "launch-editor__check"),
     grouped ? el("span", "launch-index", launchIndex) : el("span"),
     el("span", "launch-editor__label", link.label),
-    el("span", "launch-editor__url", hostname(link.url))
+    el("span", "launch-editor__url", displayHost(link.url))
   );
   item.addEventListener("click", () => toggle(link.id));
   return item;

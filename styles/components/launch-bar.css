@@ -7,13 +7,13 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.025);
+  padding: 11px var(--space-4);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-md);
   color: var(--ink-faint);
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: var(--text-md);
   text-align: left;
   cursor: pointer;
   transition: color var(--duration-base) ease, background var(--duration-base) ease,
@@ -23,8 +23,8 @@
   &:focus-visible {
     outline: none;
     color: var(--ink-dim);
-    background: rgba(95, 201, 180, 0.05);
-    border-color: rgba(95, 201, 180, 0.3);
+    background: var(--accent-wash);
+    border-color: var(--accent-line);
 
     .launch-bar__title {
       color: var(--accent);

@@ -1,4 +1,4 @@
-import { linksForTab, activeTab, isHomeTab, addLink, deleteLink, reorderLink } from "../features/tabLinks/store.js";
+import { linksForTab, activeTab, isHomeTab, addLink, deleteLink, reorderLink, displayHost } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
 import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
@@ -122,12 +122,13 @@ export function renderLinks(container, onChange) {
     anchor.className = "link-list__label";
     anchor.href = link.url;
     anchor.textContent = link.label;
+    anchor.title = link.url;
     anchor.draggable = false;
     trackOpens(anchor, link, searching);
 
     const url = document.createElement("span");
     url.className = "link-list__url";
-    url.textContent = link.url;
+    url.textContent = displayHost(link.url);
 
     if (!searching && launchIndexById.has(link.id)) {
       row.classList.add("link-list__row--launch");

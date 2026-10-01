@@ -1,6 +1,6 @@
 .link-list {
   position: fixed;
-  top: 96px;
+  top: calc(var(--stage-top) + 64px);
   bottom: 104px;
   left: 50%;
   transform: translateX(-50%);
@@ -11,114 +11,155 @@
   display: grid;
   grid-template-columns: 1fr;
   align-content: start;
-  gap: 10px 32px;
-  padding: 4px;
-  transition: width 0.2s ease;
+  gap: var(--space-2) var(--space-6);
+  padding: var(--space-1);
 
   &.link-list--split {
-    width: min(1040px, calc(100vw - 64px));
+    width: min(1000px, calc(100vw - 64px));
     grid-template-columns: 1fr 1fr;
   }
 
+  @media (max-width: 880px) {
+    &.link-list--split {
+      width: min(560px, calc(100vw - 64px));
+      grid-template-columns: 1fr;
+    }
+  }
+
   .link-list__row {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, max-content) 14px;
+    grid-template-areas: "label keys url end";
     align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
+    column-gap: var(--space-3);
+    padding: 11px var(--space-3) 11px var(--space-4);
     background: var(--glass);
     border: 1px solid var(--glass-brd);
     border-radius: var(--radius-md);
     cursor: grab;
     touch-action: none;
+    transition: background var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.075);
+      border-color: var(--glass-hi);
+    }
+
+    &:has(.link-list__label:focus-visible) {
+      background: var(--accent-wash);
+      border-color: var(--accent-line);
+    }
+
+    &:hover .link-list__delete,
+    &:focus-within .link-list__delete {
+      opacity: 1;
+    }
 
     &.is-dragging-source {
       opacity: 0.35;
     }
-
-    &:has(.link-list__label:focus-visible) {
-      background: var(--glass-hi);
-      border-color: var(--accent);
-    }
   }
 
   .link-list__row--launch {
-    position: relative;
-    padding-left: 38px;
-    box-shadow: inset 3px 0 0 var(--accent);
+    padding-left: 40px;
+    box-shadow: inset 2px 0 0 var(--accent);
   }
 
   .link-list__launch-index {
     position: absolute;
-    left: 14px;
+    left: var(--space-4);
     top: 50%;
     transform: translateY(-50%);
   }
 
   .link-list__row--static {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, max-content) auto;
     cursor: pointer;
     touch-action: auto;
-    background: rgba(95, 201, 180, 0.08);
-    border-color: rgba(95, 201, 180, 0.35);
+    background: var(--accent-wash);
+    border-color: var(--accent-soft);
 
     &:hover,
     &:has(.link-list__label:focus-visible) {
-      background: rgba(95, 201, 180, 0.14);
-      border-color: var(--accent);
+      background: var(--accent-soft);
+      border-color: var(--accent-line);
     }
   }
 
   .link-list__row-tab {
-    flex-shrink: 0;
-    padding: 2px 8px;
+    grid-area: end;
+    padding: 2px var(--space-2);
     border-radius: var(--radius-pill);
-    background: rgba(95, 201, 180, 0.16);
-    border: 1px solid rgba(95, 201, 180, 0.35);
-    font-family: var(--font-mono);
-    font-size: 10px;
+    background: var(--accent-soft);
     color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    white-space: nowrap;
   }
 
   .link-list__label {
+    grid-area: label;
+    min-width: 0;
     color: var(--ink);
-    font-size: 13px;
+    font-size: var(--text-base);
     font-weight: 500;
     text-decoration: none;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    &:hover,
-    &:focus-visible {
-      color: var(--accent);
-    }
-
     &:focus-visible {
       outline: none;
     }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  .shortcut-badges {
+    grid-area: keys;
+    position: relative;
   }
 
   .link-list__url {
+    grid-area: url;
+    max-width: 24ch;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-xs);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 220px;
   }
 
   .link-list__delete {
+    grid-area: end;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    padding: 0;
     background: none;
     border: none;
     color: var(--ink-faint);
-    font-size: 14px;
+    font-size: var(--text-base);
     line-height: 1;
     cursor: pointer;
-    padding: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast) ease, color var(--duration-fast) ease;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
       color: var(--flag);
+      opacity: 1;
+      outline: none;
     }
   }
 
@@ -127,18 +168,20 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 10px 14px;
+    padding: 11px var(--space-4);
     background: none;
     border: 1px dashed var(--glass-brd);
     border-radius: var(--radius-md);
     color: var(--ink-faint);
     font-family: var(--font-ui);
-    font-size: 13px;
+    font-size: var(--text-md);
     cursor: pointer;
+    transition: color var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
 
     &:hover {
-      color: var(--ink);
-      border-color: var(--accent);
+      color: var(--ink-dim);
+      border-color: var(--glass-hi);
     }
   }
 }
@@ -148,20 +191,23 @@
    them — flattened here on purpose. */
 .link-list__row.is-ghost {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, max-content) 14px;
+  grid-template-areas: "label keys url end";
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: var(--glass);
+  column-gap: var(--space-3);
+  padding: 11px var(--space-4);
+  background: var(--surface-bg);
   border: 1px solid var(--glass-hi);
   border-radius: var(--radius-md);
   cursor: grabbing;
   box-shadow: var(--shadow-float);
   transform: scale(1.02);
+  font-family: var(--font-ui);
 
   .link-list__label {
+    grid-area: label;
     color: var(--ink);
-    font-size: 13px;
+    font-size: var(--text-base);
     font-weight: 500;
     text-decoration: none;
     overflow: hidden;
@@ -169,14 +215,19 @@
     white-space: nowrap;
   }
 
+  .shortcut-badges {
+    grid-area: keys;
+  }
+
   .link-list__url {
+    grid-area: url;
+    max-width: 24ch;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--text-xs);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 220px;
   }
 
   .link-list__delete {
@@ -184,13 +235,13 @@
   }
 
   &.link-list__row--launch {
-    padding-left: 38px;
-    box-shadow: var(--shadow-float), inset 3px 0 0 var(--accent);
+    padding-left: 40px;
+    box-shadow: var(--shadow-float), inset 2px 0 0 var(--accent);
   }
 
   .link-list__launch-index {
     position: absolute;
-    left: 14px;
+    left: var(--space-4);
     top: 50%;
     transform: translateY(-50%);
   }

@@ -23,8 +23,14 @@ let modalEl = null;
 let submitHandler = null;
 let currentShortcutKey = null;
 let editingLinkId = null;
+let returnFocusEl = null;
 
+// Hiding the modal doesn't blur its focused input, which would leave every app keybind
+// swallowed as "typing" — so focus is handed back explicitly.
 function closeModal() {
+  if (modalEl.contains(document.activeElement)) document.activeElement.blur();
+  if (returnFocusEl?.isConnected) returnFocusEl.focus();
+  returnFocusEl = null;
   modalEl.classList.remove("link-modal--open");
   modalEl.querySelector("form").reset();
   modalEl.__urlError.textContent = "";
@@ -74,13 +80,15 @@ function buildModal() {
   labelInput.type = "text";
   labelInput.className = "link-modal__input";
   labelInput.placeholder = "Label";
+  labelInput.setAttribute("aria-label", "Label");
   labelInput.required = true;
   labelInput.autocomplete = "off";
 
   const urlInput = document.createElement("input");
   urlInput.type = "text";
   urlInput.className = "link-modal__input";
-  urlInput.placeholder = "URL";
+  urlInput.placeholder = "URL — example.com";
+  urlInput.setAttribute("aria-label", "URL");
   urlInput.required = true;
   urlInput.autocomplete = "off";
 
@@ -93,6 +101,10 @@ function buildModal() {
   const shortcutFieldLabel = document.createElement("label");
   shortcutFieldLabel.className = "link-modal__shortcut-label";
   shortcutFieldLabel.textContent = "Shortcut";
+  const optional = document.createElement("span");
+  optional.className = "link-modal__optional";
+  optional.textContent = "optional";
+  shortcutFieldLabel.appendChild(optional);
 
   const shortcutRow = document.createElement("div");
   shortcutRow.className = "link-modal__shortcut-row";
@@ -190,6 +202,7 @@ export function openLinkModal(root, { title = "Add link", submitLabel = "Add lin
   modalEl.__urlInput.value = initial.url ?? "";
   modalEl.__urlError.textContent = "";
   setShortcut(initial.shortcutKey ?? null);
+  if (!modalEl.classList.contains("link-modal--open")) returnFocusEl = document.activeElement;
   modalEl.classList.add("link-modal--open");
   modalEl.__labelInput.focus();
 }

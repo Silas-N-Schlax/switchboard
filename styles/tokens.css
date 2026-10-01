@@ -1,4 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("fonts/manrope-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+}
 
 :root {
   --sky-deep: #07070f;
@@ -7,24 +29,43 @@
   --sky-amber: #3a2419;
   --amber-soft: #58311f;
 
-  --ink: #e8e3da;
-  --ink-dim: #9b96a8;
-  --ink-faint: #625d70;
+  --ink: #ece6dc;
+  --ink-dim: #aba5b5;
+  --ink-faint: #928c9f;
 
-  --accent: #5fc9b4;
-  --flag: #b5665f;
+  --accent: #cfa86a;
+  --accent-ink: #1a1308;
+  --accent-wash: color-mix(in oklch, var(--accent) 7%, transparent);
+  --accent-soft: color-mix(in oklch, var(--accent) 15%, transparent);
+  --accent-line: color-mix(in oklch, var(--accent) 42%, transparent);
+  --flag: #c27a70;
 
-  --glass: rgba(255, 255, 255, 0.06);
-  --glass-brd: rgba(255, 255, 255, 0.12);
-  --glass-hi: rgba(255, 255, 255, 0.18);
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-brd: rgba(255, 255, 255, 0.1);
+  --glass-hi: rgba(255, 255, 255, 0.16);
 
-  --surface-bg: rgba(7, 7, 15, 0.92);
-  --surface-bg-modal: rgba(7, 7, 15, 0.55);
-  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --surface-bg: rgba(10, 9, 18, 0.92);
+  --surface-bg-modal: rgba(10, 9, 18, 0.62);
+  --overlay-bg: rgba(4, 3, 10, 0.5);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-md: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
 
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
   --radius-pill: 999px;
 
   --shadow-float: 0 16px 32px rgba(0, 0, 0, 0.45);
@@ -32,10 +73,13 @@
   --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.4);
 
   --blur-sm: blur(12px);
-  --blur-md: blur(16px);
+  --blur-md: blur(18px);
 
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 0.12s;
-  --duration-base: 0.15s;
+  --duration-base: 0.18s;
+
+  --stage-top: clamp(40px, 16vh, 180px);
 
   --font-ui: "Manrope", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;

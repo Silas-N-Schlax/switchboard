@@ -1,24 +1,32 @@
-/* Gear button — small, top-right, low visual emphasis, per the approved layout. */
+/* Corner icon buttons (settings, cheat sheet) — ghost until hovered, per the approved
+   low-emphasis layout. */
 .settings-toggle {
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: var(--space-4);
+  right: var(--space-4);
   z-index: 10;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 30px;
-  line-height: 1;
-  color: var(--ink-dim);
-  background: var(--glass);
-  border: 1px solid var(--glass-brd);
-  border-radius: var(--radius-sm);
+  color: var(--ink-faint);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  transition: color var(--duration-base) var(--ease-out), background var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 
   &:hover {
     color: var(--ink);
-    border-color: var(--glass-hi);
+    background: var(--glass);
+    border-color: var(--glass-brd);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 }

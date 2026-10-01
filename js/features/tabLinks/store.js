@@ -12,6 +12,14 @@ export function normalizeUrl(url) {
   return /^[a-z][a-z0-9+.-]*:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+export function displayHost(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 export function sortedTabs() {
   return [...state.tabs].sort((a, b) => a.order - b.order);
 }
