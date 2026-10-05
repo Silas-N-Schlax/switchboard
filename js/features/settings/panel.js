@@ -5,12 +5,14 @@ import { defaultAmbientSettings } from "../../../defaults.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBubblesSection } from "./bubbles-section.js";
 import { buildStatsSection } from "./stats-section.js";
+import { buildLinksSection } from "./links-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
 import { buildDialogHeader } from "../dialog/chrome.js";
 
 let panelEl = null;
 let returnFocusEl = null;
+let onSettingsChange = () => {};
 
 function buildPanel() {
   const panel = document.createElement("div");
@@ -27,6 +29,7 @@ function buildPanel() {
 
   const colorSection = buildColorSection();
   const bubblesSection = buildBubblesSection();
+  const linksSection = buildLinksSection(() => onSettingsChange());
   const statsSection = buildStatsSection();
 
   const footer = document.createElement("div");
@@ -46,7 +49,7 @@ function buildPanel() {
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";
-  body.append(colorSection.element, bubblesSection.element, statsSection.element);
+  body.append(colorSection.element, bubblesSection.element, linksSection.element, statsSection.element);
 
   dialog.append(header, body, footer);
   panel.append(backdrop, dialog);
@@ -94,7 +97,8 @@ export function openSettings(root = document.body) {
   panelEl.querySelector(".settings-panel__dialog").focus();
 }
 
-export function initSettingsToggle(root = document.body) {
+export function initSettingsToggle(root = document.body, onChange = () => {}) {
+  onSettingsChange = onChange;
   registerKeybind("settings-open", {
     description: "Open settings",
     handler: () => openSettings(root),

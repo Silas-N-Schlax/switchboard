@@ -6,6 +6,8 @@ import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { getKeybind } from "../features/keybinds/registry.js";
 import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
+import { buildFavicon } from "../features/favicons/favicon.js";
+import { state } from "../state.js";
 import { linkListSplitThreshold } from "../../defaults.js";
 
 function recordOpen(link, e, searching) {
@@ -137,6 +139,11 @@ export function renderLinks(container, onChange) {
       index.textContent = launchIndexById.get(link.id);
       index.title = "Launch order";
       row.appendChild(index);
+    }
+
+    if (state.settings.showFavicons) {
+      row.classList.add("link-list__row--favicon");
+      row.appendChild(buildFavicon(link.url, "link-list__favicon"));
     }
 
     row.append(anchor);

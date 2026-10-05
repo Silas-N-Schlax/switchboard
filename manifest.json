@@ -3,6 +3,12 @@
   "name": "Switchboard",
   "version": "0.1.0",
   "description": "A minimal, keyboard-first New Tab replacement — local link workspaces, no bookmarks, no cloud.",
+  "icons": {
+    "16": "graphics/extension/icon-16.png",
+    "32": "graphics/extension/icon-32.png",
+    "48": "graphics/extension/icon-48.png",
+    "128": "graphics/extension/icon-128.png"
+  },
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
@@ -16,5 +22,8 @@
     "bookmarks",
     "alarms",
     "favicon"
+  ],
+  "optional_permissions": [
+    "history"
   ]
 }

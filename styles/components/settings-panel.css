@@ -50,6 +50,27 @@
     gap: var(--space-2);
   }
 
+  .settings-panel__row[hidden] {
+    display: none;
+  }
+
+  .settings-panel__action {
+    padding: 5px var(--space-3);
+    background: var(--accent-wash);
+    border: 1px solid var(--accent-line);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--duration-fast) ease;
+
+    &:hover {
+      background: var(--accent-soft);
+    }
+  }
+
   .settings-panel__reset {
     padding: 4px 0;
     background: none;

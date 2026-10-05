@@ -1,0 +1,12 @@
+.favicon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.favicon--missing {
+  opacity: 0.7;
+  filter: saturate(0.6);
+}

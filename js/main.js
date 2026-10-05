@@ -33,7 +33,7 @@ async function init() {
 
 function render() {
   renderAmbient(document.body, state.settings);
-  initSettingsToggle(document.body);
+  initSettingsToggle(document.body, renderTabLinks);
   initCheatsheetToggle(document.body);
   renderTabLinks();
 }

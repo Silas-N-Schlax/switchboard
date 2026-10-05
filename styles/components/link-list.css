@@ -88,6 +88,20 @@
     }
   }
 
+  .link-list__row--favicon {
+    grid-template-columns: 16px minmax(0, 1fr) auto minmax(0, max-content) 14px;
+    grid-template-areas: "icon label keys url end";
+
+    &.link-list__row--static {
+      grid-template-columns: 16px minmax(0, 1fr) auto minmax(0, max-content) auto;
+    }
+  }
+
+  .link-list__favicon {
+    grid-area: icon;
+    display: flex;
+  }
+
   .link-list__row-tab {
     grid-area: end;
     padding: 2px var(--space-2);
@@ -232,6 +246,16 @@
 
   .link-list__delete {
     display: none;
+  }
+
+  &.link-list__row--favicon {
+    grid-template-columns: 16px minmax(0, 1fr) auto minmax(0, max-content) 14px;
+    grid-template-areas: "icon label keys url end";
+  }
+
+  .link-list__favicon {
+    grid-area: icon;
+    display: flex;
   }
 
   &.link-list__row--launch {
