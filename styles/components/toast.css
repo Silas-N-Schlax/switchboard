@@ -1,0 +1,59 @@
+/* Short-lived notices ("Backup downloaded", "Stats cleared"). Top-center so they never
+   cover the tab dock at the bottom. */
+.toast-region {
+  position: fixed;
+  top: var(--space-6);
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  padding: 10px var(--space-4);
+  border-radius: 999px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-md);
+  font-weight: 500;
+  white-space: nowrap;
+  animation: toast-in 0.24s var(--ease-out);
+
+  &.toast--success {
+    border-color: var(--accent-line);
+  }
+
+  &.toast--error {
+    border-color: color-mix(in oklch, var(--flag) 45%, transparent);
+    color: var(--flag);
+  }
+
+  &.toast--leaving {
+    animation: toast-out 0.2s ease-in forwards;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.toast--leaving {
+    animation: none;
+  }
+}

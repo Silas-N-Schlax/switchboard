@@ -1,0 +1,70 @@
+/* Confirm and alert dialogs. Sits above every other layer, including the context menu
+   and the settings panel, since either can open one. */
+.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .confirm-dialog__dialog {
+    --dialog-width: 380px;
+  }
+
+  .confirm-dialog__message {
+    margin: 0;
+    padding: var(--space-1) var(--space-5) var(--space-5);
+    color: var(--ink-dim);
+    font-size: var(--text-base);
+    line-height: 1.55;
+  }
+
+  .confirm-dialog__footer {
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+
+  .confirm-dialog__button {
+    padding: 8px var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) ease,
+      color var(--duration-fast) ease,
+      filter var(--duration-fast) ease;
+  }
+
+  .confirm-dialog__button--ghost {
+    background: none;
+    color: var(--ink-dim);
+
+    &:hover {
+      background: var(--glass);
+      color: var(--ink);
+    }
+  }
+
+  .confirm-dialog__button--primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+
+    &:hover {
+      filter: brightness(1.08);
+    }
+  }
+
+  .confirm-dialog__button--danger {
+    background: color-mix(in oklch, var(--flag) 16%, transparent);
+    border-color: color-mix(in oklch, var(--flag) 45%, transparent);
+    color: var(--flag);
+
+    &:hover {
+      background: color-mix(in oklch, var(--flag) 26%, transparent);
+    }
+  }
+}

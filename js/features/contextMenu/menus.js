@@ -3,6 +3,7 @@ import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
 import { openCheatsheet } from "../cheatsheet/index.js";
 import { getKeybind } from "../keybinds/registry.js";
+import { confirmTabDelete } from "../tabLinks/confirmTabDelete.js";
 import {
   deleteLink,
   updateLink,
@@ -145,7 +146,7 @@ function tabMenuItems(tab, onChange) {
       disabled: state.tabs.length <= 1,
       onSelect: async () => {
         if (state.tabs.length <= 1) return;
-        if (!confirm(`Delete tab "${tab.name}" and all its links?`)) return;
+        if (!(await confirmTabDelete(tab))) return;
         await deleteTab(tab.id);
         onChange();
       },

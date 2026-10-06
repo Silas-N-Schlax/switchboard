@@ -1,6 +1,8 @@
 import { buildRow } from "./controls.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
 import { exportToJson, readBackupFile, importFromJson } from "../importExport.js";
+import { confirmDialog, alertDialog } from "../dialog/confirm.js";
+import { showToast } from "../dialog/toast.js";
 
 function buildActionButton(text, onClick) {
   const button = document.createElement("button");
@@ -16,7 +18,10 @@ function pluralize(count, word) {
 }
 
 export function buildDataSection() {
-  const exportButton = buildActionButton("Export", () => exportToJson());
+  const exportButton = buildActionButton("Export", async () => {
+    await exportToJson();
+    showToast("Backup downloaded", { tone: "success" });
+  });
   const exportRow = buildRow({ labelText: "Export backup", control: exportButton, tag: "div" });
 
   const fileInput = document.createElement("input");
@@ -32,14 +37,20 @@ export function buildDataSection() {
     try {
       data = await readBackupFile(file);
     } catch (err) {
-      alert(err.message);
+      await alertDialog({ title: "Can't import that file", message: err.message });
       return;
     }
 
     const summary = `${pluralize(data.tabs.length, "tab")} and ${pluralize(data.links.length, "link")}`;
-    if (!confirm(`Replace everything in Switchboard with this backup (${summary})? This can't be undone.`)) {
-      return;
-    }
+    const confirmed = await confirmDialog({
+      title: "Restore this backup?",
+      message:
+        `The backup has ${summary}. It replaces all your current tabs, links, settings, ` +
+        "and stats, and that can't be undone.",
+      confirmLabel: "Replace everything",
+      danger: true,
+    });
+    if (!confirmed) return;
     await importFromJson(data);
     location.reload();
   });

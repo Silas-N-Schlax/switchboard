@@ -9,6 +9,7 @@ import {
   updateTab,
 } from "../features/tabLinks/store.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
+import { confirmTabDelete } from "../features/tabLinks/confirmTabDelete.js";
 import { registerTabSwitchKeybinds } from "../features/tabLinks/tabSwitchKeybinds.js";
 import { getRenamingTabId, endRenameTab } from "../features/tabLinks/renameState.js";
 import { getKeybind } from "../features/keybinds/registry.js";
@@ -93,7 +94,7 @@ export function renderTabs(container, onChange) {
     remove.addEventListener("click", async (e) => {
       e.stopPropagation();
       if (tabs.length <= 1) return;
-      if (!confirm(`Delete tab "${tab.name}" and all its links?`)) return;
+      if (!(await confirmTabDelete(tab))) return;
       await deleteTab(tab.id);
       onChange();
     });
