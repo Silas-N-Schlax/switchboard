@@ -19,22 +19,21 @@ import { recordEvent, StatEvent } from "./features/stats/recorder.js";
 const focusParam = "focus";
 
 // Chrome always gives a freshly opened New Tab override's keyboard focus to the address
-// bar, leaving every keybind dead until a click. Re-navigating the tab to the page's own
-// URL is an ordinary page load, so focus lands on the page instead.
+// bar, leaving every keybind dead until a click. A navigation started by the page itself
+// hands focus to the page; one started through chrome.tabs.update does not, so this has
+// to stay a document.location redirect (see https://github.com/philc/vimium/issues/4741).
 async function redirectForPageFocus() {
-  const isExtension = typeof chrome !== "undefined" && !!chrome.tabs;
+  const isExtension = typeof chrome !== "undefined" && !!chrome.storage;
   if (!isExtension || new URLSearchParams(location.search).has(focusParam)) return false;
   try {
     const settings = await loadKey("settings");
     if (!(settings?.focusPageOnOpen ?? focusPageOnOpen)) return false;
-    const tab = await chrome.tabs.getCurrent();
-    if (!tab) return false;
-    await chrome.tabs.update(tab.id, { url: chrome.runtime.getURL(`newtab.html?${focusParam}`) });
-    return true;
   } catch (err) {
-    console.warn("[switchboard] focus redirect failed", err);
+    console.warn("[switchboard] couldn't read the focus setting", err);
     return false;
   }
+  document.location.href = `${location.pathname}?${focusParam}`;
+  return true;
 }
 
 async function init() {
