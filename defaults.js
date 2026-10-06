@@ -61,6 +61,8 @@ export const bubbleSpeedMultiplierMax = 3;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
 export const sharkEats = true;
+export const seaFloor = true;
+export const seaSurface = true;
 export const fishSizeMultiplier = 0.15; // one slider step above the minimum
 export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
 export const fishBaseSizeRange = [28, 72]; // px body length at the default size
@@ -165,6 +167,8 @@ export const defaultAmbientSettings = {
   fishSizeMultiplier,
   bubbleSpeedMultiplier,
   sharkEats,
+  seaFloor,
+  seaSurface,
 };
 
 export const defaultSettings = {

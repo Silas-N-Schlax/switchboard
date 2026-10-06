@@ -4,13 +4,16 @@ import {
   fishSizeMultiplier as defaultFishSize,
   fishSizeScaleMax,
   sharkEats as defaultSharkEats,
+  seaFloor as defaultSeaFloor,
+  seaSurface as defaultSeaSurface,
 } from "../../../defaults.js";
 import { randomBetween, createSpawnField, svgEl, prefersReducedMotion } from "./util.js";
 import { pickSpecies } from "./fishSpecies.js";
 import { startSharkHunt } from "./sharkHunt.js";
+import { createSeaFloor } from "./seaFloor.js";
+import { createSeaSurface } from "./seaSurface.js";
 
 const SOLO = [[0, 0]];
-
 
 function buildSilhouette(species, flip) {
   const [width, height] = species.viewBox;
@@ -76,7 +79,7 @@ function fishScale(sizeMultiplier) {
   return 1 + ((sizeMultiplier - defaultFishSize) * (fishSizeScaleMax - 1)) / (1 - defaultFishSize);
 }
 
-function randomizeFish(el, sizeMultiplier, speedMultiplier) {
+function randomizeFish(el, sizeMultiplier, speedMultiplier, band) {
   const species = pickSpecies();
   const depth = Math.random();
   const swimsRight = Math.random() < 0.5;
@@ -100,8 +103,11 @@ function randomizeFish(el, sizeMultiplier, speedMultiplier) {
   el.style.setProperty("--swim-easing", species.swimEasing);
   el.style.setProperty("--from-x", swimsRight ? `calc(-${width}px - 2vw)` : "102vw");
   el.style.setProperty("--to-x", swimsRight ? `calc(102vw + ${trail}px)` : `calc(-${width + trail}px - 2vw)`);
-  el.style.setProperty("--y", `${randomBetween(5, 88)}vh`);
-  el.style.setProperty("--drift-y", `${randomBetween(-10, 10)}vh`);
+  const top = band.top * 100;
+  const bottom = band.bottom * 100;
+  const y = randomBetween(top, bottom);
+  el.style.setProperty("--y", `${y}vh`);
+  el.style.setProperty("--drift-y", `${Math.min(bottom - y, Math.max(top - y, randomBetween(-10, 10)))}vh`);
   el.style.setProperty("--duration", `${duration}ms`);
 
   // The hunt nudges this layer (shark steering, prey darting) on top of the CSS swim.
@@ -119,18 +125,32 @@ export const fish = {
   label: "Fish",
   controls: ["count", "size", "speed"],
   sizeSetting: "fishSizeMultiplier",
-  toggles: [{ key: "sharkEats", label: "Sharks eat fish" }],
+  toggles: [
+    { key: "sharkEats", label: "Sharks eat fish" },
+    { key: "seaFloor", label: "Sea floor" },
+    { key: "seaSurface", label: "Surface" },
+  ],
   create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
+    const floorOn = settings.seaFloor ?? defaultSeaFloor;
+    const surfaceOn = settings.seaSurface ?? defaultSeaSurface;
+    // Open water between the layers, as viewport-height fractions.
+    const band = { top: surfaceOn ? 0.14 : 0.05, bottom: floorOn ? 0.72 : 0.88 };
+
+    if (surfaceOn) createSeaSurface(container);
+    if (floorOn) createSeaFloor(container, { speedMultiplier, sizeScale: fishScale(sizeMultiplier) });
+
     const field = createSpawnField(container, {
       className: "fish-field",
       count,
       createItem: () => document.createElement("div"),
-      randomize: (el) => randomizeFish(el, sizeMultiplier, speedMultiplier),
+      randomize: (el) => randomizeFish(el, sizeMultiplier, speedMultiplier, band),
       placeStatic(el) {
         el.style.setProperty("--from-x", `${randomBetween(5, 90)}vw`);
       },
     });
-    if (!prefersReducedMotion) startSharkHunt(field, { eats: settings.sharkEats ?? defaultSharkEats });
+    if (!prefersReducedMotion) {
+      startSharkHunt(field, { eats: settings.sharkEats ?? defaultSharkEats, bounds: band });
+    }
     return field;
   },
 };

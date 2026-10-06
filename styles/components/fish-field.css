@@ -4,6 +4,8 @@
    the tail/fins beat. The svg is one opacity group so overlapping parts read as a
    single soft silhouette with no seams. */
 .fish-field {
+  /* No z-index/opacity/transform/filter here: a stacking context would stop fish
+     interleaving with the sea floor's kelp layers. */
   position: absolute;
   inset: 0;
 

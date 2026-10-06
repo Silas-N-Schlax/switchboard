@@ -1,0 +1,142 @@
+/* Underside of the sea surface for the Fish background
+   (js/render/backgrounds/seaSurface.js): scrolling wave layers, light rays, glints,
+   and the occasional boat hull passing overhead. */
+.sea-surface {
+  --sunlit: color-mix(in oklab, var(--bg-3) 50%, white);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  .sea-surface__band {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 10vh;
+    overflow: hidden;
+  }
+
+  .sea-surface__waves {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 200%;
+    height: 100%;
+    fill: var(--sunlit);
+    animation: seaWaves 48s linear infinite;
+  }
+
+  .sea-surface__waves--back {
+    opacity: 0.12;
+  }
+
+  .sea-surface__waves--front {
+    opacity: 0.09;
+    animation-duration: 30s;
+    animation-direction: reverse;
+  }
+
+  .sea-surface__glints {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    line {
+      stroke: var(--sunlit);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+      opacity: 0;
+      animation: seaGlint 8s ease-in-out infinite;
+    }
+  }
+
+  .sea-surface__ray {
+    position: absolute;
+    top: -4vh;
+    height: 75vh;
+    background: linear-gradient(to bottom, var(--sunlit), transparent 85%);
+    mask-image: linear-gradient(to right, transparent, #000 35%, #000 65%, transparent);
+    transform: skewX(var(--skew, -12deg));
+    transform-origin: top;
+    opacity: 0.05;
+    animation: seaRay 10s ease-in-out infinite alternate;
+  }
+
+  .sea-surface__boat {
+    position: absolute;
+    left: 0;
+    top: 4.2vh;
+    width: 11vw;
+    transform: translateX(var(--from-x));
+    animation: boatCross 30s linear forwards;
+  }
+
+  .sea-surface__hull {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    fill: color-mix(in oklab, var(--bg-1) 60%, black);
+    opacity: 0.55;
+    transform: scaleX(var(--flip, 1));
+    animation: boatRock 4s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes seaWaves {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes seaGlint {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  50% {
+    opacity: 0.35;
+    transform: translateX(12px);
+  }
+}
+
+@keyframes seaRay {
+  from {
+    opacity: 0.03;
+  }
+  to {
+    opacity: 0.09;
+  }
+}
+
+@keyframes boatCross {
+  from {
+    transform: translateX(var(--from-x));
+  }
+  to {
+    transform: translateX(var(--to-x));
+  }
+}
+
+@keyframes boatRock {
+  from {
+    rotate: -1.5deg;
+  }
+  to {
+    rotate: 1.5deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sea-surface__waves,
+  .sea-surface__glints line,
+  .sea-surface__ray {
+    animation: none;
+  }
+}

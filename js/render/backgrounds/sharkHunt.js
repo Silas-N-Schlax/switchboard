@@ -101,7 +101,7 @@ function easeFleeRates(fishEls, now) {
   return active;
 }
 
-function steerShark(shark, fishEls, dt, eats) {
+function steerShark(shark, fishEls, dt, { eats, bounds }) {
   const steer = steerOf(shark);
   const rect = steer.getBoundingClientRect();
   const flip = Number(shark.dataset.flip);
@@ -152,8 +152,9 @@ function steerShark(shark, fishEls, dt, eats) {
   const target = locked?.p ?? nearest?.p;
   const maxSpeed = locked ? DIVE_STEER_SPEED : STEER_SPEED;
   const limit = window.innerHeight * MAX_STEER;
-  const margin = window.innerHeight * 0.08;
-  const targetY = target ? clamp(target.y, margin, window.innerHeight - margin) : head.y;
+  const targetY = target
+    ? clamp(target.y, window.innerHeight * bounds.top, window.innerHeight * bounds.bottom)
+    : head.y;
   const desired = clamp(state.offset + (targetY - head.y), -limit, limit);
   const wanted = clamp((desired - state.offset) * STEER_RESPONSE, -maxSpeed, maxSpeed);
   state.velocity += (wanted - state.velocity) * Math.min(1, dt * 2);
@@ -168,7 +169,8 @@ function steerShark(shark, fishEls, dt, eats) {
   if (swim) swim.playbackRate = state.rate;
 }
 
-export function startSharkHunt(field, { eats }) {
+// `bounds` are the top/bottom of open water as viewport-height fractions.
+export function startSharkHunt(field, options) {
   let last = 0;
 
   function frame(now) {
@@ -180,7 +182,7 @@ export function startSharkHunt(field, { eats }) {
     const sharks = fishEls.filter(
       (el) => el.classList.contains("fish-field__fish--shark") && isOnScreen(el.getBoundingClientRect())
     );
-    sharks.forEach((shark) => steerShark(shark, fishEls, dt, eats));
+    sharks.forEach((shark) => steerShark(shark, fishEls, dt, options));
     const stillFleeing = easeFleeRates(fishEls, now);
 
     if (sharks.length || stillFleeing) {

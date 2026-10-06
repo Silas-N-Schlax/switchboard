@@ -1,4 +1,4 @@
-import { svgEl } from "./util.js";
+import { svgEl, seededRandom } from "./util.js";
 
 const WIDTH = 1600;
 const HEIGHT = 900;
@@ -21,17 +21,6 @@ const REFLECTION_SCALE = 0.55;
 
 const LEFT_BANK = "M0 900 L0 640 Q300 652 640 706 Q600 790 520 900 Z";
 const RIGHT_BANK = "M1600 900 L1600 646 Q1300 656 980 712 Q1020 790 1100 900 Z";
-
-// Deterministic so the "random" forest is the same composition on every load.
-function seededRandom(seed) {
-  let a = seed;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 function treePath(x, baseY, height) {
   const halfWidth = height * 0.17;
