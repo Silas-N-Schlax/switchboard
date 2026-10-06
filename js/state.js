@@ -1,6 +1,7 @@
 export const state = {
   tabs: [],
   links: [],
+  linkGroups: [],
   settings: null,
   activeTabId: null,
 };

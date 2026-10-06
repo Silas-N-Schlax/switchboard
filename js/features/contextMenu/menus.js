@@ -15,7 +15,17 @@ import {
   defaultTab,
   isExplicitDefaultTab,
   setDefaultTab,
+  linkGroupIdOf,
 } from "../tabLinks/store.js";
+import {
+  linkGroupsForTab,
+  canAddLinkGroup,
+  moveLinkToGroup,
+  addLinkGroupWithLink,
+  shiftLinkGroup,
+  ungroupLinkGroup,
+  beginRenameLinkGroup,
+} from "../linkGroups/index.js";
 import {
   launchGroup,
   hasLaunchGroup,
@@ -26,6 +36,27 @@ import {
 import { openLinkModal } from "../tabLinks/linkModal.js";
 import { beginRenameTab } from "../tabLinks/renameState.js";
 import { maxTabs } from "../../../defaults.js";
+
+function linkGroupMenuItems(link, onChange) {
+  const currentGroupId = linkGroupIdOf(link);
+  const moveTo = (groupId) => async () => {
+    await moveLinkToGroup(link.id, groupId);
+    onChange();
+  };
+  const items = linkGroupsForTab(link.tabId)
+    .filter((g) => g.id !== currentGroupId)
+    .map((g) => ({ label: `Move to ${g.name}`, onSelect: moveTo(g.id) }));
+  if (currentGroupId) items.push({ label: "Move to main list", onSelect: moveTo(null) });
+  items.push({
+    label: "Move to new group",
+    disabled: !canAddLinkGroup(link.tabId),
+    onSelect: async () => {
+      const group = await addLinkGroupWithLink(link.id);
+      if (group) beginRenameLinkGroup(group.id, onChange);
+    },
+  });
+  return items;
+}
 
 function linkMenuItems(link, onChange) {
   return [
@@ -58,6 +89,9 @@ function linkMenuItems(link, onChange) {
         onChange();
       },
     },
+    { divider: true },
+    ...linkGroupMenuItems(link, onChange),
+    { divider: true },
     {
       label: "Duplicate",
       onSelect: async () => {
@@ -154,6 +188,38 @@ function tabMenuItems(tab, onChange) {
   ];
 }
 
+function groupMenuItems(group, onChange) {
+  const groups = linkGroupsForTab(group.tabId);
+  const index = groups.findIndex((g) => g.id === group.id);
+  return [
+    { label: "Rename", onSelect: () => beginRenameLinkGroup(group.id, onChange) },
+    {
+      label: "Move left",
+      disabled: index <= 0,
+      onSelect: async () => {
+        await shiftLinkGroup(group.id, -1);
+        onChange();
+      },
+    },
+    {
+      label: "Move right",
+      disabled: index >= groups.length - 1,
+      onSelect: async () => {
+        await shiftLinkGroup(group.id, 1);
+        onChange();
+      },
+    },
+    { divider: true },
+    {
+      label: "Ungroup",
+      onSelect: async () => {
+        await ungroupLinkGroup(group.id);
+        onChange();
+      },
+    },
+  ];
+}
+
 function launchBarMenuItems(tab, onChange) {
   return [
     { label: "Launch", hint: getKeybind("launch-group"), onSelect: () => launchGroup(tab.id) },
@@ -185,13 +251,19 @@ function defaultMenuItems() {
   ];
 }
 
-// Every right-click resolves to exactly one of these three item sets — link
-// and tab targets get their own menu, everything else falls back to default.
+// Every right-click resolves to exactly one item set — links, group labels, the launch
+// bar, and tabs get their own menu, everything else falls back to default.
 function resolveMenuItems(target, onChange) {
   const linkRow = target.closest(".link-list__row");
   if (linkRow) {
     const link = state.links.find((l) => l.id === linkRow.dataset.dragId);
     if (link) return linkMenuItems(link, onChange);
+  }
+
+  const groupLabel = target.closest(".link-group__label");
+  if (groupLabel) {
+    const group = state.linkGroups.find((g) => g.id === groupLabel.closest(".link-group").dataset.groupId);
+    if (group) return groupMenuItems(group, onChange);
   }
 
   if (target.closest(".launch-bar")) {

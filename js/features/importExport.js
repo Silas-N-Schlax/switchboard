@@ -3,7 +3,7 @@ import { SCHEMA_VERSION } from "../schema.js";
 import { STATS_KEY_PATTERN } from "./stats/recorder.js";
 
 const BACKUP_FORMAT = "switchboard-backup";
-const CORE_KEYS = ["schemaVersion", "tabs", "links", "settings"];
+const CORE_KEYS = ["schemaVersion", "tabs", "links", "linkGroups", "settings"];
 
 // TODO: Google Bookmarks HTML import, export to chrome.bookmarks
 export function importFromBookmarksHtml() {}
@@ -38,6 +38,15 @@ function isValidTab(tab) {
   return isObject(tab) && typeof tab.id === "string" && typeof tab.name === "string";
 }
 
+function isValidLinkGroup(group) {
+  return (
+    isObject(group) &&
+    typeof group.id === "string" &&
+    typeof group.tabId === "string" &&
+    typeof group.name === "string"
+  );
+}
+
 function isValidLink(link) {
   return (
     isObject(link) &&
@@ -67,6 +76,9 @@ export function parseBackup(text) {
   }
   if (!Array.isArray(data.links) || !data.links.every(isValidLink)) {
     throw new Error("That backup's links are damaged.");
+  }
+  if (data.linkGroups !== undefined && (!Array.isArray(data.linkGroups) || !data.linkGroups.every(isValidLinkGroup))) {
+    throw new Error("That backup's link groups are damaged.");
   }
   if (data.settings !== undefined && !isObject(data.settings)) {
     throw new Error("That backup's settings are damaged.");

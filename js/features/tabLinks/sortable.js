@@ -1,6 +1,10 @@
 import { sortDragThresholdPx, sortFlipDurationMs } from "../../../defaults.js";
 
-export function makeSortable(container, { selector, onReorder, axis = "y" }) {
+// resolveDropZone(el) lets rows cross into other parents inside the container: given the
+// element under the pointer (when it isn't a row), it returns { parent, before } for where
+// the dragged row should go, or null. onReorder receives the row's index within its final
+// parent, plus that parent.
+export function makeSortable(container, { selector, onReorder, axis = "y", resolveDropZone, onMove }) {
   let dragEl = null;
   let ghost = null;
   let pointerId = null;
@@ -84,11 +88,55 @@ export function makeSortable(container, { selector, onReorder, axis = "y" }) {
     ghost.style.top = `${ev.clientY - offsetY}px`;
   }
 
+  function lockReorder() {
+    reorderLocked = true;
+    setTimeout(() => {
+      reorderLocked = false;
+    }, sortFlipDurationMs);
+  }
+
+  // The ghost takes on the size of the slot it now sits in, and the grab point is
+  // rescaled so the pointer stays at the same relative spot on the resized ghost.
+  function fitGhostToSlot(ev) {
+    const slot = dragEl.getBoundingClientRect();
+    const current = ghost.getBoundingClientRect();
+    offsetX *= slot.width / current.width;
+    offsetY *= slot.height / current.height;
+    ghost.style.width = `${slot.width}px`;
+    moveGhost(ev);
+  }
+
+  function moveAcross(parent, before, ev) {
+    const oldRects = recordRects();
+    parent.insertBefore(dragEl, before);
+    onMove?.(dragEl, ghost);
+    fitGhostToSlot(ev);
+    playFlip(oldRects);
+    lockReorder();
+  }
+
   function maybeReorderDom(ev) {
     if (reorderLocked) return;
 
-    const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(selector);
-    if (!target || target === dragEl || !container.contains(target)) return;
+    const hovered = document.elementFromPoint(ev.clientX, ev.clientY);
+    if (!hovered || !container.contains(hovered)) return;
+    const target = hovered.closest(selector);
+
+    if (!target && resolveDropZone) {
+      const zone = resolveDropZone(hovered);
+      if (zone && zone.parent !== dragEl.parentElement) moveAcross(zone.parent, zone.before, ev);
+      return;
+    }
+    if (!target || target === dragEl) return;
+
+    if (target.parentElement !== dragEl.parentElement) {
+      if (!resolveDropZone) return;
+      const rect = target.getBoundingClientRect();
+      const before =
+        axis === "y" ? ev.clientY < rect.top + rect.height / 2 : ev.clientX < rect.left + rect.width / 2;
+      moveAcross(target.parentElement, before ? target : target.nextSibling, ev);
+      return;
+    }
 
     const all = items();
     const dragIndex = all.indexOf(dragEl);
@@ -114,11 +162,7 @@ export function makeSortable(container, { selector, onReorder, axis = "y" }) {
       target.before(dragEl);
     }
     playFlip(oldRects);
-
-    reorderLocked = true;
-    setTimeout(() => {
-      reorderLocked = false;
-    }, sortFlipDurationMs);
+    lockReorder();
   }
 
   function endDrag() {
@@ -128,8 +172,9 @@ export function makeSortable(container, { selector, onReorder, axis = "y" }) {
     document.body.classList.remove("is-sorting");
     clearTransforms();
 
-    const finalIndex = items().indexOf(dragEl);
-    onReorder(dragEl.dataset.dragId, finalIndex);
+    const parent = dragEl.parentElement;
+    const finalIndex = [...parent.children].filter((el) => el.matches(selector)).indexOf(dragEl);
+    onReorder(dragEl.dataset.dragId, finalIndex, parent);
   }
 
   function onPointerDown(e) {

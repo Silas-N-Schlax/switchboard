@@ -66,6 +66,9 @@ export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multi
 // ============================================================================
 export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: "1" }];
 export const defaultLinks = [];
+export const defaultLinkGroups = [];
+export const linkGroupLimit = 3;
+export const linkGroupLimitRange = [1, 9];
 export const linkListSplitThreshold = 6;
 // null means the list never splits.
 export const linkListSplitThresholdOptions = [4, 6, 8, 10, 12, null];
@@ -162,6 +165,7 @@ export const defaultSettings = {
   searchEngineId,
   searchFallbackColor,
   linkListSplitThreshold,
+  linkGroupLimit,
   showFullUrl,
   openLinksInNewTab,
   ambientMode: defaultAmbientSettings,

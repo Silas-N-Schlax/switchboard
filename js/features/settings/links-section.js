@@ -1,13 +1,13 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
-import { buildRow, buildToggleSwitch, buildSelect } from "./controls.js";
+import { buildRow, buildToggleSwitch, buildSelect, buildNumberInput } from "./controls.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
 import {
   requestFaviconHistoryAccess,
   hasFaviconHistoryAccess,
   clearFaviconCache,
 } from "../favicons/favicon.js";
-import { linkListSplitThresholdOptions } from "../../../defaults.js";
+import { linkListSplitThresholdOptions, linkGroupLimitRange } from "../../../defaults.js";
 
 function buildSettingToggle(labelText, key, onChange) {
   const { element, input } = buildToggleSwitch(state.settings[key], async (checked) => {
@@ -39,6 +39,19 @@ export function buildLinksSection(onChange) {
     },
   });
   const splitRow = buildRow({ labelText: "Two columns from", control: splitSelect.element });
+
+  const [groupLimitMin, groupLimitMax] = linkGroupLimitRange;
+  const groupLimitInput = buildNumberInput({
+    min: groupLimitMin,
+    max: groupLimitMax,
+    value: state.settings.linkGroupLimit,
+    onChange: async (linkGroupLimit) => {
+      state.settings.linkGroupLimit = linkGroupLimit;
+      await save({ settings: state.settings });
+      onChange();
+    },
+  });
+  const groupLimitRow = buildRow({ labelText: "Link groups per tab", control: groupLimitInput.element });
 
   const { element: toggle, input } = buildToggleSwitch(state.settings.showFavicons, async (checked) => {
     // permissions.request only works inside the click's user gesture, so it must start
@@ -73,9 +86,9 @@ export function buildLinksSection(onChange) {
 
   const { group } = buildDialogGroup({
     label: "Links",
-    rows: [newTab.row, fullUrl.row, splitRow, row, accessRow],
+    rows: [newTab.row, fullUrl.row, splitRow, groupLimitRow, row, accessRow],
     note:
-      "Two columns only show on wide windows. Favicons come from your browser's own cache, matched against your history, so nothing " +
+      "Two columns only show on wide windows. Lowering the group limit keeps existing groups and only stops new ones. Favicons come from your browser's own cache, matched against your history, so nothing " +
       "is fetched from the web. A site you haven't visited yet gets a placeholder until you do.",
   });
 
@@ -83,6 +96,7 @@ export function buildLinksSection(onChange) {
     newTab.refresh();
     fullUrl.refresh();
     splitSelect.setValue(state.settings.linkListSplitThreshold);
+    groupLimitInput.setValue(state.settings.linkGroupLimit);
     input.checked = state.settings.showFavicons;
     updateAccessRow();
   }

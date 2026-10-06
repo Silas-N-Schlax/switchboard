@@ -7,6 +7,7 @@ export function createLink({
   label,
   url,
   tabId,
+  groupId = null,
   order = 0,
   shortcutKey = null,
   launchGroup = false,
@@ -18,6 +19,7 @@ export function createLink({
     label,
     url,
     tabId,
+    groupId,
     order,
     shortcutKey,
     launchGroup,
@@ -33,6 +35,10 @@ export function createLink({
 
 export function createTab({ id, name, order = 0, shortcutKey = null, createdAt = Date.now() } = {}) {
   return { id, name, order, shortcutKey, createdAt };
+}
+
+export function createLinkGroup({ id, tabId, name, order = 0 } = {}) {
+  return { id, tabId, name, order };
 }
 
 export function createSettings(overrides = {}) {

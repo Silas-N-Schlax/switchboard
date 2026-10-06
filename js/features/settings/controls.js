@@ -40,6 +40,35 @@ export function buildRange({ min, max, step, value, onChange }) {
   return input;
 }
 
+export function buildNumberInput({ min, max, value, onChange }) {
+  const input = document.createElement("input");
+  input.type = "number";
+  input.className = "number-input";
+  input.min = String(min);
+  input.max = String(max);
+  input.step = "1";
+  input.value = String(value);
+  let current = value;
+
+  function setValue(next) {
+    current = next;
+    input.value = String(next);
+  }
+
+  function commit() {
+    const parsed = Math.round(Number(input.value));
+    const next = input.value !== "" && Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : current;
+    setValue(next);
+    onChange(next);
+  }
+
+  input.addEventListener("change", commit);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") commit();
+  });
+  return { element: input, setValue };
+}
+
 export function buildSelect({ options, value, onChange }) {
   const select = document.createElement("select");
   select.className = "select-input";

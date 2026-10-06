@@ -3,12 +3,13 @@ import {
   schemaVersion,
   defaultTabs,
   defaultLinks,
+  defaultLinkGroups,
   defaultSettings,
   defaultAmbientSettings,
   defaultKeybinds,
 } from "../defaults.js";
 
-const STORAGE_KEYS = ["schemaVersion", "tabs", "links", "settings"];
+const STORAGE_KEYS = ["schemaVersion", "tabs", "links", "linkGroups", "settings"];
 const DEV_STORAGE_PREFIX = "switchboard:";
 
 const isExtensionContext = typeof chrome !== "undefined" && !!chrome.storage;
@@ -33,6 +34,7 @@ function withDefaults(raw) {
     schemaVersion: raw.schemaVersion ?? schemaVersion,
     tabs: raw.tabs ?? defaultTabs,
     links: raw.links ?? defaultLinks,
+    linkGroups: raw.linkGroups ?? defaultLinkGroups,
     settings: {
       ...defaultSettings,
       ...raw.settings,
@@ -112,6 +114,7 @@ export async function seedFromDefaults() {
     schemaVersion,
     tabs: defaultTabs,
     links: defaultLinks,
+    linkGroups: defaultLinkGroups,
     settings: defaultSettings,
   });
   await save(payload);

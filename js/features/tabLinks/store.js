@@ -1,6 +1,6 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
-import { createTab, createLink } from "../../schema.js";
+import { createTab, createLink, createLinkGroup } from "../../schema.js";
 import { maxTabs } from "../../../defaults.js";
 import { recordEvent, StatEvent } from "../stats/recorder.js";
 
@@ -36,6 +36,26 @@ export function sortedTabs() {
 
 export function linksForTab(tabId) {
   return state.links.filter((l) => l.tabId === tabId).sort((a, b) => a.order - b.order);
+}
+
+// A link whose group was removed (or belongs to another tab) falls back to the main list.
+export function linkGroupIdOf(link) {
+  const { groupId } = link;
+  if (!groupId) return null;
+  return state.linkGroups.some((g) => g.id === groupId && g.tabId === link.tabId) ? groupId : null;
+}
+
+export function linksInGroup(tabId, groupId) {
+  return linksForTab(tabId).filter((l) => linkGroupIdOf(l) === groupId);
+}
+
+// Groups only exist to hold links, so one left empty by a move or delete goes away.
+export function pruneEmptyLinkGroups() {
+  const before = state.linkGroups.length;
+  state.linkGroups = state.linkGroups.filter((g) =>
+    state.links.some((l) => l.tabId === g.tabId && l.groupId === g.id)
+  );
+  return state.linkGroups.length !== before;
 }
 
 export function activeTab() {
@@ -99,13 +119,30 @@ export async function duplicateTab(tabId) {
   });
   state.tabs.push(tab);
 
+  const groupIdMap = new Map();
+  const groups = state.linkGroups
+    .filter((g) => g.tabId === tabId)
+    .map((g) => {
+      const copy = createLinkGroup({ id: crypto.randomUUID(), tabId: tab.id, name: g.name, order: g.order });
+      groupIdMap.set(g.id, copy.id);
+      return copy;
+    });
+  state.linkGroups.push(...groups);
+
   const links = linksForTab(tabId).map((l) =>
-    createLink({ id: crypto.randomUUID(), label: l.label, url: l.url, tabId: tab.id, order: l.order })
+    createLink({
+      id: crypto.randomUUID(),
+      label: l.label,
+      url: l.url,
+      tabId: tab.id,
+      groupId: groupIdMap.get(linkGroupIdOf(l)) ?? null,
+      order: l.order,
+    })
   );
   state.links.push(...links);
   state.activeTabId = tab.id;
 
-  await save({ tabs: state.tabs, links: state.links });
+  await save({ tabs: state.tabs, links: state.links, linkGroups: state.linkGroups });
   recordEvent(StatEvent.tabAdd, { tabId: tab.id, name: tab.name, via: "duplicate" });
   links.forEach((l) =>
     recordEvent(StatEvent.linkAdd, { linkId: l.id, tabId: tab.id, label: l.label, url: l.url, via: "duplicate" })
@@ -118,11 +155,12 @@ export async function deleteTab(tabId) {
   const removedLinks = linksForTab(tabId);
   state.tabs = state.tabs.filter((t) => t.id !== tabId);
   state.links = state.links.filter((l) => l.tabId !== tabId);
+  state.linkGroups = state.linkGroups.filter((g) => g.tabId !== tabId);
   if (state.activeTabId === tabId) {
     state.activeTabId = sortedTabs()[0]?.id ?? null;
   }
   if (state.settings.defaultTabId === tabId) state.settings.defaultTabId = null;
-  await save({ tabs: state.tabs, links: state.links, settings: state.settings });
+  await save({ tabs: state.tabs, links: state.links, linkGroups: state.linkGroups, settings: state.settings });
   removedLinks.forEach((l) =>
     recordEvent(StatEvent.linkDelete, { linkId: l.id, tabId, label: l.label, url: l.url, via: "tab-delete" })
   );
@@ -174,6 +212,7 @@ export async function duplicateLink(linkId) {
     label: `${source.label} copy`,
     url: source.url,
     tabId: source.tabId,
+    groupId: linkGroupIdOf(source),
     order: nextOrder(linksForTab(source.tabId)),
   });
   state.links.push(link);
@@ -185,11 +224,12 @@ export async function duplicateLink(linkId) {
 export async function deleteLink(linkId) {
   const link = state.links.find((l) => l.id === linkId);
   state.links = state.links.filter((l) => l.id !== linkId);
-  await save({ links: state.links });
+  await save(pruneEmptyLinkGroups() ? { links: state.links, linkGroups: state.linkGroups } : { links: state.links });
   if (link) recordEvent(StatEvent.linkDelete, { linkId, tabId: link.tabId, label: link.label, url: link.url });
 }
 
-export async function reorderLink(linkId, targetTabId, targetIndex) {
+// targetGroupId of undefined keeps the link in its current group; null means the main list.
+export async function reorderLink(linkId, targetTabId, targetIndex, targetGroupId) {
   const link = state.links.find((l) => l.id === linkId);
   if (!link) return;
   const sourceTabId = link.tabId;
@@ -197,12 +237,22 @@ export async function reorderLink(linkId, targetTabId, targetIndex) {
   if (sourceTabId !== targetTabId) {
     link.launchGroup = false;
     link.launchOrder = null;
+    link.groupId = null;
+    link.order = nextOrder(linksForTab(targetTabId).filter((l) => l.id !== linkId));
+  }
+  if (targetGroupId !== undefined && targetGroupId !== linkGroupIdOf(link)) {
+    link.groupId = targetGroupId;
+    link.order = nextOrder(linksForTab(targetTabId).filter((l) => l.id !== linkId));
   }
 
-  const targetLinks = linksForTab(targetTabId).filter((l) => l.id !== linkId);
+  // Reusing the bucket's existing order slots keeps orders unique across the whole tab,
+  // so the main list and every group can share one order sequence.
+  const bucket = linksInGroup(targetTabId, linkGroupIdOf(link));
+  const slots = bucket.map((l) => l.order);
+  const targetLinks = bucket.filter((l) => l.id !== linkId);
   targetLinks.splice(targetIndex, 0, link);
   targetLinks.forEach((l, i) => {
-    l.order = i;
+    l.order = slots[i];
   });
 
   if (sourceTabId !== targetTabId) {
@@ -211,7 +261,7 @@ export async function reorderLink(linkId, targetTabId, targetIndex) {
     });
   }
 
-  await save({ links: state.links });
+  await save(pruneEmptyLinkGroups() ? { links: state.links, linkGroups: state.linkGroups } : { links: state.links });
   if (sourceTabId !== targetTabId) {
     recordEvent(StatEvent.linkMove, { linkId, fromTabId: sourceTabId, toTabId: targetTabId });
   }
