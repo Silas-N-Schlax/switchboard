@@ -149,6 +149,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    &.link-list__url--full {
+      max-width: 40ch;
+    }
   }
 
   .link-list__delete {
@@ -242,6 +246,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    &.link-list__url--full {
+      max-width: 40ch;
+    }
   }
 
   .link-list__delete {

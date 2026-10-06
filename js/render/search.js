@@ -2,11 +2,17 @@ import { searchLinks } from "../features/search/store.js";
 import { registerKeybind, getKeybind } from "../features/keybinds/registry.js";
 import { activeTab, isHomeTab, setActiveTab, sortedTabs } from "../features/tabLinks/store.js";
 import { setSearchQuery, clearSearchQuery, getSearchMatches } from "../features/search/state.js";
-import { searchGoogleModeColor } from "../../defaults.js";
+import { searchEngines } from "../../defaults.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
+import { openUrl } from "../features/tabLinks/openUrl.js";
+import { state } from "../state.js";
 
-function googleSearchUrl(query) {
-  return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+function searchEngine() {
+  return searchEngines.find((e) => e.id === state.settings.searchEngineId) ?? searchEngines[0];
+}
+
+function webSearchUrl(query) {
+  return searchEngine().url + encodeURIComponent(query);
 }
 
 let barEl = null;
@@ -14,13 +20,9 @@ let inputEl = null;
 let hintEl = null;
 let onChangeRef = null;
 
-function go(url) {
-  window.location.href = url;
-}
-
-function updateGoogleMode() {
+function updateFallbackMode() {
   const query = inputEl.value.trim();
-  barEl.classList.toggle("search-bar--google-mode", query.length > 0 && getSearchMatches().length === 0);
+  barEl.classList.toggle("search-bar--fallback-mode", query.length > 0 && getSearchMatches().length === 0);
 }
 
 function updateHint() {
@@ -31,7 +33,6 @@ function updateHint() {
 function build(container) {
   barEl = document.createElement("div");
   barEl.className = "search-bar";
-  barEl.style.setProperty("--search-google-border", searchGoogleModeColor);
 
   inputEl = document.createElement("input");
   inputEl.type = "text";
@@ -45,7 +46,7 @@ function build(container) {
 
   inputEl.addEventListener("input", () => {
     setSearchQuery(inputEl.value, searchLinks(inputEl.value));
-    updateGoogleMode();
+    updateFallbackMode();
     updateHint();
     onChangeRef?.();
   });
@@ -59,15 +60,15 @@ function build(container) {
       if (top) {
         recordEvent(StatEvent.search, { outcome: "link" });
         await recordLinkOpen(top.link, "search");
-        go(top.link.url);
+        openUrl(top.link.url);
       } else {
-        await recordEvent(StatEvent.search, { outcome: "google" });
-        go(googleSearchUrl(query));
+        await recordEvent(StatEvent.search, { outcome: "web", engine: searchEngine().id });
+        openUrl(webSearchUrl(query));
       }
     } else if (e.key === "Escape") {
       inputEl.value = "";
       clearSearchQuery();
-      updateGoogleMode();
+      updateFallbackMode();
       inputEl.blur();
       updateHint();
       onChangeRef?.();
@@ -97,5 +98,6 @@ export function renderSearch(container, onChange) {
   onChangeRef = onChange;
   if (!barEl) build(container);
   updateHint();
+  barEl.style.setProperty("--search-fallback-border", state.settings.searchFallbackColor);
   barEl.classList.toggle("search-bar--hidden", !isHomeTab(activeTab()));
 }

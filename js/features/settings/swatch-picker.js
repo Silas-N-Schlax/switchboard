@@ -2,9 +2,12 @@ import { ambientCuratedSwatches } from "../../../defaults.js";
 
 const PAGE_SIZE = 20; // matches the 5x4 grid in swatch-picker.css
 
-const pages = [];
-for (let i = 0; i < ambientCuratedSwatches.length; i += PAGE_SIZE) {
-  pages.push(ambientCuratedSwatches.slice(i, i + PAGE_SIZE));
+function paginate(swatches) {
+  const pages = [];
+  for (let i = 0; i < swatches.length; i += PAGE_SIZE) {
+    pages.push(swatches.slice(i, i + PAGE_SIZE));
+  }
+  return pages;
 }
 
 let openPopover = null;
@@ -29,7 +32,8 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeOpenPopover();
 });
 
-export function createSwatchPicker({ ariaLabel, value, onChange }) {
+export function createSwatchPicker({ ariaLabel, value, onChange, swatches = ambientCuratedSwatches }) {
+  const pages = paginate(swatches);
   let currentValue = value;
   let currentPage = 0;
 

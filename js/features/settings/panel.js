@@ -1,7 +1,8 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { renderAmbient } from "../../render/ambient.js";
-import { defaultAmbientSettings } from "../../../defaults.js";
+import { defaultAmbientSettings, feedbackUrl } from "../../../defaults.js";
+import { buildGeneralSection } from "./general-section.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBubblesSection } from "./bubbles-section.js";
 import { buildStatsSection } from "./stats-section.js";
@@ -14,6 +15,7 @@ import { buildDialogHeader } from "../dialog/chrome.js";
 let panelEl = null;
 let returnFocusEl = null;
 let onSettingsChange = () => {};
+let sections = [];
 
 function buildPanel() {
   const panel = document.createElement("div");
@@ -28,6 +30,7 @@ function buildPanel() {
 
   const { header, close } = buildDialogHeader({ title: "Settings", closeLabel: "Close settings" });
 
+  const generalSection = buildGeneralSection(() => onSettingsChange());
   const colorSection = buildColorSection();
   const bubblesSection = buildBubblesSection();
   const linksSection = buildLinksSection(() => onSettingsChange());
@@ -47,17 +50,19 @@ function buildPanel() {
     colorSection.refresh();
     bubblesSection.refresh();
   });
-  footer.appendChild(resetButton);
+  const feedbackLink = document.createElement("a");
+  feedbackLink.className = "settings-panel__feedback";
+  feedbackLink.href = feedbackUrl;
+  feedbackLink.target = "_blank";
+  feedbackLink.rel = "noopener";
+  feedbackLink.textContent = "Send feedback ↗";
+  footer.append(resetButton, feedbackLink);
+
+  sections = [generalSection, colorSection, bubblesSection, linksSection, statsSection, dataSection];
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";
-  body.append(
-    colorSection.element,
-    bubblesSection.element,
-    linksSection.element,
-    statsSection.element,
-    dataSection.element,
-  );
+  body.append(...sections.map((section) => section.element));
 
   dialog.append(header, body, footer);
   panel.append(backdrop, dialog);
@@ -101,6 +106,7 @@ export function openSettings(root = document.body) {
   }
   if (isOpen()) return;
   returnFocusEl = document.activeElement;
+  sections.forEach((section) => section.refresh?.());
   panelEl.classList.add("settings-panel--open");
   panelEl.querySelector(".settings-panel__dialog").focus();
 }

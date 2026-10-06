@@ -1,0 +1,8 @@
+.hide-keycap-hints {
+  & .tab-dock .keybind-badge,
+  & .search-bar__hint,
+  & .launch-bar__hint,
+  & .link-list .shortcut-badges {
+    display: none;
+  }
+}

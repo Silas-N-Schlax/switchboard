@@ -1,9 +1,9 @@
 import { ambientMode, updateAmbient } from "./store.js";
-import { buildRow, buildToggleSwitch } from "./controls.js";
+import { buildRow, buildToggleSwitch, buildSelect } from "./controls.js";
 import { createSwatchPicker } from "./swatch-picker.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
 import { resolveColors } from "../../render/ambient.js";
-import { ambientPalettePresets, ambientPaletteId } from "../../../defaults.js";
+import { ambientPalettePresets, ambientPaletteId, ambientSegmentHourOptions } from "../../../defaults.js";
 
 const CUSTOM_PALETTE_ID = "custom";
 
@@ -71,11 +71,29 @@ function buildColorSwatches(onChange) {
 export function buildColorSection() {
   const { group: swatchGroup, refresh: refreshSwatches } = buildColorSwatches(updateAmbient);
 
+  const segmentSelect = buildSelect({
+    options: ambientSegmentHourOptions.map((hours) => ({
+      value: hours,
+      label: `${hours} ${hours === 1 ? "hour" : "hours"}`,
+    })),
+    value: ambientMode().segmentHours,
+    onChange: (segmentHours) => updateAmbient({ segmentHours }),
+  });
+  const segmentRow = buildRow({ labelText: "Time per color", control: segmentSelect.element });
+
+  function refreshSegmentRow() {
+    const cycleOn = ambientMode().colorCycleEnabled;
+    segmentRow.classList.toggle("settings-panel__row--disabled", !cycleOn);
+    segmentSelect.element.disabled = !cycleOn;
+    segmentSelect.setValue(ambientMode().segmentHours);
+  }
+
   const { element: cycleToggle, input: cycleInput } = buildToggleSwitch(
     ambientMode().colorCycleEnabled,
     (checked) => {
       updateAmbient({ colorCycleEnabled: checked });
       refreshSwatches();
+      refreshSegmentRow();
     }
   );
   const cycleRow = buildRow({ labelText: "Cycle through colors", control: cycleToggle });
@@ -87,12 +105,16 @@ export function buildColorSection() {
   const paletteRow = buildRow({ labelText: "Palette", control: paletteSelect });
 
   const colorsRow = buildRow({ labelText: "Colors", control: swatchGroup, tag: "div" });
-  const { group } = buildDialogGroup({ label: "Background", rows: [paletteRow, cycleRow, colorsRow] });
+  const { group } = buildDialogGroup({
+    label: "Background",
+    rows: [paletteRow, cycleRow, segmentRow, colorsRow],
+  });
 
   function refresh() {
     cycleInput.checked = ambientMode().colorCycleEnabled;
     paletteSelect.value = selectablePaletteId();
     refreshSwatches();
+    refreshSegmentRow();
   }
   refresh();
 

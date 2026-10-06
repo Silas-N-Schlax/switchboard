@@ -20,6 +20,16 @@ export function displayHost(url) {
   }
 }
 
+export function displayUrl(url) {
+  try {
+    const { hostname, pathname, search, hash } = new URL(url);
+    const path = pathname === "/" ? "" : pathname.replace(/\/$/, "");
+    return hostname.replace(/^www\./, "") + path + search + hash;
+  } catch {
+    return url;
+  }
+}
+
 export function sortedTabs() {
   return [...state.tabs].sort((a, b) => a.order - b.order);
 }

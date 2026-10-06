@@ -1,6 +1,7 @@
 import { state } from "../../state.js";
 import { serializeShortcutEvent } from "../keybinds/shortcutFormat.js";
 import { recordLinkOpen } from "../stats/recorder.js";
+import { openUrl } from "./openUrl.js";
 
 function isTypingTarget(el) {
   return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable;
@@ -22,6 +23,6 @@ export function initLinkShortcutListener() {
     if (!link) return;
     e.preventDefault();
     await recordLinkOpen(link, "shortcut");
-    window.location.href = link.url;
+    openUrl(link.url);
   });
 }

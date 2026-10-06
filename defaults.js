@@ -11,6 +11,7 @@ export const schemaVersion = 1;
 export const ambientColorCycleEnabled = true;
 export const ambientColors = ["#0d0c1c", "#2c1f3d", "#3a2419", "#2a1420"];
 export const ambientSegmentHours = 3;
+export const ambientSegmentHourOptions = [1, 2, 3, 4, 6];
 export const ambientTickIntervalMs = 15000;
 
 export const ambientPalettePresets = [
@@ -66,6 +67,10 @@ export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multi
 export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: "1" }];
 export const defaultLinks = [];
 export const linkListSplitThreshold = 6;
+// null means the list never splits.
+export const linkListSplitThresholdOptions = [4, 6, 8, 10, 12, null];
+export const showFullUrl = false;
+export const openLinksInNewTab = false;
 export const sortDragThresholdPx = 4;
 export const sortFlipDurationMs = 180;
 export const maxTabs = 9;
@@ -97,11 +102,30 @@ export const defaultKeybinds = {
 // ============================================================================
 // Search
 // ============================================================================
+export const searchEngines = [
+  { id: "google", name: "Google", url: "https://www.google.com/search?q=" },
+  { id: "duckduckgo", name: "DuckDuckGo", url: "https://duckduckgo.com/?q=" },
+  { id: "bing", name: "Bing", url: "https://www.bing.com/search?q=" },
+  { id: "kagi", name: "Kagi", url: "https://kagi.com/search?q=" },
+  { id: "brave", name: "Brave Search", url: "https://search.brave.com/search?q=" },
+];
+export const searchEngineId = "google";
+
 // Border shown around the search bar when the current query has no link matches
-// and Enter would fall back to a Google search. Not yet wired to settings —
-// hardcoded for now, but kept here so it's a one-line change to make it
-// user-customizable later.
-export const searchGoogleModeColor = "#b5665f";
+// and Enter would fall back to a web search.
+export const searchFallbackColor = "#b5665f";
+export const searchFallbackSwatches = [
+  "#b5665f",
+  "#d4766b",
+  "#c98a4b",
+  "#7fb86f",
+  "#5fc9b4",
+  "#5fb3c9",
+  "#6f9fd8",
+  "#8a7fd4",
+  "#b07fd4",
+  "#d47fa8",
+];
 
 // ============================================================================
 // General settings
@@ -112,6 +136,8 @@ export const faviconFetchSize = 32;
 export const faviconHistoryCandidateLimit = 3;
 export const cacheTrimEnabled = false;
 export const statsEnabled = true;
+export const showKeycapHints = true;
+export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================
 // Composed defaults — the shapes js/schema.js and js/storage.js actually consume
@@ -131,7 +157,13 @@ export const defaultSettings = {
   showFavicons,
   cacheTrimEnabled,
   statsEnabled,
+  showKeycapHints,
   defaultTabId,
+  searchEngineId,
+  searchFallbackColor,
+  linkListSplitThreshold,
+  showFullUrl,
+  openLinksInNewTab,
   ambientMode: defaultAmbientSettings,
   backgroundConfig: { mode: "ambient" },
   keybinds: defaultKeybinds,

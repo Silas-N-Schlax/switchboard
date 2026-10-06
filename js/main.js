@@ -5,6 +5,7 @@ import { renderTabs } from "./render/tabs.js";
 import { renderLinks } from "./render/links.js";
 import { renderSearch } from "./render/search.js";
 import { initSettingsToggle } from "./features/settings/index.js";
+import { applyDisplaySettings } from "./features/settings/store.js";
 import { initCheatsheetToggle } from "./features/cheatsheet/index.js";
 import { defaultTab } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
@@ -33,6 +34,7 @@ async function init() {
 
 function render() {
   renderAmbient(document.body, state.settings);
+  applyDisplaySettings(document.body);
   initSettingsToggle(document.body, renderTabLinks);
   initCheatsheetToggle(document.body);
   renderTabLinks();

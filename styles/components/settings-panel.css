@@ -85,4 +85,17 @@
       color: var(--ink);
     }
   }
+
+  .settings-panel__feedback {
+    margin-left: auto;
+    padding: 4px 0;
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: color var(--duration-fast) ease;
+
+    &:hover {
+      color: var(--accent);
+    }
+  }
 }

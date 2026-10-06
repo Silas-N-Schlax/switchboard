@@ -3,24 +3,17 @@ import { registerKeybind } from "../keybinds/registry.js";
 import { launchGroupLinks } from "./store.js";
 import { openLaunchGroupEditor } from "./editor.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../stats/recorder.js";
-
-const hasTabsApi = typeof chrome !== "undefined" && !!chrome.tabs?.create;
+import { opensInNewTab, openInNewTabs } from "../tabLinks/openUrl.js";
 
 async function openInOrder(links) {
-  const [first, ...rest] = links;
-  if (hasTabsApi) {
-    const current = await chrome.tabs.getCurrent();
-    for (const [i, link] of rest.entries()) {
-      await chrome.tabs.create({
-        url: link.url,
-        active: false,
-        ...(current ? { index: current.index + 1 + i, windowId: current.windowId } : {}),
-      });
-    }
-  } else {
-    rest.forEach((link) => window.open(link.url, "_blank", "noopener"));
+  const urls = links.map((link) => link.url);
+  if (opensInNewTab()) {
+    await openInNewTabs(urls, { activateFirst: true });
+    return;
   }
-  window.location.href = first.url;
+  const [first, ...rest] = urls;
+  await openInNewTabs(rest);
+  window.location.href = first;
 }
 
 export async function launchGroup(tabId = activeTab()?.id) {

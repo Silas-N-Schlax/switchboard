@@ -39,3 +39,31 @@ export function buildRange({ min, max, step, value, onChange }) {
   input.addEventListener("input", () => onChange(Number(input.value)));
   return input;
 }
+
+export function buildSelect({ options, value, onChange }) {
+  const select = document.createElement("select");
+  select.className = "select-input";
+  let currentOptions = [];
+
+  function setOptions(nextOptions, nextValue) {
+    currentOptions = nextOptions;
+    select.replaceChildren(
+      ...nextOptions.map((option, index) => {
+        const el = document.createElement("option");
+        el.value = String(index);
+        el.textContent = option.label;
+        return el;
+      })
+    );
+    setValue(nextValue);
+  }
+
+  function setValue(nextValue) {
+    const index = currentOptions.findIndex((option) => option.value === nextValue);
+    select.value = String(Math.max(0, index));
+  }
+
+  select.addEventListener("change", () => onChange(currentOptions[Number(select.value)].value));
+  setOptions(options, value);
+  return { element: select, setValue, setOptions };
+}

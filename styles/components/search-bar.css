@@ -64,8 +64,8 @@
     transform: translateY(-50%);
   }
 
-  &.search-bar--google-mode .search-bar__input {
-    border-color: var(--search-google-border);
-    --focus-glow: color-mix(in srgb, var(--search-google-border) 45%, transparent);
+  &.search-bar--fallback-mode .search-bar__input {
+    border-color: var(--search-fallback-border);
+    --focus-glow: color-mix(in srgb, var(--search-fallback-border) 45%, transparent);
   }
 }

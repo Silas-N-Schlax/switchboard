@@ -1,4 +1,14 @@
-import { linksForTab, activeTab, isHomeTab, addLink, deleteLink, reorderLink, displayHost } from "../features/tabLinks/store.js";
+import {
+  linksForTab,
+  activeTab,
+  isHomeTab,
+  addLink,
+  deleteLink,
+  reorderLink,
+  displayHost,
+  displayUrl,
+} from "../features/tabLinks/store.js";
+import { openUrl } from "../features/tabLinks/openUrl.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
 import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
@@ -8,7 +18,6 @@ import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js
 import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
 import { buildFavicon } from "../features/favicons/favicon.js";
 import { state } from "../state.js";
-import { linkListSplitThreshold } from "../../defaults.js";
 
 function recordOpen(link, e, searching) {
   if (searching) {
@@ -18,8 +27,8 @@ function recordOpen(link, e, searching) {
   return recordLinkOpen(link, e.detail === 0 ? "keyboard" : "click");
 }
 
-// Plain clicks navigate this tab away, so the stat write is awaited first; modified and
-// middle clicks leave this page open and can record in the background.
+// Plain clicks may navigate this tab away, so the stat write is awaited first; modified
+// and middle clicks leave this page open and can record in the background.
 function trackOpens(anchor, link, searching) {
   anchor.addEventListener("click", (e) => {
     if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
@@ -27,9 +36,7 @@ function trackOpens(anchor, link, searching) {
       return;
     }
     e.preventDefault();
-    recordOpen(link, e, searching).then(() => {
-      window.location.href = link.url;
-    });
+    recordOpen(link, e, searching).then(() => openUrl(link.url));
   });
   anchor.addEventListener("auxclick", (e) => {
     if (e.button === 1) recordOpen(link, e, searching);
@@ -104,7 +111,8 @@ export function renderLinks(container, onChange) {
     : null;
 
   const links = searching ? getSearchMatches().map((m) => m.link) : linksForTab(tab.id);
-  list.classList.toggle("link-list--split", links.length >= linkListSplitThreshold);
+  const splitThreshold = state.settings.linkListSplitThreshold;
+  list.classList.toggle("link-list--split", splitThreshold !== null && links.length >= splitThreshold);
 
   const launchBar = searching ? null : buildLaunchBar(tab);
   if (launchBar) list.appendChild(launchBar);
@@ -130,7 +138,8 @@ export function renderLinks(container, onChange) {
 
     const url = document.createElement("span");
     url.className = "link-list__url";
-    url.textContent = displayHost(link.url);
+    url.textContent = state.settings.showFullUrl ? displayUrl(link.url) : displayHost(link.url);
+    url.classList.toggle("link-list__url--full", state.settings.showFullUrl);
 
     if (!searching && launchIndexById.has(link.id)) {
       row.classList.add("link-list__row--launch");
