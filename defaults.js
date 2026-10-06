@@ -140,6 +140,8 @@ export const faviconHistoryCandidateLimit = 3;
 export const cacheTrimEnabled = false;
 export const statsEnabled = true;
 export const showKeycapHints = true;
+// Takes keyboard focus from the address bar when a new tab opens — see js/main.js.
+export const focusPageOnOpen = true;
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================
@@ -161,6 +163,7 @@ export const defaultSettings = {
   cacheTrimEnabled,
   statsEnabled,
   showKeycapHints,
+  focusPageOnOpen,
   defaultTabId,
   searchEngineId,
   searchFallbackColor,

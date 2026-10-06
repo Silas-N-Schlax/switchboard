@@ -37,7 +37,7 @@ function build(container) {
   inputEl = document.createElement("input");
   inputEl.type = "text";
   inputEl.className = "search-bar__input";
-  inputEl.placeholder = "Search your links…";
+  inputEl.placeholder = "Search…";
   inputEl.autocomplete = "off";
   inputEl.spellcheck = false;
 

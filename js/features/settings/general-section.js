@@ -53,12 +53,19 @@ export function buildGeneralSection(onChange) {
   );
   const hintsRow = buildRow({ labelText: "Show keyboard hints", control: hintsToggle });
 
+  const { element: focusToggle, input: focusInput } = buildToggleSwitch(
+    state.settings.focusPageOnOpen,
+    (focusPageOnOpen) => updateSettings({ focusPageOnOpen })
+  );
+  const focusRow = buildRow({ labelText: "Focus page instead of address bar", control: focusToggle });
+
   const { group } = buildDialogGroup({
     label: "General",
-    rows: [defaultTabRow, engineRow, fallbackRow, hintsRow],
+    rows: [defaultTabRow, engineRow, fallbackRow, hintsRow, focusRow],
     note:
       "When nothing matches, Enter searches the web. The search bar takes the web search " +
-      "color so you can tell before you press it.",
+      "color so you can tell before you press it. Focusing the page lets shortcuts work the " +
+      "moment a tab opens, but the address bar then shows the extension's URL.",
   });
 
   function refresh() {
@@ -66,6 +73,7 @@ export function buildGeneralSection(onChange) {
     engineSelect.setValue(state.settings.searchEngineId);
     fallbackPicker.setValue(state.settings.searchFallbackColor);
     hintsInput.checked = state.settings.showKeycapHints;
+    focusInput.checked = state.settings.focusPageOnOpen;
   }
 
   return { element: group, refresh };
