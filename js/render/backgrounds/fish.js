@@ -1,4 +1,10 @@
-import { fishBaseSizeRange, fishBaseDurationRange } from "../../../defaults.js";
+import {
+  fishBaseSizeRange,
+  fishBaseDurationRange,
+  fishSizeMultiplier as defaultFishSize,
+  fishSizeScaleMax,
+  sharkEats as defaultSharkEats,
+} from "../../../defaults.js";
 import { randomBetween, createSpawnField, svgEl, prefersReducedMotion } from "./util.js";
 import { pickSpecies } from "./fishSpecies.js";
 import { startSharkHunt } from "./sharkHunt.js";
@@ -64,6 +70,12 @@ function buildMember(species, { offset, width, height, flip, speedMultiplier }) 
   return member;
 }
 
+// The default slider position draws fish at their base size; the rest of the slider's
+// range above it grows them up to fishSizeScaleMax.
+function fishScale(sizeMultiplier) {
+  return 1 + ((sizeMultiplier - defaultFishSize) * (fishSizeScaleMax - 1)) / (1 - defaultFishSize);
+}
+
 function randomizeFish(el, sizeMultiplier, speedMultiplier) {
   const species = pickSpecies();
   const depth = Math.random();
@@ -71,7 +83,7 @@ function randomizeFish(el, sizeMultiplier, speedMultiplier) {
   const flip = swimsRight ? -1 : 1;
 
   const [vbWidth, vbHeight] = species.viewBox;
-  const width = randomBetween(...fishBaseSizeRange) * sizeMultiplier * species.size * (0.6 + 0.4 * depth);
+  const width = randomBetween(...fishBaseSizeRange) * fishScale(sizeMultiplier) * species.size * (0.6 + 0.4 * depth);
   const height = width * (vbHeight / vbWidth);
   const duration =
     (randomBetween(...fishBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
@@ -106,7 +118,9 @@ export const fish = {
   id: "fish",
   label: "Fish",
   controls: ["count", "size", "speed"],
-  create(container, { count, sizeMultiplier, speedMultiplier }) {
+  sizeSetting: "fishSizeMultiplier",
+  toggles: [{ key: "sharkEats", label: "Sharks eat fish" }],
+  create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
     const field = createSpawnField(container, {
       className: "fish-field",
       count,
@@ -116,7 +130,7 @@ export const fish = {
         el.style.setProperty("--from-x", `${randomBetween(5, 90)}vw`);
       },
     });
-    if (!prefersReducedMotion) startSharkHunt(field);
+    if (!prefersReducedMotion) startSharkHunt(field, { eats: settings.sharkEats ?? defaultSharkEats });
     return field;
   },
 };

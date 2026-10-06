@@ -8,13 +8,13 @@ import {
   backgroundType as defaultBackgroundType,
   bubbleCount as defaultBubbleCount,
   bubbleCountMin,
-  bubbleSizeMultiplier as defaultBubbleSizeMultiplier,
   bubbleSizeMultiplierMin,
   bubbleSpeedMultiplier as defaultBubbleSpeedMultiplier,
   bubbleSpeedMultiplierMin,
   bubbleSpeedMultiplierMax,
+  defaultAmbientSettings,
 } from "../../defaults.js";
-import { findBackground } from "./backgrounds/index.js";
+import { findBackground, sizeSettingKey } from "./backgrounds/index.js";
 
 export function resolveColors(ambientMode = {}) {
   const paletteId = ambientMode.paletteId ?? ambientPaletteId;
@@ -100,7 +100,7 @@ export function renderAmbient(root = document.body, settings = {}) {
 
   const count = Math.max(bubbleCountMin, ambientMode.bubbleCount ?? defaultBubbleCount);
   const sizeMultiplier = clamp(
-    ambientMode.bubbleSizeMultiplier ?? defaultBubbleSizeMultiplier,
+    ambientMode[sizeSettingKey(background)] ?? defaultAmbientSettings[sizeSettingKey(background)],
     bubbleSizeMultiplierMin,
     1
   );
@@ -121,7 +121,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   skyLayer.className = "ambient-bg__sky";
   container.appendChild(skyLayer);
 
-  background.create?.(container, { count, sizeMultiplier, speedMultiplier });
+  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: ambientMode });
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 

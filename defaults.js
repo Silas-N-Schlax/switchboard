@@ -60,7 +60,10 @@ export const bubbleSpeedMultiplierMin = 0.1;
 export const bubbleSpeedMultiplierMax = 3;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
-export const fishBaseSizeRange = [28, 72]; // px body length, before size multiplier
+export const sharkEats = true;
+export const fishSizeMultiplier = 0.15; // one slider step above the minimum
+export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
+export const fishBaseSizeRange = [28, 72]; // px body length at the default size
 export const fishBaseDurationRange = [22000, 40000]; // ms per screen crossing, before speed multiplier
 
 // ============================================================================
@@ -159,7 +162,9 @@ export const defaultAmbientSettings = {
   backgroundType,
   bubbleCount,
   bubbleSizeMultiplier,
+  fishSizeMultiplier,
   bubbleSpeedMultiplier,
+  sharkEats,
 };
 
 export const defaultSettings = {
