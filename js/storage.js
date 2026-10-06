@@ -67,6 +67,34 @@ export async function save(partial) {
   return localStorageSet(partial);
 }
 
+function devStorageKeys() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith(DEV_STORAGE_PREFIX)) keys.push(key.slice(DEV_STORAGE_PREFIX.length));
+  }
+  return keys;
+}
+
+export async function loadAll() {
+  if (isExtensionContext) return chrome.storage.local.get(null);
+  return localStorageGet(devStorageKeys());
+}
+
+// Writes the new data before removing stale keys, so a failed write never leaves
+// storage emptied.
+export async function replaceAll(data) {
+  const existingKeys = Object.keys(await loadAll());
+  const staleKeys = existingKeys.filter((key) => !(key in data));
+  if (isExtensionContext) {
+    await chrome.storage.local.set(data);
+    await chrome.storage.local.remove(staleKeys);
+    return;
+  }
+  await localStorageSet(data);
+  for (const key of staleKeys) localStorage.removeItem(DEV_STORAGE_PREFIX + key);
+}
+
 export async function isInitialized() {
   const { schemaVersion: storedVersion } = isExtensionContext
     ? await chrome.storage.local.get("schemaVersion")

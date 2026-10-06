@@ -6,6 +6,7 @@ import { buildColorSection } from "./color-section.js";
 import { buildBubblesSection } from "./bubbles-section.js";
 import { buildStatsSection } from "./stats-section.js";
 import { buildLinksSection } from "./links-section.js";
+import { buildDataSection } from "./data-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
 import { buildDialogHeader } from "../dialog/chrome.js";
@@ -31,6 +32,7 @@ function buildPanel() {
   const bubblesSection = buildBubblesSection();
   const linksSection = buildLinksSection(() => onSettingsChange());
   const statsSection = buildStatsSection();
+  const dataSection = buildDataSection();
 
   const footer = document.createElement("div");
   footer.className = "dialog__footer";
@@ -49,7 +51,13 @@ function buildPanel() {
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";
-  body.append(colorSection.element, bubblesSection.element, linksSection.element, statsSection.element);
+  body.append(
+    colorSection.element,
+    bubblesSection.element,
+    linksSection.element,
+    statsSection.element,
+    dataSection.element,
+  );
 
   dialog.append(header, body, footer);
   panel.append(backdrop, dialog);
