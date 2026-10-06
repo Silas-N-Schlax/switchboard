@@ -48,9 +48,9 @@ export const ambientCuratedSwatches = [
 ];
 
 // ============================================================================
-// Ambient background — bubbles
+// Ambient background — style (bubbles, fish, …) and shared count/size/speed
 // ============================================================================
-export const bubblesEnabled = true;
+export const backgroundType = "bubbles";
 export const bubbleCount = 8;
 export const bubbleCountMin = 3;
 export const bubbleSizeMultiplier = 1;
@@ -60,6 +60,8 @@ export const bubbleSpeedMultiplierMin = 0.1;
 export const bubbleSpeedMultiplierMax = 3;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
+export const fishBaseSizeRange = [28, 72]; // px body length, before size multiplier
+export const fishBaseDurationRange = [22000, 40000]; // ms per screen crossing, before speed multiplier
 
 // ============================================================================
 // Tabs & links
@@ -154,7 +156,7 @@ export const defaultAmbientSettings = {
   paletteId: ambientPaletteId,
   customColors: ambientCustomColors,
   segmentHours: ambientSegmentHours,
-  bubblesEnabled,
+  backgroundType,
   bubbleCount,
   bubbleSizeMultiplier,
   bubbleSpeedMultiplier,

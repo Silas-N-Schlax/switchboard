@@ -29,6 +29,13 @@ async function localStorageSet(partial) {
   }
 }
 
+// Pre-picker saves only had a bubblesEnabled flag.
+function withAmbientDefaults(savedAmbient = {}) {
+  const { bubblesEnabled, ...rest } = savedAmbient;
+  const legacyType = bubblesEnabled === false ? { backgroundType: "none" } : {};
+  return { ...defaultAmbientSettings, ...legacyType, ...rest };
+}
+
 function withDefaults(raw) {
   return {
     schemaVersion: raw.schemaVersion ?? schemaVersion,
@@ -38,10 +45,7 @@ function withDefaults(raw) {
     settings: {
       ...defaultSettings,
       ...raw.settings,
-      ambientMode: {
-        ...defaultAmbientSettings,
-        ...raw.settings?.ambientMode,
-      },
+      ambientMode: withAmbientDefaults(raw.settings?.ambientMode),
       keybinds: {
         ...defaultKeybinds,
         ...raw.settings?.keybinds,
