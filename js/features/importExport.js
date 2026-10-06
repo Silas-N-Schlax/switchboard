@@ -1,9 +1,9 @@
 import { loadAll, replaceAll } from "../storage.js";
 import { SCHEMA_VERSION } from "../schema.js";
+import { STATS_KEY_PATTERN } from "./stats/recorder.js";
 
 const BACKUP_FORMAT = "switchboard-backup";
 const CORE_KEYS = ["schemaVersion", "tabs", "links", "settings"];
-const STATS_KEY_PATTERN = /^stats:\d{4}-\d{2}$/;
 
 // TODO: Google Bookmarks HTML import, export to chrome.bookmarks
 export function importFromBookmarksHtml() {}

@@ -69,6 +69,16 @@
     &:hover {
       background: var(--accent-soft);
     }
+
+    &.settings-panel__action--danger {
+      background: color-mix(in oklch, var(--flag) 10%, transparent);
+      border-color: color-mix(in oklch, var(--flag) 40%, transparent);
+      color: var(--flag);
+
+      &:hover {
+        background: color-mix(in oklch, var(--flag) 20%, transparent);
+      }
+    }
   }
 
   .settings-panel__reset {

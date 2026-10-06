@@ -95,6 +95,11 @@ export async function replaceAll(data) {
   for (const key of staleKeys) localStorage.removeItem(DEV_STORAGE_PREFIX + key);
 }
 
+export async function removeKeys(keys) {
+  if (isExtensionContext) return chrome.storage.local.remove(keys);
+  for (const key of keys) localStorage.removeItem(DEV_STORAGE_PREFIX + key);
+}
+
 export async function isInitialized() {
   const { schemaVersion: storedVersion } = isExtensionContext
     ? await chrome.storage.local.get("schemaVersion")

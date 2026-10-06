@@ -1,5 +1,5 @@
 import { state } from "../../state.js";
-import { loadKey, save } from "../../storage.js";
+import { loadKey, loadAll, save, removeKeys } from "../../storage.js";
 
 export const StatEvent = {
   newTab: "newtab",
@@ -38,6 +38,18 @@ export function recordEvent(type, data = {}) {
     })
     .catch((err) => console.warn("[switchboard] stats write failed", err));
   return queue;
+}
+
+export const STATS_KEY_PATTERN = /^stats:\d{4}-\d{2}$/;
+
+export async function loadStatsBuckets() {
+  const all = await loadAll();
+  return Object.fromEntries(Object.entries(all).filter(([key]) => STATS_KEY_PATTERN.test(key)));
+}
+
+export async function clearStats() {
+  await queue;
+  await removeKeys(Object.keys(await loadStatsBuckets()));
 }
 
 export function recordLinkOpen(link, via) {
