@@ -1,13 +1,5 @@
 import { fishBaseSizeRange, fishBaseDurationRange } from "../../../defaults.js";
-import { randomBetween, createSpawnField } from "./util.js";
-
-const SVG_NS = "http://www.w3.org/2000/svg";
-
-function svgEl(tag, attrs) {
-  const el = document.createElementNS(SVG_NS, tag);
-  for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value);
-  return el;
-}
+import { randomBetween, createSpawnField, svgEl } from "./util.js";
 
 function buildFish() {
   const fish = document.createElement("div");
