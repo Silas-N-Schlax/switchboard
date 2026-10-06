@@ -1,6 +1,8 @@
-/* Minimalist fish crossing the screen. Three nested motions: the outer element swims
-   edge to edge (one "life", respawned by js/render/backgrounds/fish.js on
-   animationend), the inner one bobs on a wave, and the tail beats toward/away from the viewer. */
+/* Minimalist fish (species in js/render/backgrounds/fishSpecies.js). Nested motions:
+   .fish swims edge to edge in a few gentle surges (one "life", respawned on
+   animationend), each .member bobs on a wave while its .tilt pitches with it, and
+   the tail/fins beat. The svg is one opacity group so overlapping parts read as a
+   single soft silhouette with no seams. */
 .fish-field {
   position: absolute;
   inset: 0;
@@ -10,15 +12,28 @@
     left: 0;
     top: 0;
     width: var(--size, 48px);
-    height: calc(var(--size, 48px) / 2);
+    height: var(--height, 24px);
     transform: translate(var(--from-x, 50vw), var(--y, 50vh));
-    animation: fishSwim var(--duration, 26s) linear forwards;
+    animation: fishSwim var(--duration, 26s) var(--swim-easing, linear) forwards;
   }
 
-  .fish-field__bob {
+  .fish-field__steer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .fish-field__member {
+    position: absolute;
+    width: var(--size, 48px);
+    height: var(--height, 24px);
+    opacity: var(--depth-opacity, 1);
+    animation: fishBob var(--bob-duration, 3.5s) ease-in-out infinite alternate;
+  }
+
+  .fish-field__tilt {
     width: 100%;
     height: 100%;
-    animation: fishBob var(--bob-duration, 4s) ease-in-out infinite alternate;
+    animation: fishPitch var(--bob-duration, 3.5s) ease-in-out infinite alternate;
   }
 
   .fish-field__body {
@@ -26,33 +41,66 @@
     width: 100%;
     height: 100%;
     overflow: visible;
+    opacity: 0.2;
     transform: scaleX(var(--flip, 1));
-    fill: rgba(255, 255, 255, 0.06);
-    stroke: rgba(255, 255, 255, 0.2);
-    stroke-width: 1;
-    stroke-linejoin: round;
-    vector-effect: non-scaling-stroke;
-    filter: blur(0.4px);
   }
 
+  .fish-field__shape {
+    fill: #fff;
+  }
+
+  .fish-field__fin,
   .fish-field__tail {
-    transform-box: fill-box;
-    transform-origin: left center;
-    animation: fishWag var(--wag-duration, 700ms) ease-in-out infinite alternate;
+    fill: rgba(255, 255, 255, 0.6);
+  }
+
+  .fish-field__detail--dark {
+    fill: rgba(0, 0, 0, 0.55);
+  }
+
+  .fish-field__detail--line {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 1;
+    stroke-linecap: round;
   }
 
   .fish-field__eye {
-    fill: rgba(255, 255, 255, 0.35);
-    stroke: none;
+    fill: rgba(0, 0, 0, 0.55);
+  }
+
+  .fish-field__tail {
+    animation: fishWag var(--wag-duration, 650ms) ease-in-out infinite alternate;
+  }
+
+  .fish-field__tail--flowing {
+    animation-name: fishWagFlowing;
+  }
+
+  .fish-field__fin {
+    animation: fishFin calc(var(--wag-duration, 650ms) * 2.4) ease-in-out infinite alternate;
   }
 }
 
+/* Three surges per crossing; --swim-easing sets how much each one slows. */
 @keyframes fishSwim {
-  from {
-    transform: translate(var(--from-x, -10vw), var(--y, 50vh));
+  0% {
+    transform: translate(var(--from-x), var(--y));
   }
-  to {
-    transform: translate(var(--to-x, 100vw), calc(var(--y, 50vh) + var(--drift-y, 0vh)));
+  33.333% {
+    transform: translate(
+      calc(var(--from-x) + (var(--to-x) - var(--from-x)) / 3),
+      calc(var(--y) + var(--drift-y) / 3)
+    );
+  }
+  66.667% {
+    transform: translate(
+      calc(var(--from-x) + (var(--to-x) - var(--from-x)) * 2 / 3),
+      calc(var(--y) + var(--drift-y) * 2 / 3)
+    );
+  }
+  100% {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y)));
   }
 }
 
@@ -62,6 +110,15 @@
   }
   to {
     transform: translateY(var(--wave, 1vh));
+  }
+}
+
+@keyframes fishPitch {
+  from {
+    transform: rotate(calc(-1 * var(--pitch, 4deg)));
+  }
+  to {
+    transform: rotate(var(--pitch, 4deg));
   }
 }
 
@@ -76,10 +133,30 @@
   }
 }
 
+@keyframes fishWagFlowing {
+  from {
+    transform: scaleX(1) skewY(-5deg);
+  }
+  to {
+    transform: scaleX(0.8) skewY(5deg);
+  }
+}
+
+@keyframes fishFin {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fish-field__fish,
-  .fish-field__bob,
-  .fish-field__tail {
+  .fish-field__member,
+  .fish-field__tilt,
+  .fish-field__tail,
+  .fish-field__fin {
     animation: none;
   }
 }

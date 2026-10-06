@@ -1,38 +1,104 @@
 import { fishBaseSizeRange, fishBaseDurationRange } from "../../../defaults.js";
-import { randomBetween, createSpawnField, svgEl } from "./util.js";
+import { randomBetween, createSpawnField, svgEl, prefersReducedMotion } from "./util.js";
+import { pickSpecies } from "./fishSpecies.js";
+import { startSharkHunt } from "./sharkHunt.js";
 
-function buildFish() {
-  const fish = document.createElement("div");
-  fish.className = "fish-field__fish";
+const SOLO = [[0, 0]];
 
-  const bob = document.createElement("div");
-  bob.className = "fish-field__bob";
 
-  const svg = svgEl("svg", { class: "fish-field__body", viewBox: "0 0 40 20", "aria-hidden": "true" });
-  const tail = svgEl("path", { class: "fish-field__tail", d: "M27 10 L39 3 Q36 10 39 17 Z" });
-  const body = svgEl("ellipse", { cx: "16", cy: "10", rx: "13", ry: "6.5" });
-  const eye = svgEl("circle", { class: "fish-field__eye", cx: "8", cy: "8.5", r: "1" });
-  svg.append(tail, body, eye);
+function buildSilhouette(species, flip) {
+  const [width, height] = species.viewBox;
+  const svg = svgEl("svg", {
+    class: "fish-field__body",
+    viewBox: `0 0 ${width} ${height}`,
+    "aria-hidden": "true",
+  });
+  svg.style.setProperty("--flip", flip);
 
-  bob.appendChild(svg);
-  fish.appendChild(bob);
-  return fish;
+  const fins = species.fins.map(({ d, origin }) => {
+    const fin = svgEl("path", { class: "fish-field__fin", d });
+    fin.style.transformOrigin = `${origin[0]}px ${origin[1]}px`;
+    fin.style.animationDelay = `-${randomBetween(0, 2000)}ms`;
+    return fin;
+  });
+
+  const tailClass = species.tail.flowing ? "fish-field__tail fish-field__tail--flowing" : "fish-field__tail";
+  const tail = svgEl("path", { class: tailClass, d: species.tail.d });
+  tail.style.transformOrigin = `${species.tail.origin[0]}px ${species.tail.origin[1]}px`;
+  tail.style.animationDelay = `-${randomBetween(0, species.wagMs)}ms`;
+
+  const body = svgEl("path", { class: "fish-field__shape", d: species.body });
+  const markings = species.eye
+    ? [svgEl("circle", { class: "fish-field__eye", cx: species.eye[0], cy: species.eye[1], r: species.eye[2] })]
+    : [];
+  const details = (species.details ?? []).map(({ d, tone }) =>
+    svgEl("path", { class: `fish-field__detail fish-field__detail--${tone}`, d })
+  );
+
+  svg.append(...fins, tail, body, ...markings, ...details);
+  return svg;
+}
+
+// member (bob up/down) > tilt (pitch with the wave) > svg (faces travel direction)
+function buildMember(species, { offset, width, height, flip, speedMultiplier }) {
+  const member = document.createElement("div");
+  member.className = "fish-field__member";
+  member.style.left = `${offset[0] * width * flip}px`;
+  member.style.top = `${offset[1] * height}px`;
+
+  const bobMs = randomBetween(2600, 4600);
+  const bobDelayMs = randomBetween(0, bobMs * 2);
+  member.style.setProperty("--bob-duration", `${bobMs}ms`);
+  member.style.setProperty("--wave", `${randomBetween(0.4, 1.4)}vh`);
+  member.style.setProperty("--pitch", `${randomBetween(3, 7) * -flip}deg`);
+  member.style.setProperty("--wag-duration", `${(species.wagMs * randomBetween(0.85, 1.15)) / Math.sqrt(speedMultiplier)}ms`);
+  member.style.animationDelay = `-${bobDelayMs}ms`;
+
+  const tilt = document.createElement("div");
+  tilt.className = "fish-field__tilt";
+  // Quarter-cycle behind the bob, so the nose dips as the fish descends.
+  tilt.style.animationDelay = `-${bobDelayMs + bobMs / 2}ms`;
+
+  tilt.appendChild(buildSilhouette(species, flip));
+  member.appendChild(tilt);
+  return member;
 }
 
 function randomizeFish(el, sizeMultiplier, speedMultiplier) {
-  const size = randomBetween(...fishBaseSizeRange) * sizeMultiplier;
-  const duration = randomBetween(...fishBaseDurationRange) / speedMultiplier;
+  const species = pickSpecies();
+  const depth = Math.random();
   const swimsRight = Math.random() < 0.5;
-  el.style.setProperty("--size", `${size}px`);
-  el.style.setProperty("--from-x", swimsRight ? "-10vw" : "100vw");
-  el.style.setProperty("--to-x", swimsRight ? "100vw" : "-10vw");
-  el.style.setProperty("--y", `${randomBetween(5, 90)}vh`);
+  const flip = swimsRight ? -1 : 1;
+
+  const [vbWidth, vbHeight] = species.viewBox;
+  const width = randomBetween(...fishBaseSizeRange) * sizeMultiplier * species.size * (0.6 + 0.4 * depth);
+  const height = width * (vbHeight / vbWidth);
+  const duration =
+    (randomBetween(...fishBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
+
+  const school = species.school ?? SOLO;
+  const trail = Math.max(...school.map(([x]) => x)) * width;
+
+  el.className = `fish-field__fish fish-field__fish--${species.id}`;
+  el.dataset.flip = String(flip);
+  el.style.zIndex = String(Math.round(depth * 10));
+  el.style.setProperty("--size", `${width}px`);
+  el.style.setProperty("--height", `${height}px`);
+  el.style.setProperty("--depth-opacity", `${0.5 + 0.5 * depth}`);
+  el.style.setProperty("--swim-easing", species.swimEasing);
+  el.style.setProperty("--from-x", swimsRight ? `calc(-${width}px - 2vw)` : "102vw");
+  el.style.setProperty("--to-x", swimsRight ? `calc(102vw + ${trail}px)` : `calc(-${width + trail}px - 2vw)`);
+  el.style.setProperty("--y", `${randomBetween(5, 88)}vh`);
   el.style.setProperty("--drift-y", `${randomBetween(-10, 10)}vh`);
-  el.style.setProperty("--flip", swimsRight ? "-1" : "1");
-  el.style.setProperty("--wave", `${randomBetween(0.5, 2.5)}vh`);
-  el.style.setProperty("--bob-duration", `${randomBetween(2500, 5000) / speedMultiplier}ms`);
-  el.style.setProperty("--wag-duration", `${randomBetween(500, 900) / speedMultiplier}ms`);
   el.style.setProperty("--duration", `${duration}ms`);
+
+  // The hunt nudges this layer (shark steering, prey darting) on top of the CSS swim.
+  const steer = document.createElement("div");
+  steer.className = "fish-field__steer";
+  steer.append(
+    ...school.map((offset) => buildMember(species, { offset, width, height, flip, speedMultiplier }))
+  );
+  el.replaceChildren(steer);
   return randomBetween(0, duration);
 }
 
@@ -41,14 +107,17 @@ export const fish = {
   label: "Fish",
   controls: ["count", "size", "speed"],
   create(container, { count, sizeMultiplier, speedMultiplier }) {
-    return createSpawnField(container, {
+    const field = createSpawnField(container, {
       className: "fish-field",
       count,
-      createItem: buildFish,
+      createItem: () => document.createElement("div"),
       randomize: (el) => randomizeFish(el, sizeMultiplier, speedMultiplier),
       placeStatic(el) {
         el.style.setProperty("--from-x", `${randomBetween(5, 90)}vw`);
       },
     });
+    if (!prefersReducedMotion) startSharkHunt(field);
+    return field;
   },
 };
+
