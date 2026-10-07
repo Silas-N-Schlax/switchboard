@@ -1,0 +1,196 @@
+/* Sky above the mountain lake (js/render/backgrounds/sky.js): clouds drift with the
+   wind, birds (species in birdSpecies.js) cross in flocks or glide, and planes pass now
+   and then trailing a contrail. Fills mix from the ambient palette so the sky follows
+   the color cycle. Each svg is one opacity group so overlapping parts read as a single
+   soft shape. */
+.sky-scene {
+  position: absolute;
+  inset: 0;
+  /* Keeps the depth z-indexes inside the sky so the landscape always covers it. */
+  isolation: isolate;
+
+  .sky-scene__clouds,
+  .sky-scene__birds,
+  .sky-scene__planes {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sky-scene__cloud,
+  .sky-scene__bird,
+  .sky-scene__plane {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size);
+    height: var(--height);
+    transform: translate(var(--from-x, 50vw), var(--y, 20vh));
+    animation: skyCross var(--duration, 60s) linear forwards;
+  }
+
+  .sky-scene__cloud-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: calc(var(--depth-opacity, 1) * 0.09);
+    fill: color-mix(in oklab, var(--bg-3) 35%, white);
+  }
+
+  .sky-scene__bird-member {
+    position: absolute;
+    width: var(--size);
+    height: var(--height);
+    opacity: var(--depth-opacity, 1);
+    animation: skyBob var(--wave-duration, 3s) ease-in-out infinite alternate;
+  }
+
+  .sky-scene__bird-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0.35;
+    fill: color-mix(in oklab, var(--bg-3) 25%, white);
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .sky-scene__bird-shape--glide {
+    animation: skyBank 5s ease-in-out infinite alternate;
+  }
+
+  .sky-scene__wing {
+    transform-origin: 20px 8px;
+    animation: skyFlapLeft var(--flap-duration, 300ms) ease-in-out infinite alternate;
+  }
+
+  .sky-scene__wing--right {
+    animation-name: skyFlapRight;
+  }
+
+  .sky-scene__bird-shape--glide .sky-scene__wing {
+    animation: none;
+  }
+
+  .sky-scene__plane {
+    animation-name: planeFly;
+  }
+
+  .sky-scene__plane-flip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    opacity: var(--depth-opacity, 1);
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .sky-scene__plane-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sky-scene__plane-body {
+    fill: color-mix(in oklab, var(--bg-3) 20%, white);
+    opacity: 0.4;
+  }
+
+  .sky-scene__plane-light {
+    fill: #ff6b6b;
+    animation: planeBlink 1.4s steps(1) infinite;
+  }
+
+  .sky-scene__trail {
+    position: absolute;
+    left: 92%;
+    top: 40%;
+    width: calc(var(--size) * 9);
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--bg-3) 20%, white),
+      transparent
+    );
+    opacity: 0.22;
+  }
+}
+
+@keyframes skyCross {
+  from {
+    transform: translate(var(--from-x), var(--y));
+  }
+  to {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y, 0vh)));
+  }
+}
+
+/* Crosses in the first 60% of the cycle, then waits offscreen until it respawns. */
+@keyframes planeFly {
+  0% {
+    transform: translate(var(--from-x), var(--y));
+  }
+  60%,
+  100% {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y, 0vh)));
+  }
+}
+
+@keyframes skyBob {
+  from {
+    transform: translateY(calc(-1 * var(--wave, 1vh)));
+  }
+  to {
+    transform: translateY(var(--wave, 1vh));
+  }
+}
+
+@keyframes skyBank {
+  from {
+    transform: scaleX(var(--flip, 1)) rotate(-4deg);
+  }
+  to {
+    transform: scaleX(var(--flip, 1)) rotate(4deg);
+  }
+}
+
+@keyframes skyFlapLeft {
+  from {
+    transform: rotate(-18deg);
+  }
+  to {
+    transform: rotate(28deg);
+  }
+}
+
+@keyframes skyFlapRight {
+  from {
+    transform: rotate(18deg);
+  }
+  to {
+    transform: rotate(-28deg);
+  }
+}
+
+@keyframes planeBlink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-scene__cloud,
+  .sky-scene__bird,
+  .sky-scene__bird-member,
+  .sky-scene__bird-shape--glide,
+  .sky-scene__wing,
+  .sky-scene__plane-light {
+    animation: none;
+  }
+}

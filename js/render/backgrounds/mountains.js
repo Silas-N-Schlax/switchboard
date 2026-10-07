@@ -1,73 +1,44 @@
 import { svgEl, seededRandom } from "./util.js";
+import { createSky } from "./sky.js";
 
 const WIDTH = 1600;
-const HEIGHT = 900;
-const HORIZON_Y = 620;
-const TREE_SEED = 20261006;
+const HEIGHT = 300;
+const HORIZON_Y = 170;
+const SHIMMER_SEED = 20261007;
 const SHIMMER_BASE_DURATION_MS = 9000;
+// Matches .mountain-scene's height: the band is drawn full-width, but never shorter than this.
+const BAND_ASPECT = HEIGHT / WIDTH;
+const BAND_MIN_VH = 28;
 
 const FAR_RIDGE =
-  "M0 620 L0 500 L90 470 L170 430 L240 455 L330 380 L400 410 L470 350 L540 395 L610 330 " +
-  "L690 300 L760 345 L820 320 L900 370 L980 340 L1060 390 L1130 360 L1210 410 L1290 380 " +
-  "L1370 430 L1450 405 L1530 450 L1600 430 L1600 620 Z";
+  "M0 170 L0 112 L90 98 L170 74 L240 88 L330 52 L400 66 L470 40 L540 62 L610 34 " +
+  "L690 22 L760 44 L820 34 L900 58 L980 44 L1060 70 L1130 54 L1210 80 L1290 64 " +
+  "L1370 90 L1450 78 L1530 100 L1600 90 L1600 170 Z";
 
 const NEAR_RIDGE =
-  "M0 620 L0 520 L80 500 L160 455 L230 480 L300 430 L380 470 L450 520 L520 500 L600 545 " +
-  "L680 530 L760 570 L840 555 L920 575 L1000 545 L1080 560 L1150 510 L1230 470 L1300 440 " +
-  "L1360 465 L1430 420 L1510 455 L1600 440 L1600 620 Z";
+  "M0 170 L0 120 L80 112 L160 90 L230 102 L300 80 L380 98 L450 122 L520 112 L600 134 " +
+  "L680 128 L760 146 L840 140 L920 150 L1000 136 L1080 142 L1150 120 L1230 102 L1300 88 " +
+  "L1360 100 L1430 80 L1510 96 L1600 90 L1600 170 Z";
 
 // Reflections are vertically squashed (a common stylization) so sky shows below them.
 const REFLECTION_SCALE = 0.55;
 
-const LEFT_BANK = "M0 900 L0 640 Q300 652 640 706 Q600 790 520 900 Z";
-const RIGHT_BANK = "M1600 900 L1600 646 Q1300 656 980 712 Q1020 790 1100 900 Z";
+const RIDGE_TYPICAL_Y = 60;
 
-function treePath(x, baseY, height) {
-  const halfWidth = height * 0.17;
-  const tierY = baseY - height * 0.45;
-  return (
-    `M${x - halfWidth} ${baseY} L${x - halfWidth * 0.55} ${tierY} ` +
-    `L${x - halfWidth * 0.8} ${tierY} L${x} ${baseY - height} ` +
-    `L${x + halfWidth * 0.8} ${tierY} L${x + halfWidth * 0.55} ${tierY} L${x + halfWidth} ${baseY} Z`
-  );
-}
-
-// A row of trees whose base follows the line from `from` to `to`, shrinking by `taper`
-// toward `to` (farther from the viewer); mirrored for the right bank.
-function treeRow(random, { from, to, count, heightRange, taper = 0, mirror }) {
-  let d = "";
-  for (let i = 0; i < count; i++) {
-    const t = (i + random() * 0.8) / count;
-    const x = from[0] + (to[0] - from[0]) * t;
-    const baseY = from[1] + (to[1] - from[1]) * t + random() * 12;
-    const height = (heightRange[0] + random() * (heightRange[1] - heightRange[0])) * (1 - taper * t);
-    d += treePath(mirror ? WIDTH - x : x, baseY, height);
-  }
-  return d;
-}
-
-function forestPaths() {
-  const random = seededRandom(TREE_SEED);
-  const back = { from: [-10, 646], to: [630, 712], count: 42, heightRange: [70, 130], taper: 0.55 };
-  const mid = { from: [-10, 720], to: [540, 790], count: 24, heightRange: [120, 190], taper: 0.4 };
-  const front = { from: [-30, 860], to: [300, 940], count: 7, heightRange: [240, 360] };
-  const mirrored = (row, from, to) => treeRow(random, { ...row, from, to, mirror: true });
-  return {
-    back: treeRow(random, back) + mirrored(back, [-10, 652], [630, 718]),
-    front:
-      treeRow(random, mid) +
-      treeRow(random, front) +
-      mirrored(mid, [-10, 728], [560, 800]) +
-      mirrored(front, [-30, 870], [280, 950]),
-  };
+// The band is always at least as tall as the full-width drawing, so it scales to fit
+// its height and crops at the sides; this is roughly where the ridgeline sits on screen.
+function landscapeTopVh() {
+  const bandPx = Math.max(window.innerWidth * BAND_ASPECT, (window.innerHeight * BAND_MIN_VH) / 100);
+  const ridgePx = bandPx * (1 - RIDGE_TYPICAL_Y / HEIGHT);
+  return 100 - (ridgePx / window.innerHeight) * 100;
 }
 
 function buildShimmer(random, durationMs) {
   const group = svgEl("g", { class: "mountain-scene__shimmer" });
   for (let i = 0; i < 7; i++) {
-    const y = HORIZON_Y + 30 + random() * 240;
+    const y = HORIZON_Y + 12 + random() * (HEIGHT - HORIZON_Y - 20);
     const x = 600 + random() * 360;
-    const length = 50 + random() * 150;
+    const length = 40 + random() * 110;
     const line = svgEl("line", { x1: x, y1: y, x2: x + length, y2: y });
     line.style.animationDelay = `-${random() * durationMs}ms`;
     group.appendChild(line);
@@ -110,27 +81,30 @@ function buildScene(speedMultiplier) {
       transform: `translate(0 ${HORIZON_Y * (1 + REFLECTION_SCALE)}) scale(1 ${-REFLECTION_SCALE})`,
     }),
     svgEl("line", { class: "mountain-scene__waterline", x1: 0, y1: HORIZON_Y, x2: WIDTH, y2: HORIZON_Y }),
-    buildShimmer(seededRandom(TREE_SEED + 1), shimmerDurationMs)
+    buildShimmer(seededRandom(SHIMMER_SEED), shimmerDurationMs)
   );
 
-  const forest = forestPaths();
-  svg.append(
-    defs,
-    ranges,
-    water,
-    svgEl("path", { class: "mountain-scene__trees-back", d: forest.back }),
-    svgEl("path", { class: "mountain-scene__bank", d: LEFT_BANK }),
-    svgEl("path", { class: "mountain-scene__bank", d: RIGHT_BANK }),
-    svgEl("path", { class: "mountain-scene__trees-front", d: forest.front })
-  );
+  svg.append(defs, ranges, water);
   return svg;
 }
 
 export const mountains = {
   id: "mountains",
   label: "Mountain lake",
-  controls: ["speed"],
-  create(container, { speedMultiplier }) {
+  controls: ["count", "size", "speed"],
+  toggles: [
+    { key: "birds", label: "Birds" },
+    { key: "planes", label: "Planes" },
+  ],
+  create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
+    createSky(container, {
+      count,
+      sizeMultiplier,
+      speedMultiplier,
+      horizonVh: landscapeTopVh(),
+      birds: settings.birds,
+      planes: settings.planes,
+    });
     const scene = buildScene(speedMultiplier);
     container.appendChild(scene);
     return scene;

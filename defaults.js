@@ -62,11 +62,20 @@ export const fishDefaultSize = 0.15; // one slider step above the minimum
 export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
 export const fishBaseSizeRange = [28, 72]; // px body length at the default size
 export const fishBaseDurationRange = [22000, 40000]; // ms per screen crossing, before speed multiplier
+export const mountainsDefaultSize = 0.5; // sky elements draw at base size here; the slider scales 0.2x–2x
+export const skyCloudBaseWidthRange = [160, 380]; // px
+export const skyCloudBaseDurationRange = [90000, 160000]; // ms per screen crossing, before speed multiplier
+export const skyBirdBaseSizeRange = [24, 42]; // px wingspan
+export const skyBirdBaseDurationRange = [26000, 44000];
+export const skyPlaneBaseSizeRange = [28, 42]; // px length
+export const skyPlaneBaseDurationRange = [30000, 45000];
+// How many of each the Count slider spawns, per unit of count.
+export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
 
 export const backgroundStyleDefaults = {
   bubbles: { count: 8, size: 1, speed: 1 },
   fish: { count: 8, size: fishDefaultSize, speed: 1, sharkEats: true, seaFloor: true, seaSurface: true },
-  mountains: { speed: 1 },
+  mountains: { count: 8, size: mountainsDefaultSize, speed: 1, birds: true, planes: true },
 };
 
 // ============================================================================
