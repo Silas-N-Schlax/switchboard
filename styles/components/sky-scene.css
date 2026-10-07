@@ -161,7 +161,7 @@
   }
 }
 
-/* The super-rare skydiver (js/render/backgrounds/skydive.js). Positions are driven from
+/* The rare skydiver (js/render/backgrounds/skydive.js). Positions are driven from
    JS; these rules handle the canopy opening, the swing under it, and the landing. */
 .skydive {
   pointer-events: none;

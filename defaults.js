@@ -59,9 +59,10 @@ export const backgroundSpeedMax = 3;
 // Multiplier on how often a style's rare sight (shark, balloon) appears; 1 is the original rarity.
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
-// Super-rare events (submarine, skydiver) also scale with the rare-sight frequency.
+// Timed events (submarine, skydiver) also scale with the rare-sight frequency.
 export const rareEventMeanIntervalMs = 30 * 60 * 1000; // at frequency 1
 export const rareEventRollMs = 15000;
+export const skydiveMeanIntervalMs = 4.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
 export const fishDefaultSize = 0.15; // one slider step above the minimum
@@ -77,9 +78,9 @@ export const skyPlaneBaseSizeRange = [28, 42]; // px length
 export const skyPlaneBaseDurationRange = [30000, 45000];
 export const skyBalloonBaseSizeRange = [44, 68]; // px tall
 export const skyBalloonBaseDurationRange = [70000, 100000];
-// Rolled once per crossing at frequency 1; about one balloon every 4–5 minutes, like the
-// fish shark. Higher frequencies add balloon slots once the chance would pass 100%.
-export const skyBalloonChance = 0.3;
+// Rolled once per crossing (~85s) at frequency 1; about one balloon every 30 minutes, as
+// rare as the submarine. Higher frequencies add balloon slots once the chance would pass 100%.
+export const skyBalloonChance = 0.05;
 // How many of each the Count slider spawns, per unit of count.
 export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
 

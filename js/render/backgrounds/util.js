@@ -61,11 +61,11 @@ export function createSpawnField(container, { className, count, createItem, rand
 }
 
 // Rolls every rareEventRollMs so an event plays on average once per
-// rareEventMeanIntervalMs / frequency. `play` returns a promise that settles when the
+// meanIntervalMs / frequency. `play` returns a promise that settles when the
 // event is over; only one runs at a time, and rolling stops once `anchor` leaves the page.
-export function scheduleRareEvent(anchor, { frequency = 1, play }) {
+export function scheduleRareEvent(anchor, { frequency = 1, meanIntervalMs = rareEventMeanIntervalMs, play }) {
   if (prefersReducedMotion) return;
-  const chance = (rareEventRollMs * frequency) / rareEventMeanIntervalMs;
+  const chance = (rareEventRollMs * frequency) / meanIntervalMs;
   let playing = false;
   const timer = setInterval(() => {
     if (!anchor.isConnected) {

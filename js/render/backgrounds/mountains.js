@@ -1,4 +1,4 @@
-import { mountainsDefaultSize } from "../../../defaults.js";
+import { mountainsDefaultSize, skydiveMeanIntervalMs } from "../../../defaults.js";
 import { svgEl, seededRandom, scheduleRareEvent } from "./util.js";
 import { createSky } from "./sky.js";
 import { launchSkydive } from "./skydive.js";
@@ -123,6 +123,7 @@ export const mountains = {
     container.appendChild(scene);
     scheduleRareEvent(scene, {
       frequency: settings.balloonFrequency,
+      meanIntervalMs: skydiveMeanIntervalMs,
       play: () =>
         launchSkydive(container, {
           scale: Math.min(1.6, Math.max(0.6, sizeMultiplier / mountainsDefaultSize)),

@@ -1,4 +1,4 @@
-// The mountain view's super-rare sight: a plane passes, a skydiver jumps, free-falls,
+// The mountain view's rare sight: a plane passes, a skydiver jumps, free-falls,
 // opens a parachute and drifts down into the lake with a splash and spreading ripples.
 // It plays on its own layer above the landscape so the landing sits on the water.
 import { randomBetween, svgEl, animationDone } from "./util.js";
