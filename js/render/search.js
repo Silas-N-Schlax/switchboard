@@ -94,6 +94,10 @@ function build(container) {
   container.appendChild(barEl);
 }
 
+export function focusSearchBar() {
+  if (barEl && !barEl.classList.contains("search-bar--hidden")) inputEl.focus();
+}
+
 export function renderSearch(container, onChange) {
   onChangeRef = onChange;
   if (!barEl) build(container);

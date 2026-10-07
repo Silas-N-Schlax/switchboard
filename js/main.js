@@ -4,7 +4,7 @@ import { setState, state } from "./state.js";
 import { renderAmbient } from "./render/ambient.js";
 import { renderTabs } from "./render/tabs.js";
 import { renderLinks } from "./render/links.js";
-import { renderSearch } from "./render/search.js";
+import { renderSearch, focusSearchBar } from "./render/search.js";
 import { initSettingsToggle } from "./features/settings/index.js";
 import { applyDisplaySettings } from "./features/settings/store.js";
 import { initCheatsheetToggle } from "./features/cheatsheet/index.js";
@@ -51,6 +51,7 @@ async function init() {
   initLaunchGroups(renderTabLinks);
   initGlobalContextMenu(renderTabLinks);
   render();
+  if (state.settings.focusPageOnOpen && state.settings.focusSearchOnOpen) focusSearchBar();
 }
 
 function render() {

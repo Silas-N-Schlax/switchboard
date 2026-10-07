@@ -55,13 +55,26 @@ export function buildGeneralSection(onChange) {
 
   const { element: focusToggle, input: focusInput } = buildToggleSwitch(
     state.settings.focusPageOnOpen,
-    (focusPageOnOpen) => updateSettings({ focusPageOnOpen })
+    async (focusPageOnOpen) => {
+      await updateSettings({ focusPageOnOpen });
+      updateSearchFocusRow();
+    }
   );
   const focusRow = buildRow({ labelText: "Focus page instead of address bar", control: focusToggle });
 
+  const { element: searchFocusToggle, input: searchFocusInput } = buildToggleSwitch(
+    state.settings.focusSearchOnOpen,
+    (focusSearchOnOpen) => updateSettings({ focusSearchOnOpen })
+  );
+  const searchFocusRow = buildRow({ labelText: "Focus search bar on open", control: searchFocusToggle });
+
+  function updateSearchFocusRow() {
+    searchFocusRow.hidden = !state.settings.focusPageOnOpen;
+  }
+
   const { group } = buildDialogGroup({
     label: "General",
-    rows: [defaultTabRow, engineRow, fallbackRow, hintsRow, focusRow],
+    rows: [defaultTabRow, engineRow, fallbackRow, hintsRow, focusRow, searchFocusRow],
     note:
       "When nothing matches, Enter searches the web. The search bar takes the web search " +
       "color so you can tell before you press it. Focusing the page lets shortcuts work the " +
@@ -74,7 +87,10 @@ export function buildGeneralSection(onChange) {
     fallbackPicker.setValue(state.settings.searchFallbackColor);
     hintsInput.checked = state.settings.showKeycapHints;
     focusInput.checked = state.settings.focusPageOnOpen;
+    searchFocusInput.checked = state.settings.focusSearchOnOpen;
+    updateSearchFocusRow();
   }
+  updateSearchFocusRow();
 
   return { element: group, refresh };
 }
