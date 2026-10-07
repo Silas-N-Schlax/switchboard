@@ -76,8 +76,8 @@ function fishScale(sizeMultiplier) {
   return 1 + ((sizeMultiplier - defaultFishSize) * (fishSizeScaleMax - 1)) / (1 - defaultFishSize);
 }
 
-function randomizeFish(el, sizeMultiplier, speedMultiplier, band) {
-  const species = pickSpecies();
+function randomizeFish(el, sizeMultiplier, speedMultiplier, band, sharkFrequency) {
+  const species = pickSpecies(sharkFrequency);
   const depth = Math.random();
   const swimsRight = Math.random() < 0.5;
   const flip = swimsRight ? -1 : 1;
@@ -121,6 +121,7 @@ export const fish = {
   id: "fish",
   label: "Fish",
   controls: ["count", "size", "speed"],
+  sliders: [{ key: "sharkFrequency", label: "Shark frequency" }],
   toggles: [
     { key: "sharkEats", label: "Sharks eat fish" },
     { key: "seaFloor", label: "Sea floor" },
@@ -139,7 +140,7 @@ export const fish = {
       className: "fish-field",
       count,
       createItem: () => document.createElement("div"),
-      randomize: (el) => randomizeFish(el, sizeMultiplier, speedMultiplier, band),
+      randomize: (el) => randomizeFish(el, sizeMultiplier, speedMultiplier, band, settings.sharkFrequency),
       placeStatic(el) {
         el.style.setProperty("--from-x", `${randomBetween(5, 90)}vw`);
       },

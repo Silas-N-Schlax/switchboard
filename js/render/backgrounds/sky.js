@@ -209,13 +209,13 @@ function balloonShape() {
   return svg;
 }
 
-// Most crossings run empty; the balloon only shows on a skyBalloonChance roll.
-function randomizeBalloon(el, { scale, speedMultiplier, band }) {
+// Most crossings run empty; the balloon only shows when its `chance` roll comes up.
+function randomizeBalloon(el, { scale, speedMultiplier, band, chance }) {
   const depth = Math.random();
   const height = randomBetween(...skyBalloonBaseSizeRange) * scale * (0.6 + 0.4 * depth);
   const width = height * (40 / 60);
   const duration = (randomBetween(...skyBalloonBaseDurationRange) * (1.3 - 0.3 * depth)) / speedMultiplier;
-  el.style.visibility = Math.random() < skyBalloonChance ? "visible" : "hidden";
+  el.style.visibility = Math.random() < chance ? "visible" : "hidden";
   el.style.zIndex = String(Math.round(depth * 10));
   el.style.setProperty("--size", `${width}px`);
   el.style.setProperty("--height", `${height}px`);
@@ -230,10 +230,16 @@ function randomizeBalloon(el, { scale, speedMultiplier, band }) {
 }
 
 // The sky band is in vh; `horizonVh` is where the landscape begins.
-export function createSky(container, { count, sizeMultiplier, speedMultiplier, horizonVh, birds, planes }) {
+export function createSky(
+  container,
+  { count, sizeMultiplier, speedMultiplier, horizonVh, balloonFrequency = 1, birds, planes }
+) {
   const scale = sizeScale(sizeMultiplier);
   const options = { scale, speedMultiplier };
   const cloudBand = { top: 2, bottom: horizonVh * 0.7 };
+  const expectedBalloons = skyBalloonChance * balloonFrequency;
+  const balloonSlots = Math.ceil(expectedBalloons);
+  const balloonChance = expectedBalloons / balloonSlots;
   const sky = document.createElement("div");
   sky.className = "sky-scene";
   container.appendChild(sky);
@@ -252,7 +258,7 @@ export function createSky(container, { count, sizeMultiplier, speedMultiplier, h
 
   createSpawnField(sky, {
     className: "sky-scene__balloons",
-    count: 1,
+    count: balloonSlots,
     createItem() {
       const balloon = document.createElement("div");
       balloon.className = "sky-scene__balloon";
@@ -262,7 +268,8 @@ export function createSky(container, { count, sizeMultiplier, speedMultiplier, h
       balloon.appendChild(sway);
       return balloon;
     },
-    randomize: (el) => randomizeBalloon(el, { ...options, band: { top: 8, bottom: horizonVh * 0.6 } }),
+    randomize: (el) =>
+      randomizeBalloon(el, { ...options, band: { top: 8, bottom: horizonVh * 0.6 }, chance: balloonChance }),
     placeStatic(el) {
       el.hidden = true;
     },

@@ -92,6 +92,7 @@ export const mountains = {
   id: "mountains",
   label: "Mountain lake",
   controls: ["count", "size", "speed"],
+  sliders: [{ key: "balloonFrequency", label: "Balloon frequency" }],
   toggles: [
     { key: "birds", label: "Birds" },
     { key: "planes", label: "Planes" },
@@ -102,6 +103,7 @@ export const mountains = {
       sizeMultiplier,
       speedMultiplier,
       horizonVh: landscapeTopVh(),
+      balloonFrequency: settings.balloonFrequency,
       birds: settings.birds,
       planes: settings.planes,
     });

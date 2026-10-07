@@ -1,7 +1,7 @@
 // "Background" section: a style picker (one option per entry in the backgrounds
 // registry) plus count/size/speed sliders. Each style keeps its own slider values,
-// declares which sliders apply via its `controls`, and may add on/off `toggles` shown
-// only while it's picked. Count is floored above 0 (backgroundCountMin) so only
+// declares which sliders apply via its `controls`, and may add its own `sliders` (rare
+// sight frequency) and on/off `toggles`, shown only while it's picked. Count is floored above 0 (backgroundCountMin) so only
 // picking "None" removes the effect.
 
 import { ambientMode, backgroundStyle, updateAmbient, updateBackgroundStyle } from "./store.js";
@@ -14,6 +14,8 @@ import {
   backgroundSizeMin,
   backgroundSpeedMin,
   backgroundSpeedMax,
+  rareFrequencyMin,
+  rareFrequencyMax,
 } from "../../../defaults.js";
 
 function activeStyleId() {
@@ -59,14 +61,32 @@ export function buildBackgroundSection() {
     speed: buildRow({ labelText: "Speed", control: ranges.speed }),
   };
 
-  const toggleRows = backgrounds.flatMap((background) =>
-    (background.toggles ?? []).map(({ key, label }) => {
+  const styleRows = backgrounds.flatMap((background) => [
+    ...(background.sliders ?? []).map(({ key, label }) => {
+      const range = buildRange({
+        min: rareFrequencyMin,
+        max: rareFrequencyMax,
+        step: 0.5,
+        value: backgroundStyle(background.id)[key],
+        onChange: (value) => updateBackgroundStyle(background.id, { [key]: value }),
+      });
+      return {
+        backgroundId: background.id,
+        sync: () => (range.value = String(backgroundStyle(background.id)[key])),
+        row: buildRow({ labelText: label, control: range }),
+      };
+    }),
+    ...(background.toggles ?? []).map(({ key, label }) => {
       const toggle = buildToggleSwitch(backgroundStyle(background.id)[key], (checked) =>
         updateBackgroundStyle(background.id, { [key]: checked })
       );
-      return { backgroundId: background.id, key, input: toggle.input, row: buildRow({ labelText: label, control: toggle.element }) };
-    })
-  );
+      return {
+        backgroundId: background.id,
+        sync: () => (toggle.input.checked = backgroundStyle(background.id)[key]),
+        row: buildRow({ labelText: label, control: toggle.element }),
+      };
+    }),
+  ]);
 
   function syncControlRows(backgroundId) {
     const { controls } = findBackground(backgroundId);
@@ -77,9 +97,9 @@ export function buildBackgroundSection() {
       row.querySelector("input").disabled = disabled;
       if (config[key] !== undefined) ranges[key].value = String(config[key]);
     });
-    toggleRows.forEach(({ backgroundId: owner, key, input, row }) => {
+    styleRows.forEach(({ backgroundId: owner, sync, row }) => {
       row.hidden = owner !== backgroundId;
-      input.checked = backgroundStyle(owner)[key];
+      sync();
     });
   }
 
@@ -95,7 +115,7 @@ export function buildBackgroundSection() {
 
   const { group } = buildDialogGroup({
     label: "Background style",
-    rows: [styleRow, ...Object.values(controlRows), ...toggleRows.map(({ row }) => row)],
+    rows: [styleRow, ...Object.values(controlRows), ...styleRows.map(({ row }) => row)],
   });
 
   function refresh() {

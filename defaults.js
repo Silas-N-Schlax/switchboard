@@ -56,6 +56,9 @@ export const backgroundCountMax = 30;
 export const backgroundSizeMin = 0.1;
 export const backgroundSpeedMin = 0.1;
 export const backgroundSpeedMax = 3;
+// Multiplier on how often a style's rare sight (shark, balloon) appears; 1 is the original rarity.
+export const rareFrequencyMin = 0.5;
+export const rareFrequencyMax = 10;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
 export const fishDefaultSize = 0.15; // one slider step above the minimum
@@ -71,15 +74,24 @@ export const skyPlaneBaseSizeRange = [28, 42]; // px length
 export const skyPlaneBaseDurationRange = [30000, 45000];
 export const skyBalloonBaseSizeRange = [44, 68]; // px tall
 export const skyBalloonBaseDurationRange = [70000, 100000];
-// Rolled once per crossing; about one balloon every 4–5 minutes, like the fish shark.
+// Rolled once per crossing at frequency 1; about one balloon every 4–5 minutes, like the
+// fish shark. Higher frequencies add balloon slots once the chance would pass 100%.
 export const skyBalloonChance = 0.3;
 // How many of each the Count slider spawns, per unit of count.
 export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
 
 export const backgroundStyleDefaults = {
   bubbles: { count: 8, size: 1, speed: 1 },
-  fish: { count: 8, size: fishDefaultSize, speed: 1, sharkEats: true, seaFloor: true, seaSurface: true },
-  mountains: { count: 8, size: mountainsDefaultSize, speed: 1, birds: true, planes: true },
+  fish: {
+    count: 8,
+    size: fishDefaultSize,
+    speed: 1,
+    sharkFrequency: 1,
+    sharkEats: true,
+    seaFloor: true,
+    seaSurface: true,
+  },
+  mountains: { count: 8, size: mountainsDefaultSize, speed: 1, balloonFrequency: 1, birds: true, planes: true },
 };
 
 // ============================================================================

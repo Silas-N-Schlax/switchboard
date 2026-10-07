@@ -114,8 +114,10 @@ export const fishSpecies = [
   },
 ];
 
-export function pickSpecies(random = Math.random) {
-  const total = fishSpecies.reduce((sum, s) => sum + s.weight, 0);
+// `sharkFrequency` scales the shark's weight, so 1 keeps it as rare as listed.
+export function pickSpecies(sharkFrequency = 1, random = Math.random) {
+  const weightOf = (s) => (s.id === "shark" ? s.weight * sharkFrequency : s.weight);
+  const total = fishSpecies.reduce((sum, s) => sum + weightOf(s), 0);
   let roll = random() * total;
-  return fishSpecies.find((s) => (roll -= s.weight) < 0) ?? fishSpecies[0];
+  return fishSpecies.find((s) => (roll -= weightOf(s)) < 0) ?? fishSpecies[0];
 }
