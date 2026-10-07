@@ -3,14 +3,16 @@ import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
 import { openCheatsheet } from "../cheatsheet/index.js";
 import { getKeybind } from "../keybinds/registry.js";
-import { confirmTabDelete } from "../tabLinks/confirmTabDelete.js";
+import { confirmTabDelete, confirmTabClear } from "../tabLinks/confirmTabDelete.js";
 import {
   deleteLink,
   updateLink,
   duplicateLink,
   deleteTab,
+  clearTab,
   duplicateTab,
   activeTab,
+  linksForTab,
   isHomeTab,
   defaultTab,
   isExplicitDefaultTab,
@@ -174,6 +176,16 @@ function tabMenuItems(tab, onChange) {
       },
     },
     { divider: true },
+    {
+      label: "Clear links…",
+      danger: true,
+      disabled: linksForTab(tab.id).length === 0,
+      onSelect: async () => {
+        if (!(await confirmTabClear(tab))) return;
+        await clearTab(tab.id);
+        onChange();
+      },
+    },
     {
       label: "Delete",
       danger: true,

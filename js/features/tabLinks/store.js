@@ -167,6 +167,16 @@ export async function deleteTab(tabId) {
   if (tab) recordEvent(StatEvent.tabDelete, { tabId, name: tab.name, linkCount: removedLinks.length });
 }
 
+export async function clearTab(tabId) {
+  const removedLinks = linksForTab(tabId);
+  state.links = state.links.filter((l) => l.tabId !== tabId);
+  state.linkGroups = state.linkGroups.filter((g) => g.tabId !== tabId);
+  await save({ links: state.links, linkGroups: state.linkGroups });
+  removedLinks.forEach((l) =>
+    recordEvent(StatEvent.linkDelete, { linkId: l.id, tabId, label: l.label, url: l.url, via: "tab-clear" })
+  );
+}
+
 export async function reorderTab(tabId, targetIndex) {
   const tab = state.tabs.find((t) => t.id === tabId);
   if (!tab) return;
