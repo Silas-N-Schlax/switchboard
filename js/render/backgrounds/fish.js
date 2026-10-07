@@ -120,7 +120,7 @@ function randomizeFish(el, sizeMultiplier, speedMultiplier, band, sharkFrequency
 
 export const fish = {
   id: "fish",
-  label: "Fish",
+  label: "Ocean",
   controls: ["count", "size", "speed"],
   sliders: [{ key: "sharkFrequency", label: "Shark frequency" }],
   toggles: [
