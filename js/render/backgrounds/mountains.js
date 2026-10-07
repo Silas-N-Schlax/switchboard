@@ -1,5 +1,7 @@
-import { svgEl, seededRandom } from "./util.js";
+import { mountainsDefaultSize } from "../../../defaults.js";
+import { svgEl, seededRandom, scheduleRareEvent } from "./util.js";
 import { createSky } from "./sky.js";
+import { launchSkydive } from "./skydive.js";
 
 const WIDTH = 1600;
 const HEIGHT = 300;
@@ -26,11 +28,21 @@ const REFLECTION_SCALE = 0.55;
 const RIDGE_TYPICAL_Y = 60;
 
 // The band is always at least as tall as the full-width drawing, so it scales to fit
-// its height and crops at the sides; this is roughly where the ridgeline sits on screen.
+// its height and crops at the sides.
+function bandHeightPx() {
+  return Math.max(window.innerWidth * BAND_ASPECT, (window.innerHeight * BAND_MIN_VH) / 100);
+}
+
+// Roughly where the ridgeline sits on screen.
 function landscapeTopVh() {
-  const bandPx = Math.max(window.innerWidth * BAND_ASPECT, (window.innerHeight * BAND_MIN_VH) / 100);
+  const bandPx = bandHeightPx();
   const ridgePx = bandPx * (1 - RIDGE_TYPICAL_Y / HEIGHT);
   return 100 - (ridgePx / window.innerHeight) * 100;
+}
+
+function lakeOnScreen() {
+  const bandPx = bandHeightPx();
+  return { top: window.innerHeight - bandPx * (1 - HORIZON_Y / HEIGHT), bottom: window.innerHeight };
 }
 
 function buildShimmer(random, durationMs) {
@@ -109,6 +121,15 @@ export const mountains = {
     });
     const scene = buildScene(speedMultiplier);
     container.appendChild(scene);
+    scheduleRareEvent(scene, {
+      frequency: settings.balloonFrequency,
+      play: () =>
+        launchSkydive(container, {
+          scale: Math.min(1.6, Math.max(0.6, sizeMultiplier / mountainsDefaultSize)),
+          speedMultiplier,
+          lake: lakeOnScreen(),
+        }),
+    });
     return scene;
   },
 };

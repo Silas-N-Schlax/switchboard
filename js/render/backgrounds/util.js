@@ -1,3 +1,5 @@
+import { rareEventMeanIntervalMs, rareEventRollMs } from "../../../defaults.js";
+
 export const prefersReducedMotion = window.matchMedia?.(
   "(prefers-reduced-motion: reduce)"
 ).matches;
@@ -56,4 +58,28 @@ export function createSpawnField(container, { className, count, createItem, rand
     field.appendChild(item);
   }
   return field;
+}
+
+// Rolls every rareEventRollMs so an event plays on average once per
+// rareEventMeanIntervalMs / frequency. `play` returns a promise that settles when the
+// event is over; only one runs at a time, and rolling stops once `anchor` leaves the page.
+export function scheduleRareEvent(anchor, { frequency = 1, play }) {
+  if (prefersReducedMotion) return;
+  const chance = (rareEventRollMs * frequency) / rareEventMeanIntervalMs;
+  let playing = false;
+  const timer = setInterval(() => {
+    if (!anchor.isConnected) {
+      clearInterval(timer);
+      return;
+    }
+    if (playing || Math.random() >= chance) return;
+    playing = true;
+    play().finally(() => {
+      playing = false;
+    });
+  }, rareEventRollMs);
+}
+
+export function animationDone(animation) {
+  return animation.finished.catch(() => {});
 }

@@ -161,6 +161,198 @@
   }
 }
 
+/* The super-rare skydiver (js/render/backgrounds/skydive.js). Positions are driven from
+   JS; these rules handle the canopy opening, the swing under it, and the landing. */
+.skydive {
+  pointer-events: none;
+
+  .skydive__plane,
+  .skydive__diver {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .skydive__diver {
+    transform-origin: 50% 100%;
+  }
+
+  .skydive__plane {
+    width: var(--size);
+    height: var(--height);
+  }
+
+  .skydive__sway {
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 10%;
+  }
+
+  .skydive__diver--open .skydive__sway {
+    animation: skydiveSway 2.4s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .skydive__canopy {
+    transform-box: view-box;
+    transform-origin: 20px 45px;
+    transform: scale(0.05, 0);
+    opacity: 0;
+    transition:
+      transform 700ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      opacity 300ms ease-out;
+  }
+
+  .skydive__diver--open .skydive__canopy {
+    transform: none;
+    opacity: 1;
+  }
+
+  .skydive__diver--open .skydive__canopy-cloth,
+  .skydive__diver--open .skydive__canopy-cells {
+    transform-box: view-box;
+    transform-origin: 20px 12px;
+    animation: skydiveBreathe 1.7s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver--landed .skydive__canopy {
+    transform: translate(6px, 30px) scale(1.1, 0.2);
+    opacity: 0;
+    transition:
+      transform 1400ms ease-in,
+      opacity 1400ms ease-in;
+  }
+
+  .skydive__canopy-cloth {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 35%, #e07a5f) 55%, white);
+    opacity: 0.5;
+  }
+
+  .skydive__lines {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-3) 25%, white);
+    stroke-width: 0.5;
+    opacity: 0.4;
+  }
+
+  .skydive__canopy-cells {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-1) 50%, black);
+    stroke-width: 0.6;
+    opacity: 0.3;
+  }
+
+  .skydive__suit,
+  .skydive__leg {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, #5fa8d3) 55%, white);
+  }
+
+  .skydive__head {
+    fill: color-mix(in oklab, var(--bg-3) 25%, white);
+  }
+
+  .skydive__leg {
+    transform-box: view-box;
+    animation: skydiveKick 1.3s ease-in-out infinite alternate;
+  }
+
+  .skydive__leg--left {
+    transform-origin: 19px 51px;
+  }
+
+  .skydive__leg--right {
+    transform-origin: 21px 51px;
+    animation-delay: -0.65s;
+  }
+
+  /* Tumbles a little in freefall; steadies once the canopy is up. */
+  .skydive__figure {
+    opacity: 0.6;
+    transform-box: view-box;
+    transform-origin: 20px 48px;
+    animation: skydiveTumble 0.9s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver--open .skydive__figure {
+    animation: none;
+  }
+
+  /* Belly-down while free-falling, upright once the canopy catches. */
+  .skydive__body {
+    transform-box: view-box;
+    transform-origin: 20px 49px;
+    transform: rotate(80deg);
+    transition:
+      transform 900ms ease-out,
+      opacity 900ms ease-in;
+  }
+
+  .skydive__diver--open .skydive__body {
+    transform: none;
+  }
+
+  .skydive__diver--landed .skydive__body {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  .skydive__drop {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--bg-3) 20%, white);
+  }
+
+  .skydive__ripple {
+    position: absolute;
+    border: 1px solid color-mix(in oklab, var(--bg-3) 30%, white);
+    border-radius: 50%;
+  }
+}
+
+@keyframes skydiveSway {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes skydiveBreathe {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(0.94, 1.06);
+  }
+}
+
+@keyframes skydiveKick {
+  from {
+    transform: rotate(-9deg);
+  }
+  to {
+    transform: rotate(9deg);
+  }
+}
+
+@keyframes skydiveTumble {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+
 @keyframes skyCross {
   from {
     transform: translate(var(--from-x), var(--y));

@@ -59,6 +59,9 @@ export const backgroundSpeedMax = 3;
 // Multiplier on how often a style's rare sight (shark, balloon) appears; 1 is the original rarity.
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
+// Super-rare events (submarine, skydiver) also scale with the rare-sight frequency.
+export const rareEventMeanIntervalMs = 30 * 60 * 1000; // at frequency 1
+export const rareEventRollMs = 15000;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
 export const fishDefaultSize = 0.15; // one slider step above the minimum

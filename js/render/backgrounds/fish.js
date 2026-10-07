@@ -4,9 +4,10 @@ import {
   fishDefaultSize as defaultFishSize,
   fishSizeScaleMax,
 } from "../../../defaults.js";
-import { randomBetween, createSpawnField, svgEl, prefersReducedMotion } from "./util.js";
+import { randomBetween, createSpawnField, svgEl, prefersReducedMotion, scheduleRareEvent } from "./util.js";
 import { pickSpecies } from "./fishSpecies.js";
 import { startSharkHunt } from "./sharkHunt.js";
+import { launchSubmarine } from "./submarine.js";
 import { createSeaFloor } from "./seaFloor.js";
 import { createSeaSurface } from "./seaSurface.js";
 
@@ -148,6 +149,10 @@ export const fish = {
     if (!prefersReducedMotion) {
       startSharkHunt(field, { eats: settings.sharkEats, bounds: band });
     }
+    scheduleRareEvent(field, {
+      frequency: settings.sharkFrequency,
+      play: () => launchSubmarine(field, { band, sizeScale: fishScale(sizeMultiplier), speedMultiplier }),
+    });
     return field;
   },
 };

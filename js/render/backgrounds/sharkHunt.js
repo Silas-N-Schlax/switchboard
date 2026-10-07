@@ -2,6 +2,7 @@
 // fish near its head dart away. With `eats` on, the shark locks onto one fish, lunges,
 // and eats it if it connects; other fish still dart. Everything rides on each fish's
 // .fish-field__steer layer, on top of the CSS swim, so nothing runs without a shark.
+// A passing submarine (submarine.js) scatters fish ahead of its nose the same way.
 
 const IDLE_CHECK_MS = 500;
 const HUNT_RANGE = 0.4; // fraction of viewport width ahead of the shark's head
@@ -19,6 +20,7 @@ const CATCH_RADIUS = 0.15; // fraction of shark length, measured from its head
 const LUNGE_RANGE = 2; // shark lengths from its target at which it speeds up
 const LUNGE_BOOST = 1.6;
 const EAT_MS = 220;
+const SUB_SCARE_RADIUS = 0.7; // fraction of sub length, measured from its nose
 
 // Keyed by the steer layer, which is rebuilt on every respawn, so state never leaks
 // into a fish's next life.
@@ -169,6 +171,22 @@ function steerShark(shark, fishEls, dt, { eats, bounds }) {
   if (swim) swim.playbackRate = state.rate;
 }
 
+function scareAhead(sub, fishEls) {
+  const rect = sub.getBoundingClientRect();
+  const flip = Number(sub.dataset.flip);
+  const nose = { x: flip === -1 ? rect.right : rect.left, y: center(rect).y };
+  const radius = rect.width * SUB_SCARE_RADIUS;
+  for (const prey of fishEls) {
+    const preySteer = steerOf(prey);
+    if (!preySteer || escaped.has(preySteer) || prey.classList.contains("fish-field__fish--shark")) continue;
+    const near = membersOf(prey).some((member) => {
+      const p = center(member.getBoundingClientRect());
+      return Math.hypot(p.x - nose.x, p.y - nose.y) < radius;
+    });
+    if (near) dart(prey, preySteer, nose.y, flip);
+  }
+}
+
 // `bounds` are the top/bottom of open water as viewport-height fractions.
 export function startSharkHunt(field, options) {
   let last = 0;
@@ -183,9 +201,11 @@ export function startSharkHunt(field, options) {
       (el) => el.classList.contains("fish-field__fish--shark") && isOnScreen(el.getBoundingClientRect())
     );
     sharks.forEach((shark) => steerShark(shark, fishEls, dt, options));
+    const subs = fishEls.filter((el) => el.classList.contains("fish-field__sub"));
+    subs.forEach((sub) => scareAhead(sub, fishEls));
     const stillFleeing = easeFleeRates(fishEls, now);
 
-    if (sharks.length || stillFleeing) {
+    if (sharks.length || subs.length || stillFleeing) {
       requestAnimationFrame(frame);
     } else {
       last = 0;

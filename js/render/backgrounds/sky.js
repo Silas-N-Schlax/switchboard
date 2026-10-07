@@ -159,7 +159,7 @@ function randomizeBird(el, { scale, speedMultiplier, band }) {
   return randomBetween(0, duration);
 }
 
-function planeShape() {
+export function planeShape() {
   const svg = svgEl("svg", { class: "sky-scene__plane-shape", viewBox: "0 0 40 12", "aria-hidden": "true" });
   svg.append(
     svgEl("path", {
