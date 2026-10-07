@@ -144,6 +144,7 @@ export const showKeycapHints = true;
 export const focusPageOnOpen = true;
 // Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
 export const focusSearchOnOpen = false;
+export const clearEverythingPhrase = "clear everything";
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================

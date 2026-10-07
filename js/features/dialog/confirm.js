@@ -9,10 +9,10 @@ function buildButton(text, variant) {
 }
 
 function focusableIn(el) {
-  return [...el.querySelectorAll("button:not(:disabled)")];
+  return [...el.querySelectorAll("input, button:not(:disabled)")];
 }
 
-function openDialog({ title, step, message, buttons, initialFocus }) {
+function openDialog({ title, step, message, buttons, initialFocus, buildExtra }) {
   return new Promise((resolve) => {
     const returnFocusEl = document.activeElement;
 
@@ -42,7 +42,6 @@ function openDialog({ title, step, message, buttons, initialFocus }) {
     const footer = document.createElement("div");
     footer.className = "dialog__footer confirm-dialog__footer";
 
-    dialog.append(header, body, footer);
     root.append(backdrop, dialog);
 
     function finish(result) {
@@ -57,6 +56,9 @@ function openDialog({ title, step, message, buttons, initialFocus }) {
       return button;
     });
     footer.append(...buttonEls);
+
+    const extra = buildExtra?.({ buttonEls, finish });
+    dialog.append(...[header, body, extra?.element, footer].filter(Boolean));
 
     const cancelResult = buttons[0].result;
     close.addEventListener("click", () => finish(cancelResult));
@@ -78,7 +80,7 @@ function openDialog({ title, step, message, buttons, initialFocus }) {
     });
 
     document.body.appendChild(root);
-    buttonEls[initialFocus ?? buttonEls.length - 1].focus();
+    (extra?.focusEl ?? buttonEls[initialFocus ?? buttonEls.length - 1]).focus();
   });
 }
 
@@ -108,5 +110,49 @@ export function alertDialog({ title, message, buttonLabel = "OK" }) {
     title,
     message,
     buttons: [{ text: buttonLabel, variant: "primary", result: undefined }],
+  });
+}
+
+// The confirm button stays disabled until the phrase is typed exactly, case included.
+export function typedConfirmDialog({ title, message, phrase, confirmLabel = "Confirm", cancelLabel = "Cancel" }) {
+  return openDialog({
+    title,
+    message,
+    buttons: [
+      { text: cancelLabel, variant: "ghost", result: false },
+      { text: confirmLabel, variant: "danger", result: true },
+    ],
+    buildExtra: ({ buttonEls, finish }) => {
+      const confirmButton = buttonEls[1];
+      confirmButton.disabled = true;
+
+      const field = document.createElement("label");
+      field.className = "confirm-dialog__field";
+
+      const prompt = document.createElement("span");
+      prompt.className = "confirm-dialog__prompt";
+      const phraseEl = document.createElement("code");
+      phraseEl.className = "confirm-dialog__phrase";
+      phraseEl.textContent = phrase;
+      prompt.append("Type ", phraseEl, " to confirm.");
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "confirm-dialog__input";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.addEventListener("input", () => {
+        confirmButton.disabled = input.value !== phrase;
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !confirmButton.disabled) {
+          e.preventDefault();
+          finish(true);
+        }
+      });
+
+      field.append(prompt, input);
+      return { element: field, focusEl: input };
+    },
   });
 }
