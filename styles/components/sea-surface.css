@@ -1,6 +1,6 @@
 /* Underside of the sea surface for the Fish background
    (js/render/backgrounds/seaSurface.js): scrolling wave layers, light rays, glints,
-   and the occasional boat hull passing overhead. */
+   and the occasional boat passing overhead, trailing wake bubbles. */
 .sea-surface {
   --sunlit: color-mix(in oklab, var(--bg-3) 50%, white);
   position: absolute;
@@ -67,8 +67,17 @@
   .sea-surface__boat {
     position: absolute;
     left: 0;
-    top: 4.2vh;
-    width: 11vw;
+    top: 4.4vh;
+    /* The mask sits here rather than on the rocking hull so the waterline stays level;
+       the padding gives the hull room to rock without being clipped by the mask. */
+    --rock-room: 1vw;
+    padding-block: var(--rock-room);
+    margin-top: calc(-1 * (var(--waterline) + var(--rock-room)));
+    mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.35) calc(var(--rock-room) + var(--waterline)),
+      #000 calc(var(--rock-room) + var(--waterline))
+    );
     transform: translateX(var(--from-x));
     animation: boatCross 30s linear forwards;
   }
@@ -82,6 +91,26 @@
     opacity: 0.55;
     transform: scaleX(var(--flip, 1));
     animation: boatRock 4s ease-in-out infinite alternate;
+  }
+
+  .sea-surface__boat--motorboat .sea-surface__hull {
+    animation-duration: 1.6s;
+  }
+
+  .sea-surface__prop {
+    transform-box: view-box;
+    transform-origin: -1px 25px;
+    animation: subPropeller 0.12s linear infinite alternate;
+  }
+
+  .sea-surface__joint {
+    transform-box: view-box;
+  }
+
+  .sea-surface__bubble {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
   }
 }
 
