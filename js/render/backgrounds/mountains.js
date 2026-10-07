@@ -102,7 +102,7 @@ function buildScene(speedMultiplier) {
 
 export const mountains = {
   id: "mountains",
-  label: "Mountain lake",
+  label: "Mountain",
   controls: ["count", "size", "speed"],
   sliders: [{ key: "balloonFrequency", label: "Balloon frequency" }],
   toggles: [
