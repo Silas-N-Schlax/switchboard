@@ -12,6 +12,9 @@ const CANOPY_OPEN_MS = 700;
 const DESCENT_MS_PER_SCREEN = 20000;
 const DESCENT_START_SCALE = 0.75;
 const RIPPLE_MS = 2800;
+// Fraction of screen width the jump can happen at; the right end leaves room for the
+// downwind drift so the diver always lands on screen.
+const JUMP_RANGE = [0.06, 0.84];
 
 function diverShape() {
   const svg = svgEl("svg", { class: "skydive__diver-shape", viewBox: "0 0 40 60", "aria-hidden": "true" });
@@ -132,7 +135,7 @@ export async function launchSkydive(container, { scale = 1, speedMultiplier = 1,
   const crossing = PLANE_CROSSING_MS / speedMultiplier;
   const plane = flyPlane(layer, { goesRight, y: planeY, length: planeLength, duration: crossing });
 
-  const jumpX = window.innerWidth * randomBetween(0.3, 0.6);
+  const jumpX = window.innerWidth * randomBetween(...JUMP_RANGE);
   const jumpDelay = (crossing * (jumpX - plane.fromX)) / (plane.toX - plane.fromX);
   await new Promise((resolve) => setTimeout(resolve, jumpDelay));
   if (!layer.isConnected) return;
