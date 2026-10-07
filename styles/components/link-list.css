@@ -82,6 +82,7 @@
     border-color: var(--accent-soft);
 
     &:hover,
+    &.link-list__row--active,
     &:has(.link-list__label:focus-visible) {
       background: var(--accent-soft);
       border-color: var(--accent-line);

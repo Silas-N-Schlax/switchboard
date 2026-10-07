@@ -11,7 +11,7 @@ import {
 import { openUrl } from "../features/tabLinks/openUrl.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
-import { getSearchQuery, getSearchMatches } from "../features/search/state.js";
+import { getSearchQuery, getSearchMatches, getActiveMatchIndex } from "../features/search/state.js";
 import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { getKeybind } from "../features/keybinds/registry.js";
 import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
@@ -229,6 +229,13 @@ function buildLinkGroup(group, tab, launchIndexById, onChange) {
   return section;
 }
 
+export function highlightActiveSearchRow() {
+  const rows = document.querySelectorAll(".link-list .link-list__row--static");
+  const index = getActiveMatchIndex();
+  rows.forEach((row, i) => row.classList.toggle("link-list__row--active", i === index));
+  rows[index]?.scrollIntoView({ block: "nearest" });
+}
+
 export function renderLinks(container, onChange) {
   let list = container.querySelector(".link-list");
   const isNew = !list;
@@ -268,6 +275,7 @@ export function renderLinks(container, onChange) {
       })
     );
   });
+  if (searching) highlightActiveSearchRow();
 
   if (!home) {
     const addTile = document.createElement("button");
