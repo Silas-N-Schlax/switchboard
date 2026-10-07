@@ -14,6 +14,7 @@ import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
 import { initLinkShortcutListener } from "./features/tabLinks/linkShortcuts.js";
 import { initLinkTabbing } from "./features/tabLinks/linkTabbing.js";
 import { initLaunchGroups } from "./features/launchGroups/index.js";
+import { initActionKeybinds } from "./features/tabLinks/actionKeybinds.js";
 import { recordEvent, StatEvent } from "./features/stats/recorder.js";
 
 const focusParam = "focus";
@@ -49,6 +50,7 @@ async function init() {
   initLinkShortcutListener();
   initLinkTabbing();
   initLaunchGroups(renderTabLinks);
+  initActionKeybinds(renderTabLinks);
   initGlobalContextMenu(renderTabLinks);
   render();
   if (state.settings.focusPageOnOpen && state.settings.focusSearchOnOpen) focusSearchBar();

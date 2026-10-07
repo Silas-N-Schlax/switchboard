@@ -10,7 +10,16 @@ function isCustomKeybind(id) {
 }
 
 const GROUPS = [
-  { title: "Navigate", ids: (id) => id.startsWith("tab-switch-") || id === "search-focus" },
+  {
+    title: "Navigate",
+    ids: (id) => id.startsWith("tab-switch-") || ["tab-prev", "tab-next", "search-focus"].includes(id),
+  },
+  { title: "Create & rename", ids: (id) => ["link-new", "tab-new", "tab-rename"].includes(id) },
+  {
+    title: "Selected link",
+    ids: (id) =>
+      ["link-edit", "link-delete", "link-copy-url", "link-open-new-tab", "link-move-up", "link-move-down"].includes(id),
+  },
   { title: "Launch groups", ids: (id) => id.startsWith("launch-group") },
 ];
 
