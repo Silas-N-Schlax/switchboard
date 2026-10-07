@@ -1,11 +1,8 @@
 import {
   fishBaseSizeRange,
   fishBaseDurationRange,
-  fishSizeMultiplier as defaultFishSize,
+  fishDefaultSize as defaultFishSize,
   fishSizeScaleMax,
-  sharkEats as defaultSharkEats,
-  seaFloor as defaultSeaFloor,
-  seaSurface as defaultSeaSurface,
 } from "../../../defaults.js";
 import { randomBetween, createSpawnField, svgEl, prefersReducedMotion } from "./util.js";
 import { pickSpecies } from "./fishSpecies.js";
@@ -124,15 +121,14 @@ export const fish = {
   id: "fish",
   label: "Fish",
   controls: ["count", "size", "speed"],
-  sizeSetting: "fishSizeMultiplier",
   toggles: [
     { key: "sharkEats", label: "Sharks eat fish" },
     { key: "seaFloor", label: "Sea floor" },
     { key: "seaSurface", label: "Surface" },
   ],
   create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
-    const floorOn = settings.seaFloor ?? defaultSeaFloor;
-    const surfaceOn = settings.seaSurface ?? defaultSeaSurface;
+    const floorOn = settings.seaFloor;
+    const surfaceOn = settings.seaSurface;
     // Open water between the layers, as viewport-height fractions.
     const band = { top: surfaceOn ? 0.14 : 0.05, bottom: floorOn ? 0.72 : 0.88 };
 
@@ -149,7 +145,7 @@ export const fish = {
       },
     });
     if (!prefersReducedMotion) {
-      startSharkHunt(field, { eats: settings.sharkEats ?? defaultSharkEats, bounds: band });
+      startSharkHunt(field, { eats: settings.sharkEats, bounds: band });
     }
     return field;
   },

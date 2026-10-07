@@ -6,15 +6,13 @@ import {
   ambientSegmentHours,
   ambientTickIntervalMs,
   backgroundType as defaultBackgroundType,
-  bubbleCount as defaultBubbleCount,
-  bubbleCountMin,
-  bubbleSizeMultiplierMin,
-  bubbleSpeedMultiplier as defaultBubbleSpeedMultiplier,
-  bubbleSpeedMultiplierMin,
-  bubbleSpeedMultiplierMax,
-  defaultAmbientSettings,
+  backgroundCountMin,
+  backgroundSizeMin,
+  backgroundSpeedMin,
+  backgroundSpeedMax,
+  backgroundStyleDefaults,
 } from "../../defaults.js";
-import { findBackground, sizeSettingKey } from "./backgrounds/index.js";
+import { findBackground } from "./backgrounds/index.js";
 
 export function resolveColors(ambientMode = {}) {
   const paletteId = ambientMode.paletteId ?? ambientPaletteId;
@@ -98,17 +96,10 @@ export function renderAmbient(root = document.body, settings = {}) {
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
   const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);
 
-  const count = Math.max(bubbleCountMin, ambientMode.bubbleCount ?? defaultBubbleCount);
-  const sizeMultiplier = clamp(
-    ambientMode[sizeSettingKey(background)] ?? defaultAmbientSettings[sizeSettingKey(background)],
-    bubbleSizeMultiplierMin,
-    1
-  );
-  const speedMultiplier = clamp(
-    ambientMode.bubbleSpeedMultiplier ?? defaultBubbleSpeedMultiplier,
-    bubbleSpeedMultiplierMin,
-    bubbleSpeedMultiplierMax
-  );
+  const style = { ...backgroundStyleDefaults[background.id], ...ambientMode.backgroundStyles?.[background.id] };
+  const count = Math.max(backgroundCountMin, style.count ?? backgroundCountMin);
+  const sizeMultiplier = clamp(style.size ?? 1, backgroundSizeMin, 1);
+  const speedMultiplier = clamp(style.speed ?? 1, backgroundSpeedMin, backgroundSpeedMax);
 
   // Re-rendering (settings changed) replaces the previous background in place.
   document.querySelector(".ambient-bg")?.remove();
@@ -121,7 +112,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   skyLayer.className = "ambient-bg__sky";
   container.appendChild(skyLayer);
 
-  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: ambientMode });
+  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style });
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 

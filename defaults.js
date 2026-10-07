@@ -48,25 +48,26 @@ export const ambientCuratedSwatches = [
 ];
 
 // ============================================================================
-// Ambient background — style (bubbles, fish, …) and shared count/size/speed
+// Ambient background — style (bubbles, fish, …), each with its own count/size/speed
 // ============================================================================
 export const backgroundType = "bubbles";
-export const bubbleCount = 8;
-export const bubbleCountMin = 3;
-export const bubbleSizeMultiplier = 1;
-export const bubbleSizeMultiplierMin = 0.1;
-export const bubbleSpeedMultiplier = 1;
-export const bubbleSpeedMultiplierMin = 0.1;
-export const bubbleSpeedMultiplierMax = 3;
+export const backgroundCountMin = 3;
+export const backgroundCountMax = 30;
+export const backgroundSizeMin = 0.1;
+export const backgroundSpeedMin = 0.1;
+export const backgroundSpeedMax = 3;
 export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
 export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
-export const sharkEats = true;
-export const seaFloor = true;
-export const seaSurface = true;
-export const fishSizeMultiplier = 0.15; // one slider step above the minimum
+export const fishDefaultSize = 0.15; // one slider step above the minimum
 export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
 export const fishBaseSizeRange = [28, 72]; // px body length at the default size
 export const fishBaseDurationRange = [22000, 40000]; // ms per screen crossing, before speed multiplier
+
+export const backgroundStyleDefaults = {
+  bubbles: { count: 8, size: 1, speed: 1 },
+  fish: { count: 8, size: fishDefaultSize, speed: 1, sharkEats: true, seaFloor: true, seaSurface: true },
+  mountains: { speed: 1 },
+};
 
 // ============================================================================
 // Tabs & links
@@ -162,13 +163,7 @@ export const defaultAmbientSettings = {
   customColors: ambientCustomColors,
   segmentHours: ambientSegmentHours,
   backgroundType,
-  bubbleCount,
-  bubbleSizeMultiplier,
-  fishSizeMultiplier,
-  bubbleSpeedMultiplier,
-  sharkEats,
-  seaFloor,
-  seaSurface,
+  backgroundStyles: backgroundStyleDefaults,
 };
 
 export const defaultSettings = {

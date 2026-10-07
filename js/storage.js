@@ -29,11 +29,63 @@ async function localStorageSet(partial) {
   }
 }
 
+const LEGACY_STYLE_KEYS = [
+  "bubbleCount",
+  "bubbleSizeMultiplier",
+  "fishSizeMultiplier",
+  "bubbleSpeedMultiplier",
+  "sharkEats",
+  "seaFloor",
+  "seaSurface",
+];
+
+// Before per-style settings, count and speed were shared by every style and only fish
+// kept its own size; each style inherits what it was effectively using.
+function legacyStyleSettings(legacy) {
+  const shared = { count: legacy.bubbleCount, speed: legacy.bubbleSpeedMultiplier };
+  const styles = {
+    bubbles: { ...shared, size: legacy.bubbleSizeMultiplier },
+    fish: {
+      ...shared,
+      size: legacy.fishSizeMultiplier,
+      sharkEats: legacy.sharkEats,
+      seaFloor: legacy.seaFloor,
+      seaSurface: legacy.seaSurface,
+    },
+    mountains: { speed: legacy.bubbleSpeedMultiplier },
+  };
+  for (const config of Object.values(styles)) {
+    for (const [key, value] of Object.entries(config)) if (value === undefined) delete config[key];
+  }
+  return styles;
+}
+
+function withStyleDefaults(savedStyles = {}, legacy) {
+  const migrated = legacyStyleSettings(legacy);
+  const ids = new Set([...Object.keys(defaultAmbientSettings.backgroundStyles), ...Object.keys(savedStyles)]);
+  return Object.fromEntries(
+    [...ids].map((id) => [
+      id,
+      { ...defaultAmbientSettings.backgroundStyles[id], ...migrated[id], ...savedStyles[id] },
+    ])
+  );
+}
+
 // Pre-picker saves only had a bubblesEnabled flag.
 function withAmbientDefaults(savedAmbient = {}) {
-  const { bubblesEnabled, ...rest } = savedAmbient;
+  const { bubblesEnabled, backgroundStyles, ...rest } = savedAmbient;
+  const legacy = {};
+  for (const key of LEGACY_STYLE_KEYS) {
+    legacy[key] = rest[key];
+    delete rest[key];
+  }
   const legacyType = bubblesEnabled === false ? { backgroundType: "none" } : {};
-  return { ...defaultAmbientSettings, ...legacyType, ...rest };
+  return {
+    ...defaultAmbientSettings,
+    ...legacyType,
+    ...rest,
+    backgroundStyles: withStyleDefaults(backgroundStyles, legacy),
+  };
 }
 
 function withDefaults(raw) {
