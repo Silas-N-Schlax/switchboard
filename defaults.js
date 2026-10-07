@@ -69,6 +69,10 @@ export const skyBirdBaseSizeRange = [24, 42]; // px wingspan
 export const skyBirdBaseDurationRange = [26000, 44000];
 export const skyPlaneBaseSizeRange = [28, 42]; // px length
 export const skyPlaneBaseDurationRange = [30000, 45000];
+export const skyBalloonBaseSizeRange = [44, 68]; // px tall
+export const skyBalloonBaseDurationRange = [70000, 100000];
+// Rolled once per crossing; about one balloon every 4–5 minutes, like the fish shark.
+export const skyBalloonChance = 0.3;
 // How many of each the Count slider spawns, per unit of count.
 export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
 

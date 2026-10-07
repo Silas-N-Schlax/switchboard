@@ -6,6 +6,9 @@ import {
   skyBirdBaseDurationRange,
   skyPlaneBaseSizeRange,
   skyPlaneBaseDurationRange,
+  skyBalloonBaseSizeRange,
+  skyBalloonBaseDurationRange,
+  skyBalloonChance,
   skyCountRatios,
 } from "../../../defaults.js";
 import { randomBetween, createSpawnField, svgEl } from "./util.js";
@@ -188,6 +191,44 @@ function randomizePlane(el, { scale, speedMultiplier, band }) {
   return randomBetween(0, cycle);
 }
 
+function balloonShape() {
+  const svg = svgEl("svg", { class: "sky-scene__balloon-shape", viewBox: "0 0 40 60", "aria-hidden": "true" });
+  svg.append(
+    svgEl("path", {
+      class: "sky-scene__balloon-envelope",
+      d: "M20 2 C31 2 38 10 38 20 C38 31 29 37 25 42 L15 42 C11 37 2 31 2 20 C2 10 9 2 20 2 Z",
+    }),
+    svgEl("path", {
+      class: "sky-scene__balloon-gores",
+      d: "M20 2 C13 10 12 30 17 42 M20 2 C27 10 28 30 23 42 M20 2 L20 42",
+    }),
+    svgEl("path", { class: "sky-scene__balloon-ropes", d: "M15.5 42 L17 50 M24.5 42 L23 50" }),
+    svgEl("ellipse", { class: "sky-scene__balloon-flame", cx: 20, cy: 46, rx: 1.6, ry: 2.6 }),
+    svgEl("rect", { class: "sky-scene__balloon-basket", x: 16.5, y: 50, width: 7, height: 6, rx: 1 })
+  );
+  return svg;
+}
+
+// Most crossings run empty; the balloon only shows on a skyBalloonChance roll.
+function randomizeBalloon(el, { scale, speedMultiplier, band }) {
+  const depth = Math.random();
+  const height = randomBetween(...skyBalloonBaseSizeRange) * scale * (0.6 + 0.4 * depth);
+  const width = height * (40 / 60);
+  const duration = (randomBetween(...skyBalloonBaseDurationRange) * (1.3 - 0.3 * depth)) / speedMultiplier;
+  el.style.visibility = Math.random() < skyBalloonChance ? "visible" : "hidden";
+  el.style.zIndex = String(Math.round(depth * 10));
+  el.style.setProperty("--size", `${width}px`);
+  el.style.setProperty("--height", `${height}px`);
+  el.style.setProperty("--depth-opacity", `${0.5 + 0.5 * depth}`);
+  el.style.setProperty("--from-x", `calc(-${width}px - 2vw)`);
+  el.style.setProperty("--to-x", "102vw");
+  el.style.setProperty("--y", `${randomBetween(band.top, band.bottom)}vh`);
+  el.style.setProperty("--drift-y", `${randomBetween(-6, 6)}vh`);
+  el.style.setProperty("--duration", `${duration}ms`);
+  el.style.setProperty("--flame-delay", `-${randomBetween(0, 7000)}ms`);
+  return randomBetween(0, duration);
+}
+
 // The sky band is in vh; `horizonVh` is where the landscape begins.
 export function createSky(container, { count, sizeMultiplier, speedMultiplier, horizonVh, birds, planes }) {
   const scale = sizeScale(sizeMultiplier);
@@ -207,6 +248,24 @@ export function createSky(container, { count, sizeMultiplier, speedMultiplier, h
     },
     randomize: (el) => randomizeCloud(el, { ...options, band: cloudBand }),
     placeStatic: (el) => placeStaticAt(el, cloudBand),
+  });
+
+  createSpawnField(sky, {
+    className: "sky-scene__balloons",
+    count: 1,
+    createItem() {
+      const balloon = document.createElement("div");
+      balloon.className = "sky-scene__balloon";
+      const sway = document.createElement("div");
+      sway.className = "sky-scene__balloon-sway";
+      sway.appendChild(balloonShape());
+      balloon.appendChild(sway);
+      return balloon;
+    },
+    randomize: (el) => randomizeBalloon(el, { ...options, band: { top: 8, bottom: horizonVh * 0.6 } }),
+    placeStatic(el) {
+      el.hidden = true;
+    },
   });
 
   if (planes) {

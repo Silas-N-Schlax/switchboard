@@ -10,6 +10,7 @@
   isolation: isolate;
 
   .sky-scene__clouds,
+  .sky-scene__balloons,
   .sky-scene__birds,
   .sky-scene__planes {
     position: absolute;
@@ -17,6 +18,7 @@
   }
 
   .sky-scene__cloud,
+  .sky-scene__balloon,
   .sky-scene__bird,
   .sky-scene__plane {
     position: absolute;
@@ -74,6 +76,47 @@
 
   .sky-scene__plane {
     animation-name: planeFly;
+  }
+
+  .sky-scene__balloon-sway {
+    width: 100%;
+    height: 100%;
+    opacity: var(--depth-opacity, 1);
+    transform-origin: 50% 0;
+    animation: balloonSway 9s ease-in-out infinite alternate;
+  }
+
+  .sky-scene__balloon-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sky-scene__balloon-envelope {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, #e0956a) 60%, white);
+    opacity: 0.4;
+  }
+
+  .sky-scene__balloon-gores,
+  .sky-scene__balloon-ropes {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-1) 60%, black);
+    stroke-width: 0.8;
+    opacity: 0.35;
+  }
+
+  .sky-scene__balloon-basket {
+    fill: color-mix(in oklab, var(--bg-3) 30%, white);
+    opacity: 0.4;
+  }
+
+  /* The burner fires in short bursts every few seconds. */
+  .sky-scene__balloon-flame {
+    fill: #ffb45e;
+    opacity: 0;
+    animation: balloonBurner 7s ease-out infinite;
+    animation-delay: var(--flame-delay, 0s);
   }
 
   .sky-scene__plane-flip {
@@ -174,6 +217,27 @@
   }
 }
 
+@keyframes balloonSway {
+  from {
+    transform: rotate(-2deg) translateY(-0.6vh);
+  }
+  to {
+    transform: rotate(2deg) translateY(0.6vh);
+  }
+}
+
+@keyframes balloonBurner {
+  0%,
+  86%,
+  100% {
+    opacity: 0;
+  }
+  88%,
+  94% {
+    opacity: 0.85;
+  }
+}
+
 @keyframes planeBlink {
   0%,
   100% {
@@ -186,6 +250,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sky-scene__cloud,
+  .sky-scene__balloon-sway,
+  .sky-scene__balloon-flame,
   .sky-scene__bird,
   .sky-scene__bird-member,
   .sky-scene__bird-shape--glide,
