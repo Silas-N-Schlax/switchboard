@@ -1,7 +1,14 @@
 import { searchLinks } from "../features/search/store.js";
 import { registerKeybind, getKeybind } from "../features/keybinds/registry.js";
 import { activeTab, isHomeTab, setActiveTab, sortedTabs } from "../features/tabLinks/store.js";
-import { setSearchQuery, clearSearchQuery, getSearchMatches } from "../features/search/state.js";
+import {
+  setSearchQuery,
+  clearSearchQuery,
+  getSearchMatches,
+  getActiveMatch,
+  moveActiveMatch,
+} from "../features/search/state.js";
+import { highlightActiveSearchRow } from "./links.js";
 import { searchEngines } from "../../defaults.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
 import { openUrl } from "../features/tabLinks/openUrl.js";
@@ -56,15 +63,20 @@ function build(container) {
       e.preventDefault();
       const query = inputEl.value.trim();
       if (!query) return;
-      const top = getSearchMatches()[0];
-      if (top) {
+      const active = getActiveMatch();
+      if (active) {
         recordEvent(StatEvent.search, { outcome: "link" });
-        await recordLinkOpen(top.link, "search");
-        openUrl(top.link.url);
+        await recordLinkOpen(active.link, "search");
+        openUrl(active.link.url);
       } else {
         await recordEvent(StatEvent.search, { outcome: "web", engine: searchEngine().id });
         openUrl(webSearchUrl(query));
       }
+    } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && getSearchMatches().length) {
+      e.preventDefault();
+      e.stopPropagation();
+      moveActiveMatch(e.key === "ArrowDown" ? 1 : -1);
+      highlightActiveSearchRow();
     } else if (e.key === "Escape") {
       inputEl.value = "";
       clearSearchQuery();
