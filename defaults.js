@@ -142,6 +142,8 @@ export const statsEnabled = true;
 export const showKeycapHints = true;
 // Takes keyboard focus from the address bar when a new tab opens — see js/main.js.
 export const focusPageOnOpen = true;
+// Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
+export const focusSearchOnOpen = false;
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================
@@ -164,6 +166,7 @@ export const defaultSettings = {
   statsEnabled,
   showKeycapHints,
   focusPageOnOpen,
+  focusSearchOnOpen,
   defaultTabId,
   searchEngineId,
   searchFallbackColor,
