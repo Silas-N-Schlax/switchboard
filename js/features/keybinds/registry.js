@@ -11,8 +11,10 @@ import { serializeShortcutEvent } from "./shortcutFormat.js";
 const registered = new Map();
 let listenerAttached = false;
 
-export function registerKeybind(id, { description, handler }) {
-  registered.set(id, { description, handler });
+// `when` scopes a keybind (e.g. to a focused link); while it returns false the key is
+// left alone, so a link shortcut on the same key still works.
+export function registerKeybind(id, { description, handler, when = null }) {
+  registered.set(id, { description, handler, when });
 }
 
 export function unregisterKeybind(id) {
@@ -54,15 +56,23 @@ function matchesKey(e, key) {
   return e.key === key && !e.ctrlKey && !e.metaKey && !e.altKey;
 }
 
+function findActiveKeybind(e) {
+  for (const [id, entry] of registered) {
+    if (matchesKey(e, getKeybind(id)) && (!entry.when || entry.when())) return entry;
+  }
+  return null;
+}
+
+export function matchesAppKeybind(e) {
+  return !isTypingTarget(e.target) && findActiveKeybind(e) !== null;
+}
+
 function onKeyDown(e) {
   if (isTypingTarget(e.target)) return;
-  for (const [id, { handler }] of registered) {
-    if (matchesKey(e, getKeybind(id))) {
-      e.preventDefault();
-      handler(e);
-      return;
-    }
-  }
+  const entry = findActiveKeybind(e);
+  if (!entry) return;
+  e.preventDefault();
+  entry.handler(e);
 }
 
 export function initKeybindListener() {

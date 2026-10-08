@@ -1,7 +1,9 @@
 import { buildRow } from "./controls.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
 import { exportToJson, readBackupFile, importFromJson } from "../importExport.js";
-import { confirmDialog, alertDialog } from "../dialog/confirm.js";
+import { confirmDialog, alertDialog, typedConfirmDialog } from "../dialog/confirm.js";
+import { resetToDefaults } from "../../storage.js";
+import { clearEverythingPhrase } from "../../../defaults.js";
 import { showToast } from "../dialog/toast.js";
 
 function buildActionButton(text, onClick) {
@@ -59,9 +61,26 @@ export function buildDataSection() {
   const importRow = buildRow({ labelText: "Restore from backup", control: importButton, tag: "div" });
   importRow.appendChild(fileInput);
 
+  const clearButton = buildActionButton("Clear", async () => {
+    const confirmed = await typedConfirmDialog({
+      title: "Clear everything?",
+      message:
+        "This deletes every tab, link, setting, and stat, and Switchboard starts over as if " +
+        "it were just installed. It can't be undone, so export a backup first if you might " +
+        "want any of it back.",
+      phrase: clearEverythingPhrase,
+      confirmLabel: "Clear everything",
+    });
+    if (!confirmed) return;
+    await resetToDefaults();
+    location.reload();
+  });
+  clearButton.classList.add("settings-panel__action--danger");
+  const clearRow = buildRow({ labelText: "Clear everything", control: clearButton, tag: "div" });
+
   const { group } = buildDialogGroup({
     label: "Data",
-    rows: [exportRow, importRow],
+    rows: [exportRow, importRow, clearRow],
     note:
       "Backups are a JSON file with your tabs, links, settings, and stats. Restoring one " +
       "replaces everything here, so export first if you want to keep what you have.",

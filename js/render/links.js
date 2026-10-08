@@ -101,6 +101,7 @@ function buildLaunchBar(tab) {
 function buildLinkRow(link, { searching, compact, launchIndex, tabName, onChange }) {
   const row = document.createElement("div");
   row.className = "link-list__row";
+  row.dataset.linkId = link.id;
   if (compact) row.classList.add("link-list__row--compact");
   if (searching) {
     row.classList.add("link-list__row--static");

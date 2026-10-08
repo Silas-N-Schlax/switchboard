@@ -20,6 +20,40 @@
     line-height: 1.55;
   }
 
+  .confirm-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: 0 var(--space-5) var(--space-5);
+  }
+
+  .confirm-dialog__prompt {
+    color: var(--ink-dim);
+    font-size: var(--text-md);
+  }
+
+  .confirm-dialog__phrase {
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-md);
+  }
+
+  .confirm-dialog__input {
+    padding: 10px var(--space-3);
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-md);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    transition: border-color var(--duration-fast) ease;
+
+    &:focus {
+      outline: none;
+      border-color: color-mix(in oklch, var(--flag) 45%, transparent);
+    }
+  }
+
   .confirm-dialog__footer {
     justify-content: flex-end;
     gap: var(--space-2);
@@ -63,8 +97,13 @@
     border-color: color-mix(in oklch, var(--flag) 45%, transparent);
     color: var(--flag);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: color-mix(in oklch, var(--flag) 26%, transparent);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 }

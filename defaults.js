@@ -100,6 +100,17 @@ export const defaultKeybinds = {
   "settings-open": ",",
   "launch-group": "l",
   "launch-group-edit": "Shift+L",
+  "tab-prev": "[",
+  "tab-next": "]",
+  "tab-new": "t",
+  "tab-rename": "Shift+R",
+  "link-new": "n",
+  "link-edit": "e",
+  "link-delete": "Meta+Backspace",
+  "link-copy-url": "Shift+C",
+  "link-open-new-tab": "Meta+Enter",
+  "link-move-up": "Alt+↑",
+  "link-move-down": "Alt+↓",
 };
 
 // ============================================================================
@@ -144,6 +155,8 @@ export const showKeycapHints = true;
 export const focusPageOnOpen = true;
 // Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
 export const focusSearchOnOpen = false;
+export const clearTabPhrase = "clear links";
+export const clearEverythingPhrase = "clear everything";
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================

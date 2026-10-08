@@ -109,14 +109,22 @@ export async function isInitialized() {
   return storedVersion === SCHEMA_VERSION;
 }
 
-export async function seedFromDefaults() {
-  const payload = structuredClone({
+function defaultPayload() {
+  return structuredClone({
     schemaVersion,
     tabs: defaultTabs,
     links: defaultLinks,
     linkGroups: defaultLinkGroups,
     settings: defaultSettings,
   });
+}
+
+export async function seedFromDefaults() {
+  const payload = defaultPayload();
   await save(payload);
   return payload;
+}
+
+export async function resetToDefaults() {
+  await replaceAll(defaultPayload());
 }

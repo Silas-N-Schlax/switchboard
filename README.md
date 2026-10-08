@@ -11,15 +11,23 @@ your browser: no account, no cloud sync, no tracking.
 
 - **Tabs of links.** Up to nine named tabs, each with its own list of links. Drag to
   reorder, right-click for more options.
-- **Search.** Press `s` to filter every link across every tab. If nothing matches, Enter
-  searches the web with the engine you pick (Google, DuckDuckGo, Bing, Kagi, or Brave
-  Search).
+- **Link groups.** Split a busy tab into named groups shown side by side. Right-click a
+  link and choose **Move to new group**, or drag links between groups.
+- **Search.** Press `s` to filter every link across every tab. Use the arrow keys to pick
+  a result and Enter to open it. If nothing matches, Enter searches the web with the
+  engine you pick (Google, DuckDuckGo, Bing, Kagi, or Brave Search).
+- **Keyboard first.** New tabs take focus away from the address bar so shortcuts work
+  right away, though the address bar then shows the extension's own URL. You can turn
+  this off, or have the search bar focused on open, in Settings → General.
 - **Shortcuts.** `1`–`9` switch tabs, and any link can get its own shortcut (including
   modifier combos).
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
 - **Ambient background.** Slowly drifting colors and bubbles, with presets and custom
   palettes. Respects your system's reduced-motion setting.
 - **Backups.** Export everything to a JSON file and restore it on another machine.
+- **Clearing.** Empty one tab (right-click it → **Clear links…**) or reset everything
+  (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because
+  neither can be undone.
 
 ## Install
 
@@ -58,8 +66,20 @@ settings are kept.
 | Key | Action |
 | --- | --- |
 | `1`–`9` | Switch tabs |
-| `s` | Search your links |
+| `[` / `]` | Previous / next tab |
+| `s` | Go to the home tab and search |
+| `↑` / `↓` | Move through search results or links |
+| `←` / `→` | Move between the main list and link groups |
+| `Enter` | Open the selected result or link |
 | `Tab` / `Shift+Tab` | Move between links |
+| `n` | Add a link to this tab |
+| `t` | Add a tab |
+| `Shift+R` | Rename this tab |
+| `e` | Edit the selected link |
+| `⌘+Backspace` | Delete the selected link |
+| `Shift+C` | Copy the selected link's URL |
+| `⌘+Enter` | Open the selected link in a new tab |
+| `Alt+↑` / `Alt+↓` | Move the selected link up or down |
 | `l` | Open this tab's launch group |
 | `Shift+L` | Edit the launch group |
 | `,` | Settings |

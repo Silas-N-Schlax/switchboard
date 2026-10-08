@@ -3,14 +3,15 @@ import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
 import { openCheatsheet } from "../cheatsheet/index.js";
 import { getKeybind } from "../keybinds/registry.js";
-import { confirmTabDelete } from "../tabLinks/confirmTabDelete.js";
+import { confirmTabDelete, confirmTabClear } from "../tabLinks/confirmTabDelete.js";
 import {
   deleteLink,
-  updateLink,
   duplicateLink,
   deleteTab,
+  clearTab,
   duplicateTab,
   activeTab,
+  linksForTab,
   isHomeTab,
   defaultTab,
   isExplicitDefaultTab,
@@ -33,7 +34,7 @@ import {
   clearLaunchGroup,
   openLaunchGroupEditor,
 } from "../launchGroups/index.js";
-import { openLinkModal } from "../tabLinks/linkModal.js";
+import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl } from "../tabLinks/linkActions.js";
 import { beginRenameTab } from "../tabLinks/renameState.js";
 import { maxTabs } from "../../../defaults.js";
 
@@ -62,25 +63,19 @@ function linkMenuItems(link, onChange) {
   return [
     {
       label: "Open in new tab",
-      onSelect: () => window.open(link.url, "_blank", "noopener"),
+      hint: getKeybind("link-open-new-tab"),
+      onSelect: () => openLinkInNewTab(link),
     },
     {
       label: "Copy URL",
-      onSelect: () => navigator.clipboard.writeText(link.url).catch(() => {}),
+      hint: getKeybind("link-copy-url"),
+      onSelect: () => copyLinkUrl(link),
     },
     { divider: true },
     {
       label: "Update link…",
-      onSelect: () =>
-        openLinkModal(document.body, {
-          title: "Update link",
-          submitLabel: "Save",
-          initial: { id: link.id, label: link.label, url: link.url, shortcutKey: link.shortcutKey },
-          onSubmit: async ({ label, url, shortcutKey }) => {
-            await updateLink(link.id, { label, url, shortcutKey });
-            onChange();
-          },
-        }),
+      hint: getKeybind("link-edit"),
+      onSelect: () => openUpdateLinkModal(link, onChange),
     },
     {
       label: link.launchGroup ? "Remove from launch group" : "Add to launch group",
@@ -102,6 +97,7 @@ function linkMenuItems(link, onChange) {
     { divider: true },
     {
       label: "Delete",
+      hint: getKeybind("link-delete"),
       danger: true,
       onSelect: async () => {
         await deleteLink(link.id);
@@ -140,6 +136,7 @@ function tabMenuItems(tab, onChange) {
   return [
     {
       label: "Rename",
+      hint: activeTabHint(tab, "tab-rename"),
       onSelect: () => beginRenameTab(tab.id, onChange),
     },
     defaultTabMenuItem(tab, onChange),
@@ -174,6 +171,16 @@ function tabMenuItems(tab, onChange) {
       },
     },
     { divider: true },
+    {
+      label: "Clear links…",
+      danger: true,
+      disabled: linksForTab(tab.id).length === 0,
+      onSelect: async () => {
+        if (!(await confirmTabClear(tab))) return;
+        await clearTab(tab.id);
+        onChange();
+      },
+    },
     {
       label: "Delete",
       danger: true,
