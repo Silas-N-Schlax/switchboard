@@ -3,7 +3,7 @@
   top: var(--stage-top);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: 15;
   width: min(552px, calc(100vw - 72px));
 
   &.search-bar--hidden {

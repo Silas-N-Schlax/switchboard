@@ -100,6 +100,17 @@ export const defaultKeybinds = {
   "settings-open": ",",
   "launch-group": "l",
   "launch-group-edit": "Shift+L",
+  "tab-prev": "[",
+  "tab-next": "]",
+  "tab-new": "t",
+  "tab-rename": "Shift+R",
+  "link-new": "n",
+  "link-edit": "e",
+  "link-delete": "Meta+Backspace",
+  "link-copy-url": "Shift+C",
+  "link-open-new-tab": "Meta+Enter",
+  "link-move-up": "Alt+↑",
+  "link-move-down": "Alt+↓",
 };
 
 // ============================================================================

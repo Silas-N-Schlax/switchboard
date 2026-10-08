@@ -1,4 +1,5 @@
 import { state } from "../../state.js";
+import { serializeShortcutEvent } from "../keybinds/shortcutFormat.js";
 
 let attached = false;
 
@@ -53,6 +54,35 @@ function onArrow(e) {
   next?.focus();
 }
 
+// Each column is the main list or one link group; the label's group, or null for main.
+function linkColumns() {
+  const columns = new Map();
+  for (const label of linkLabels()) {
+    const key = label.closest(".link-group") ?? null;
+    if (!columns.has(key)) columns.set(key, []);
+    columns.get(key).push(label);
+  }
+  return [...columns.values()];
+}
+
+// Left/right hop between the main list and the group columns, keeping the row position
+// where the next column is long enough, and stopping at either end.
+function onSideArrow(e) {
+  const columns = linkColumns();
+  const column = columns.findIndex((labels) => labels.includes(document.activeElement));
+  if (column === -1) return;
+  e.preventDefault();
+  const next = columns[column + (e.key === "ArrowRight" ? 1 : -1)];
+  if (!next) return;
+  const row = columns[column].indexOf(document.activeElement);
+  next[Math.min(row, next.length - 1)].focus();
+}
+
+function isLinkShortcut(e) {
+  const candidate = serializeShortcutEvent(e);
+  return state.links.some((l) => l.shortcutKey === candidate);
+}
+
 export function initLinkTabbing() {
   if (attached) return;
   attached = true;
@@ -64,8 +94,11 @@ export function initLinkTabbing() {
       onTab(e);
     } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !e.shiftKey) {
       if (isOtherTextField(e.target)) return;
-      if (state.links.some((l) => l.shortcutKey === e.key)) return;
+      if (isLinkShortcut(e)) return;
       onArrow(e);
+    } else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && !e.shiftKey) {
+      if (isLinkShortcut(e)) return;
+      onSideArrow(e);
     }
   });
 }

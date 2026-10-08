@@ -1,5 +1,6 @@
 import { state } from "../../state.js";
 import { serializeShortcutEvent } from "../keybinds/shortcutFormat.js";
+import { matchesAppKeybind } from "../keybinds/registry.js";
 import { recordLinkOpen } from "../stats/recorder.js";
 import { openUrl } from "./openUrl.js";
 
@@ -18,6 +19,9 @@ export function initLinkShortcutListener() {
   attached = true;
   document.addEventListener("keydown", async (e) => {
     if (isTypingTarget(e.target)) return;
+    // Link shortcuts saved before an app keybind claimed the same key lose to it.
+    // defaultPrevented covers the registry having already run and moved focus.
+    if (e.defaultPrevented || matchesAppKeybind(e)) return;
     const candidate = serializeShortcutEvent(e);
     const link = state.links.find((l) => l.shortcutKey === candidate);
     if (!link) return;

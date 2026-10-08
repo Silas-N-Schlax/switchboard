@@ -66,10 +66,20 @@ settings are kept.
 | Key | Action |
 | --- | --- |
 | `1`–`9` | Switch tabs |
+| `[` / `]` | Previous / next tab |
 | `s` | Go to the home tab and search |
 | `↑` / `↓` | Move through search results or links |
+| `←` / `→` | Move between the main list and link groups |
 | `Enter` | Open the selected result or link |
 | `Tab` / `Shift+Tab` | Move between links |
+| `n` | Add a link to this tab |
+| `t` | Add a tab |
+| `Shift+R` | Rename this tab |
+| `e` | Edit the selected link |
+| `⌘+Backspace` | Delete the selected link |
+| `Shift+C` | Copy the selected link's URL |
+| `⌘+Enter` | Open the selected link in a new tab |
+| `Alt+↑` / `Alt+↓` | Move the selected link up or down |
 | `l` | Open this tab's launch group |
 | `Shift+L` | Edit the launch group |
 | `,` | Settings |
