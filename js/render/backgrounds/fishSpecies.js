@@ -91,7 +91,7 @@ export const fishSpecies = [
   },
   {
     id: "shark",
-    weight: 0.15,
+    weight: 0.05,
     viewBox: [160, 60],
     size: 2.4,
     pace: 1.1,

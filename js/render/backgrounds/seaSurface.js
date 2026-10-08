@@ -4,7 +4,7 @@ import { rowerParts, bladeIsWet } from "./rowing.js";
 const TILE = 1600; // wave paths repeat every TILE units, so a -50% scroll loops seamlessly
 const RAY_COUNT = 5;
 const GLINT_COUNT = 6;
-const BOAT_DELAY_MS = [40000, 90000];
+const BOAT_DELAY_MS = [120000, 270000];
 const BOAT_CROSSING_MS = [26000, 36000];
 
 function wavePath(baseline, amplitude, period) {
