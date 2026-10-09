@@ -48,18 +48,55 @@ export const ambientCuratedSwatches = [
 ];
 
 // ============================================================================
-// Ambient background — bubbles
+// Ambient background — style (bubbles, fish, …), each with its own count/size/speed
 // ============================================================================
-export const bubblesEnabled = true;
-export const bubbleCount = 8;
-export const bubbleCountMin = 3;
-export const bubbleSizeMultiplier = 1;
-export const bubbleSizeMultiplierMin = 0.1;
-export const bubbleSpeedMultiplier = 1;
-export const bubbleSpeedMultiplierMin = 0.1;
-export const bubbleSpeedMultiplierMax = 3;
-export const bubbleBaseSizeRange = [60, 220]; // px, before size multiplier
-export const bubbleBaseDurationRange = [16000, 30000]; // ms, before speed multiplier
+export const backgroundType = "bubbles";
+export const backgroundCountMin = 3;
+export const backgroundCountMax = 30;
+export const backgroundSizeMin = 0.1;
+export const backgroundSpeedMin = 0.1;
+export const backgroundSpeedMax = 3;
+// Multiplier on how often a style's rare sightings (shark and submarine, balloon and skydiver) appear; 1 is the original rarity.
+export const rareFrequencyMin = 0.5;
+export const rareFrequencyMax = 10;
+// Timed events (submarine, skydiver) also scale with the rare-sight frequency.
+export const rareEventMeanIntervalMs = 90 * 60 * 1000; // at frequency 1
+export const rareEventRollMs = 15000;
+export const skydiveMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
+export const bubbleBaseSizeRange = { min: 60, max: 220 }; // px, before size multiplier
+export const bubbleBaseDurationRange = { min: 16000, max: 30000 }; // ms, before speed multiplier
+export const fishDefaultSize = 0.15; // one slider step above the minimum
+export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
+export const fishBaseSizeRange = { min: 28, max: 72 }; // px body length at the default size
+export const fishBaseDurationRange = { min: 22000, max: 40000 }; // ms per screen crossing, before speed multiplier
+export const mountainsDefaultSize = 0.5; // sky elements draw at base size here; the slider scales 0.2x–2x
+export const skyCloudBaseWidthRange = { min: 160, max: 380 }; // px
+export const skyCloudBaseDurationRange = { min: 90000, max: 160000 }; // ms per screen crossing, before speed multiplier
+export const skyBirdBaseSizeRange = { min: 24, max: 42 }; // px wingspan
+export const skyBirdBaseDurationRange = { min: 26000, max: 44000 };
+export const skyPlaneBaseSizeRange = { min: 28, max: 42 }; // px length
+export const skyPlaneBaseDurationRange = { min: 30000, max: 45000 };
+export const skyBalloonBaseSizeRange = { min: 44, max: 68 }; // px tall
+export const skyBalloonBaseDurationRange = { min: 70000, max: 100000 };
+// Rolled once per crossing (~85s) at frequency 1; about one balloon every 90 minutes, as
+// rare as the submarine. Higher frequencies add balloon slots once the chance would pass 100%.
+export const skyBalloonChance = 0.05 / 3;
+// How many of each the Count slider spawns, per unit of count.
+export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
+
+export const backgroundStyleDefaults = {
+  bubbles: { count: 8, size: 1, speed: 1 },
+  fish: {
+    count: 8,
+    size: fishDefaultSize,
+    speed: 1,
+    sharkFrequency: 1,
+    sharkEats: true,
+    seaFloor: true,
+    seaSurface: true,
+  },
+  mountains: { count: 8, size: mountainsDefaultSize, speed: 1, balloonFrequency: 1, birds: true, planes: true },
+};
 
 // ============================================================================
 // Tabs & links
@@ -68,7 +105,7 @@ export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: 
 export const defaultLinks = [];
 export const defaultLinkGroups = [];
 export const linkGroupLimit = 3;
-export const linkGroupLimitRange = [1, 9];
+export const linkGroupLimitRange = { min: 1, max: 9 };
 export const linkListSplitThreshold = 6;
 // null means the list never splits.
 export const linkListSplitThresholdOptions = [4, 6, 8, 10, 12, null];
@@ -167,10 +204,8 @@ export const defaultAmbientSettings = {
   paletteId: ambientPaletteId,
   customColors: ambientCustomColors,
   segmentHours: ambientSegmentHours,
-  bubblesEnabled,
-  bubbleCount,
-  bubbleSizeMultiplier,
-  bubbleSpeedMultiplier,
+  backgroundType,
+  backgroundStyles: backgroundStyleDefaults,
 };
 
 export const defaultSettings = {

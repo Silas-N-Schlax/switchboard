@@ -15,6 +15,18 @@ export async function updateSettings(partial) {
   await save({ settings: state.settings });
 }
 
+export function backgroundStyle(id) {
+  const styles = ambientMode().backgroundStyles;
+  styles[id] ??= {};
+  return styles[id];
+}
+
+export async function updateBackgroundStyle(id, partial) {
+  Object.assign(backgroundStyle(id), partial);
+  await save({ settings: state.settings });
+  renderAmbient(document.body, state.settings);
+}
+
 export async function updateAmbient(partial) {
   Object.assign(ambientMode(), partial);
   await save({ settings: state.settings });

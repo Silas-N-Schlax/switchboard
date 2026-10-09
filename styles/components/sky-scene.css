@@ -1,0 +1,454 @@
+/* Sky above the mountain lake (js/render/backgrounds/sky.js): clouds drift with the
+   wind, birds (species in birdSpecies.js) cross in flocks or glide, and planes pass now
+   and then trailing a contrail. Fills mix from the ambient palette so the sky follows
+   the color cycle. Each svg is one opacity group so overlapping parts read as a single
+   soft shape. */
+.sky-scene {
+  position: absolute;
+  inset: 0;
+  /* Keeps the depth z-indexes inside the sky so the landscape always covers it. */
+  isolation: isolate;
+
+  .sky-scene__clouds,
+  .sky-scene__balloons,
+  .sky-scene__birds,
+  .sky-scene__planes {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sky-scene__cloud,
+  .sky-scene__balloon,
+  .sky-scene__bird,
+  .sky-scene__plane {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size);
+    height: var(--height);
+    transform: translate(var(--from-x, 50vw), var(--y, 20vh));
+    animation: skyCross var(--duration, 60s) linear forwards;
+  }
+
+  .sky-scene__cloud-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: calc(var(--depth-opacity, 1) * 0.09);
+    fill: color-mix(in oklab, var(--bg-3) 35%, white);
+  }
+
+  .sky-scene__bird-member {
+    position: absolute;
+    width: var(--size);
+    height: var(--height);
+    opacity: var(--depth-opacity, 1);
+    animation: skyBob var(--wave-duration, 3s) ease-in-out infinite alternate;
+  }
+
+  .sky-scene__bird-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0.35;
+    fill: color-mix(in oklab, var(--bg-3) 25%, white);
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .sky-scene__bird-shape--glide {
+    animation: skyBank 5s ease-in-out infinite alternate;
+  }
+
+  .sky-scene__wing {
+    transform-origin: 20px 8px;
+    animation: skyFlapLeft var(--flap-duration, 300ms) ease-in-out infinite alternate;
+  }
+
+  .sky-scene__wing--right {
+    animation-name: skyFlapRight;
+  }
+
+  .sky-scene__bird-shape--glide .sky-scene__wing {
+    animation: none;
+  }
+
+  .sky-scene__plane {
+    animation-name: planeFly;
+  }
+
+  .sky-scene__balloon-sway {
+    width: 100%;
+    height: 100%;
+    opacity: var(--depth-opacity, 1);
+    transform-origin: 50% 0;
+    animation: balloonSway 9s ease-in-out infinite alternate;
+  }
+
+  .sky-scene__balloon-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sky-scene__balloon-envelope {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, #e0956a) 60%, white);
+    opacity: 0.4;
+  }
+
+  .sky-scene__balloon-gores,
+  .sky-scene__balloon-ropes {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-1) 60%, black);
+    stroke-width: 0.8;
+    opacity: 0.35;
+  }
+
+  .sky-scene__balloon-basket {
+    fill: color-mix(in oklab, var(--bg-3) 30%, white);
+    opacity: 0.4;
+  }
+
+  /* The burner fires in short bursts every few seconds. */
+  .sky-scene__balloon-flame {
+    fill: #ffb45e;
+    opacity: 0;
+    animation: balloonBurner 7s ease-out infinite;
+    animation-delay: var(--flame-delay, 0s);
+  }
+
+  .sky-scene__plane-flip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    opacity: var(--depth-opacity, 1);
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .sky-scene__plane-shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .sky-scene__plane-body {
+    fill: color-mix(in oklab, var(--bg-3) 20%, white);
+    opacity: 0.4;
+  }
+
+  .sky-scene__plane-light {
+    fill: #ff6b6b;
+    animation: planeBlink 1.4s steps(1) infinite;
+  }
+
+  .sky-scene__trail {
+    position: absolute;
+    left: 92%;
+    top: 40%;
+    width: calc(var(--size) * 9);
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--bg-3) 20%, white),
+      transparent
+    );
+    opacity: 0.22;
+  }
+}
+
+/* The rare skydiver (js/render/backgrounds/skydive.js). Positions are driven from
+   JS; these rules handle the canopy opening, the swing under it, and the landing. */
+.skydive {
+  pointer-events: none;
+
+  .skydive__plane,
+  .skydive__diver {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .skydive__diver {
+    transform-origin: 50% 100%;
+  }
+
+  .skydive__plane {
+    width: var(--size);
+    height: var(--height);
+  }
+
+  .skydive__sway {
+    width: 100%;
+    height: 100%;
+    transform-origin: 50% 10%;
+  }
+
+  .skydive__diver--open .skydive__sway {
+    animation: skydiveSway 2.4s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .skydive__canopy {
+    transform-box: view-box;
+    transform-origin: 20px 45px;
+    transform: scale(0.05, 0);
+    opacity: 0;
+    transition:
+      transform 700ms cubic-bezier(0.3, 1.4, 0.5, 1),
+      opacity 300ms ease-out;
+  }
+
+  .skydive__diver--open .skydive__canopy {
+    transform: none;
+    opacity: 1;
+  }
+
+  .skydive__diver--open .skydive__canopy-cloth,
+  .skydive__diver--open .skydive__canopy-cells {
+    transform-box: view-box;
+    transform-origin: 20px 12px;
+    animation: skydiveBreathe 1.7s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver--landed .skydive__canopy {
+    transform: translate(6px, 30px) scale(1.1, 0.2);
+    opacity: 0;
+    transition:
+      transform 1400ms ease-in,
+      opacity 1400ms ease-in;
+  }
+
+  .skydive__canopy-cloth {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 35%, #e07a5f) 55%, white);
+    opacity: 0.5;
+  }
+
+  .skydive__lines {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-3) 25%, white);
+    stroke-width: 0.5;
+    opacity: 0.4;
+  }
+
+  .skydive__canopy-cells {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-1) 50%, black);
+    stroke-width: 0.6;
+    opacity: 0.3;
+  }
+
+  .skydive__suit,
+  .skydive__leg {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, #5fa8d3) 55%, white);
+  }
+
+  .skydive__head {
+    fill: color-mix(in oklab, var(--bg-3) 25%, white);
+  }
+
+  .skydive__leg {
+    transform-box: view-box;
+    animation: skydiveKick 1.3s ease-in-out infinite alternate;
+  }
+
+  .skydive__leg--left {
+    transform-origin: 19px 51px;
+  }
+
+  .skydive__leg--right {
+    transform-origin: 21px 51px;
+    animation-delay: -0.65s;
+  }
+
+  /* Tumbles a little in freefall; steadies once the canopy is up. */
+  .skydive__figure {
+    opacity: 0.6;
+    transform-box: view-box;
+    transform-origin: 20px 48px;
+    animation: skydiveTumble 0.9s ease-in-out infinite alternate;
+  }
+
+  .skydive__diver--open .skydive__figure {
+    animation: none;
+  }
+
+  /* Belly-down while free-falling, upright once the canopy catches. */
+  .skydive__body {
+    transform-box: view-box;
+    transform-origin: 20px 49px;
+    transform: rotate(80deg);
+    transition:
+      transform 900ms ease-out,
+      opacity 900ms ease-in;
+  }
+
+  .skydive__diver--open .skydive__body {
+    transform: none;
+  }
+
+  .skydive__diver--landed .skydive__body {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+
+  .skydive__drop {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--bg-3) 20%, white);
+  }
+
+  .skydive__ripple {
+    position: absolute;
+    border: 1px solid color-mix(in oklab, var(--bg-3) 30%, white);
+    border-radius: 50%;
+  }
+}
+
+@keyframes skydiveSway {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes skydiveBreathe {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(0.94, 1.06);
+  }
+}
+
+@keyframes skydiveKick {
+  from {
+    transform: rotate(-9deg);
+  }
+  to {
+    transform: rotate(9deg);
+  }
+}
+
+@keyframes skydiveTumble {
+  from {
+    transform: rotate(-12deg);
+  }
+  to {
+    transform: rotate(12deg);
+  }
+}
+
+@keyframes skyCross {
+  from {
+    transform: translate(var(--from-x), var(--y));
+  }
+  to {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y, 0vh)));
+  }
+}
+
+/* Crosses in the first 60% of the cycle, then waits offscreen until it respawns. */
+@keyframes planeFly {
+  0% {
+    transform: translate(var(--from-x), var(--y));
+  }
+  60%,
+  100% {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y, 0vh)));
+  }
+}
+
+@keyframes skyBob {
+  from {
+    transform: translateY(calc(-1 * var(--wave, 1vh)));
+  }
+  to {
+    transform: translateY(var(--wave, 1vh));
+  }
+}
+
+@keyframes skyBank {
+  from {
+    transform: scaleX(var(--flip, 1)) rotate(-4deg);
+  }
+  to {
+    transform: scaleX(var(--flip, 1)) rotate(4deg);
+  }
+}
+
+@keyframes skyFlapLeft {
+  from {
+    transform: rotate(-18deg);
+  }
+  to {
+    transform: rotate(28deg);
+  }
+}
+
+@keyframes skyFlapRight {
+  from {
+    transform: rotate(18deg);
+  }
+  to {
+    transform: rotate(-28deg);
+  }
+}
+
+@keyframes balloonSway {
+  from {
+    transform: rotate(-2deg) translateY(-0.6vh);
+  }
+  to {
+    transform: rotate(2deg) translateY(0.6vh);
+  }
+}
+
+@keyframes balloonBurner {
+  0%,
+  86%,
+  100% {
+    opacity: 0;
+  }
+  88%,
+  94% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes planeBlink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sky-scene__cloud,
+  .sky-scene__balloon-sway,
+  .sky-scene__balloon-flame,
+  .sky-scene__bird,
+  .sky-scene__bird-member,
+  .sky-scene__bird-shape--glide,
+  .sky-scene__wing,
+  .sky-scene__plane-light {
+    animation: none;
+  }
+}

@@ -5,17 +5,14 @@ import {
   ambientCustomColors,
   ambientSegmentHours,
   ambientTickIntervalMs,
-  bubblesEnabled as defaultBubblesEnabled,
-  bubbleCount as defaultBubbleCount,
-  bubbleCountMin,
-  bubbleSizeMultiplier as defaultBubbleSizeMultiplier,
-  bubbleSizeMultiplierMin,
-  bubbleSpeedMultiplier as defaultBubbleSpeedMultiplier,
-  bubbleSpeedMultiplierMin,
-  bubbleSpeedMultiplierMax,
-  bubbleBaseSizeRange,
-  bubbleBaseDurationRange,
+  backgroundType as defaultBackgroundType,
+  backgroundCountMin,
+  backgroundSizeMin,
+  backgroundSpeedMin,
+  backgroundSpeedMax,
+  backgroundStyleDefaults,
 } from "../../defaults.js";
+import { findBackground } from "./backgrounds/index.js";
 
 export function resolveColors(ambientMode = {}) {
   const paletteId = ambientMode.paletteId ?? ambientPaletteId;
@@ -27,10 +24,6 @@ export function resolveColors(ambientMode = {}) {
 }
 
 const ANCHOR_MINUTES = 8 * 60; // 8am
-
-const prefersReducedMotion = window.matchMedia?.(
-  "(prefers-reduced-motion: reduce)"
-).matches;
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -91,56 +84,6 @@ function applyPalette(root, [c1, c2, c3]) {
   root.style.setProperty("--bg-3", c3);
 }
 
-function randomBetween(min, max) {
-  return min + Math.random() * (max - min);
-}
-
-function randomizeBubble(el, sizeMultiplier, speedMultiplier) {
-  const size = randomBetween(...bubbleBaseSizeRange) * sizeMultiplier;
-  const duration = randomBetween(...bubbleBaseDurationRange) / speedMultiplier;
-  el.style.setProperty("--size", `${size}px`);
-  el.style.setProperty("--start-x", `${randomBetween(0, 100)}vw`);
-  el.style.setProperty("--drift-x", `${randomBetween(-15, 15)}vw`);
-  el.style.setProperty("--start-y", `${randomBetween(0, 100)}vh`);
-  el.style.setProperty("--drift-y", `${randomBetween(-20, -5)}vh`);
-  el.style.setProperty("--duration", `${duration}ms`);
-  // restart the CSS animation from its 0% keyframe
-  el.style.animation = "none";
-  // eslint-disable-next-line no-unused-expressions
-  el.offsetHeight;
-  el.style.animation = "";
-}
-
-function createBubbleField(container, { count, sizeMultiplier, speedMultiplier }) {
-  const field = document.createElement("div");
-  field.className = "bubble-field";
-  container.appendChild(field);
-
-  for (let i = 0; i < count; i++) {
-    const bubble = document.createElement("div");
-    bubble.className = "bubble-field__bubble";
-    randomizeBubble(bubble, sizeMultiplier, speedMultiplier);
-
-    if (prefersReducedMotion) {
-      // Keep the bubbles as a static visual element, just without the drift/respawn
-      // motion — the planning doc calls for disabling the *animations*, not the shapes.
-      bubble.style.animation = "none";
-      bubble.style.opacity = "0.9";
-      bubble.style.transform = `translate(var(--start-x), var(--start-y))`;
-    } else {
-      bubble.style.animationDelay = `-${randomBetween(0, 8000)}ms`;
-      // One-shot animation per "life" (fade in -> drift -> fade out); on end, pick new
-      // randomized values and force-restart so it respawns elsewhere rather than
-      // looping the exact same path.
-      bubble.addEventListener("animationend", () =>
-        randomizeBubble(bubble, sizeMultiplier, speedMultiplier)
-      );
-    }
-    field.appendChild(bubble);
-  }
-  return field;
-}
-
 let renderGeneration = 0;
 
 export function renderAmbient(root = document.body, settings = {}) {
@@ -151,21 +94,14 @@ export function renderAmbient(root = document.body, settings = {}) {
   const colors = resolveColors(ambientMode);
   const colorCycleEnabled = ambientMode.colorCycleEnabled ?? ambientColorCycleEnabled;
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
-  const bubblesOn = ambientMode.bubblesEnabled ?? defaultBubblesEnabled;
+  const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);
 
-  const bubbleCount = Math.max(bubbleCountMin, ambientMode.bubbleCount ?? defaultBubbleCount);
-  const sizeMultiplier = clamp(
-    ambientMode.bubbleSizeMultiplier ?? defaultBubbleSizeMultiplier,
-    bubbleSizeMultiplierMin,
-    1
-  );
-  const speedMultiplier = clamp(
-    ambientMode.bubbleSpeedMultiplier ?? defaultBubbleSpeedMultiplier,
-    bubbleSpeedMultiplierMin,
-    bubbleSpeedMultiplierMax
-  );
+  const style = { ...backgroundStyleDefaults[background.id], ...ambientMode.backgroundStyles?.[background.id] };
+  const count = Math.max(backgroundCountMin, style.count ?? backgroundCountMin);
+  const sizeMultiplier = clamp(style.size ?? 1, backgroundSizeMin, 1);
+  const speedMultiplier = clamp(style.speed ?? 1, backgroundSpeedMin, backgroundSpeedMax);
 
-  // Re-rendering (settings changed) replaces the previous background/bubbles in place.
+  // Re-rendering (settings changed) replaces the previous background in place.
   document.querySelector(".ambient-bg")?.remove();
 
   const container = document.createElement("div");
@@ -176,9 +112,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   skyLayer.className = "ambient-bg__sky";
   container.appendChild(skyLayer);
 
-  if (bubblesOn) {
-    createBubbleField(container, { count: bubbleCount, sizeMultiplier, speedMultiplier });
-  }
+  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style });
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 

@@ -1,4 +1,5 @@
 import { SCHEMA_VERSION } from "./schema.js";
+import { migrate } from "./migrations/index.js";
 import {
   schemaVersion,
   defaultTabs,
@@ -29,6 +30,21 @@ async function localStorageSet(partial) {
   }
 }
 
+function withStyleDefaults(savedStyles = {}) {
+  const ids = new Set([...Object.keys(defaultAmbientSettings.backgroundStyles), ...Object.keys(savedStyles)]);
+  return Object.fromEntries(
+    [...ids].map((id) => [id, { ...defaultAmbientSettings.backgroundStyles[id], ...savedStyles[id] }])
+  );
+}
+
+function withAmbientDefaults(savedAmbient = {}) {
+  return {
+    ...defaultAmbientSettings,
+    ...savedAmbient,
+    backgroundStyles: withStyleDefaults(savedAmbient.backgroundStyles),
+  };
+}
+
 function withDefaults(raw) {
   return {
     schemaVersion: raw.schemaVersion ?? schemaVersion,
@@ -38,10 +54,7 @@ function withDefaults(raw) {
     settings: {
       ...defaultSettings,
       ...raw.settings,
-      ambientMode: {
-        ...defaultAmbientSettings,
-        ...raw.settings?.ambientMode,
-      },
+      ambientMode: withAmbientDefaults(raw.settings?.ambientMode),
       keybinds: {
         ...defaultKeybinds,
         ...raw.settings?.keybinds,
@@ -54,7 +67,7 @@ export async function load() {
   const raw = isExtensionContext
     ? await chrome.storage.local.get(STORAGE_KEYS)
     : await localStorageGet(STORAGE_KEYS);
-  return withDefaults(raw);
+  return withDefaults(migrate(raw));
 }
 
 export async function loadKey(key) {

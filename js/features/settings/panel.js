@@ -4,7 +4,7 @@ import { renderAmbient } from "../../render/ambient.js";
 import { defaultAmbientSettings, feedbackUrl } from "../../../defaults.js";
 import { buildGeneralSection } from "./general-section.js";
 import { buildColorSection } from "./color-section.js";
-import { buildBubblesSection } from "./bubbles-section.js";
+import { buildBackgroundSection } from "./background-section.js";
 import { buildStatsSection } from "./stats-section.js";
 import { buildLinksSection } from "./links-section.js";
 import { buildDataSection } from "./data-section.js";
@@ -32,7 +32,7 @@ function buildPanel() {
 
   const generalSection = buildGeneralSection(() => onSettingsChange());
   const colorSection = buildColorSection();
-  const bubblesSection = buildBubblesSection();
+  const backgroundSection = buildBackgroundSection();
   const linksSection = buildLinksSection(() => onSettingsChange());
   const statsSection = buildStatsSection();
   const dataSection = buildDataSection();
@@ -48,7 +48,7 @@ function buildPanel() {
     await save({ settings: state.settings });
     renderAmbient(document.body, state.settings);
     colorSection.refresh();
-    bubblesSection.refresh();
+    backgroundSection.refresh();
   });
   const feedbackLink = document.createElement("a");
   feedbackLink.className = "settings-panel__feedback";
@@ -58,7 +58,7 @@ function buildPanel() {
   feedbackLink.textContent = "Send feedback ↗";
   footer.append(resetButton, feedbackLink);
 
-  sections = [generalSection, colorSection, bubblesSection, linksSection, statsSection, dataSection];
+  sections = [generalSection, colorSection, backgroundSection, linksSection, statsSection, dataSection];
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";

@@ -40,7 +40,7 @@ export function buildLinksSection(onChange) {
   });
   const splitRow = buildRow({ labelText: "Two columns from", control: splitSelect.element });
 
-  const [groupLimitMin, groupLimitMax] = linkGroupLimitRange;
+  const { min: groupLimitMin, max: groupLimitMax } = linkGroupLimitRange;
   const groupLimitInput = buildNumberInput({
     min: groupLimitMin,
     max: groupLimitMax,

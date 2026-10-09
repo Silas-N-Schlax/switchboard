@@ -1,0 +1,265 @@
+/* Minimalist fish (species in js/render/backgrounds/fishSpecies.js). Nested motions:
+   .fish swims edge to edge in a few gentle surges (one "life", respawned on
+   animationend), each .member bobs on a wave while its .tilt pitches with it, and
+   the tail/fins beat. The svg is one opacity group so overlapping parts read as a
+   single soft silhouette with no seams. */
+.fish-field {
+  /* No z-index/opacity/transform/filter here: a stacking context would stop fish
+     interleaving with the sea floor's kelp layers. */
+  position: absolute;
+  inset: 0;
+
+  .fish-field__fish {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size, 48px);
+    height: var(--height, 24px);
+    transform: translate(var(--from-x, 50vw), var(--y, 50vh));
+    animation: fishSwim var(--duration, 26s) var(--swim-easing, linear) forwards;
+  }
+
+  .fish-field__steer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .fish-field__member {
+    position: absolute;
+    width: var(--size, 48px);
+    height: var(--height, 24px);
+    opacity: var(--depth-opacity, 1);
+    animation: fishBob var(--bob-duration, 3.5s) ease-in-out infinite alternate;
+  }
+
+  .fish-field__tilt {
+    width: 100%;
+    height: 100%;
+    animation: fishPitch var(--bob-duration, 3.5s) ease-in-out infinite alternate;
+  }
+
+  .fish-field__body {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0.2;
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .fish-field__shape {
+    fill: #fff;
+  }
+
+  .fish-field__fin,
+  .fish-field__tail {
+    fill: rgba(255, 255, 255, 0.6);
+  }
+
+  .fish-field__detail--dark {
+    fill: rgba(0, 0, 0, 0.55);
+  }
+
+  .fish-field__detail--line {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+
+  .fish-field__eye {
+    fill: rgba(0, 0, 0, 0.55);
+  }
+
+  .fish-field__tail {
+    animation: fishWag var(--wag-duration, 650ms) ease-in-out infinite alternate;
+  }
+
+  .fish-field__tail--flowing {
+    animation-name: fishWagFlowing;
+  }
+
+  .fish-field__fin {
+    animation: fishFin calc(var(--wag-duration, 650ms) * 2.4) ease-in-out infinite alternate;
+  }
+}
+
+/* The super-rare submarine (js/render/backgrounds/submarine.js). Its crossing and bubble
+   rise are driven from JS; only the bob and propeller spin live here. */
+.fish-field__sub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 6;
+
+  .fish-field__sub-bob {
+    width: 100%;
+    height: 100%;
+    animation: subBob 6s ease-in-out infinite alternate;
+  }
+
+  .fish-field__sub-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .fish-field__sub-hull {
+    fill: #fff;
+    opacity: 0.22;
+  }
+
+  .fish-field__sub-periscope {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+    opacity: 0.22;
+  }
+
+  .fish-field__sub-porthole {
+    fill: #ffd58a;
+    opacity: 0.55;
+  }
+
+  .fish-field__sub-hub {
+    fill: #fff;
+    opacity: 0.3;
+  }
+
+  .fish-field__sub-detail {
+    fill: none;
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 1;
+    stroke-linecap: round;
+  }
+
+  /* Side-on, the two blades sweep toward and away from the viewer, so they flip
+     through edge-on rather than rotating in the plane of the screen. */
+  .fish-field__sub-propeller {
+    fill: #fff;
+    opacity: 0.3;
+    transform-box: view-box;
+    transform-origin: 193px 40px;
+    animation: subPropeller 0.3s linear infinite alternate;
+  }
+
+  .fish-field__sub-beam {
+    fill: url(#fish-field-sub-beam);
+  }
+
+  .fish-field__sub-beam-near {
+    stop-color: #fff3d6;
+    stop-opacity: 0.16;
+  }
+
+  .fish-field__sub-beam-far {
+    stop-color: #fff3d6;
+    stop-opacity: 0;
+  }
+}
+
+.fish-field__sub-bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+@keyframes subBob {
+  from {
+    transform: translateY(-0.6vh) rotate(-0.6deg);
+  }
+  to {
+    transform: translateY(0.6vh) rotate(0.6deg);
+  }
+}
+
+@keyframes subPropeller {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(-1);
+  }
+}
+
+/* Three surges per crossing; --swim-easing sets how much each one slows. */
+@keyframes fishSwim {
+  0% {
+    transform: translate(var(--from-x), var(--y));
+  }
+  33.333% {
+    transform: translate(
+      calc(var(--from-x) + (var(--to-x) - var(--from-x)) / 3),
+      calc(var(--y) + var(--drift-y) / 3)
+    );
+  }
+  66.667% {
+    transform: translate(
+      calc(var(--from-x) + (var(--to-x) - var(--from-x)) * 2 / 3),
+      calc(var(--y) + var(--drift-y) * 2 / 3)
+    );
+  }
+  100% {
+    transform: translate(var(--to-x), calc(var(--y) + var(--drift-y)));
+  }
+}
+
+@keyframes fishBob {
+  from {
+    transform: translateY(calc(-1 * var(--wave, 1vh)));
+  }
+  to {
+    transform: translateY(var(--wave, 1vh));
+  }
+}
+
+@keyframes fishPitch {
+  from {
+    transform: rotate(calc(-1 * var(--pitch, 4deg)));
+  }
+  to {
+    transform: rotate(var(--pitch, 4deg));
+  }
+}
+
+/* Seen side-on, a tail sweeping toward/away from the viewer foreshortens rather than
+   rotating: full length when straight back, shortest at either side of the stroke. */
+@keyframes fishWag {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0.7);
+  }
+}
+
+@keyframes fishWagFlowing {
+  from {
+    transform: scaleX(1) skewY(-5deg);
+  }
+  to {
+    transform: scaleX(0.8) skewY(5deg);
+  }
+}
+
+@keyframes fishFin {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fish-field__fish,
+  .fish-field__member,
+  .fish-field__tilt,
+  .fish-field__tail,
+  .fish-field__fin {
+    animation: none;
+  }
+}
