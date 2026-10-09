@@ -100,3 +100,9 @@ Opening `newtab.html` over `file://` won't work, because browsers block ES modul
 
 To build a zip for sharing without git, run `./scripts/package.sh` (output goes to
 `dist/`).
+
+### Future ideas
+
+- **Split `defaults.js` into categories.** It's the main file for hand-tuning things
+  (colors, background counts, sizes, timings, rarities), so breaking it into clearer
+  sections or separate files would make small tweaks easier to find.
