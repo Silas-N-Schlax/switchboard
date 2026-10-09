@@ -22,7 +22,7 @@ your browser: no account, no cloud sync, no tracking.
 - **Shortcuts.** `1`–`9` switch tabs, and any link can get its own shortcut (including
   modifier combos).
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
-- **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean or a mountain scene, plus presets and custom
+- **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean, a mountain scene or the stratosphere above it, plus presets and custom
   palettes. Respects your system's reduced-motion setting.
 - **Backups.** Export everything to a JSON file and restore it on another machine.
 - **Clearing.** Empty one tab (right-click it → **Clear links…**) or reset everything
