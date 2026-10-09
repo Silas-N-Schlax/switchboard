@@ -122,7 +122,7 @@ export const fish = {
   id: "fish",
   label: "Ocean",
   controls: ["count", "size", "speed"],
-  sliders: [{ key: "sharkFrequency", label: "Shark frequency" }],
+  frequencySliders: [{ key: "sharkFrequency", label: "Rare sightings" }],
   toggles: [
     { key: "sharkEats", label: "Sharks eat fish" },
     { key: "seaFloor", label: "Sea floor" },

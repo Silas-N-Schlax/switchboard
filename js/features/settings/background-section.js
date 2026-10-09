@@ -1,6 +1,6 @@
 // "Background" section: a style picker (one option per entry in the backgrounds
 // registry) plus count/size/speed sliders. Each style keeps its own slider values,
-// declares which sliders apply via its `controls`, and may add its own `sliders` (rare
+// declares which sliders apply via its `controls`, and may add its own `frequencySliders` (rare
 // sight frequency) and on/off `toggles`, shown only while it's picked. Count is floored above 0 (backgroundCountMin) so only
 // picking "None" removes the effect.
 
@@ -62,7 +62,7 @@ export function buildBackgroundSection() {
   };
 
   const styleRows = backgrounds.flatMap((background) => [
-    ...(background.sliders ?? []).map(({ key, label }) => {
+    ...(background.frequencySliders ?? []).map(({ key, label }) => {
       const range = buildRange({
         min: rareFrequencyMin,
         max: rareFrequencyMax,

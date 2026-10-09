@@ -56,7 +56,7 @@ export const backgroundCountMax = 30;
 export const backgroundSizeMin = 0.1;
 export const backgroundSpeedMin = 0.1;
 export const backgroundSpeedMax = 3;
-// Multiplier on how often a style's rare sight (shark, balloon) appears; 1 is the original rarity.
+// Multiplier on how often a style's rare sightings (shark and submarine, balloon and skydiver) appear; 1 is the original rarity.
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
 // Timed events (submarine, skydiver) also scale with the rare-sight frequency.

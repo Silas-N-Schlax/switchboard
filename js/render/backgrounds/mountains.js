@@ -104,7 +104,7 @@ export const mountains = {
   id: "mountains",
   label: "Mountain",
   controls: ["count", "size", "speed"],
-  sliders: [{ key: "balloonFrequency", label: "Balloon frequency" }],
+  frequencySliders: [{ key: "balloonFrequency", label: "Rare sightings" }],
   toggles: [
     { key: "birds", label: "Birds" },
     { key: "planes", label: "Planes" },
