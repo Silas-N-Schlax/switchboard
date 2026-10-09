@@ -1,4 +1,5 @@
 import { SCHEMA_VERSION } from "./schema.js";
+import { migrate } from "./migrations/index.js";
 import {
   schemaVersion,
   defaultTabs,
@@ -29,62 +30,18 @@ async function localStorageSet(partial) {
   }
 }
 
-const LEGACY_STYLE_KEYS = [
-  "bubbleCount",
-  "bubbleSizeMultiplier",
-  "fishSizeMultiplier",
-  "bubbleSpeedMultiplier",
-  "sharkEats",
-  "seaFloor",
-  "seaSurface",
-];
-
-// Before per-style settings, count and speed were shared by every style and only fish
-// kept its own size; each style inherits what it was effectively using.
-function legacyStyleSettings(legacy) {
-  const shared = { count: legacy.bubbleCount, speed: legacy.bubbleSpeedMultiplier };
-  const styles = {
-    bubbles: { ...shared, size: legacy.bubbleSizeMultiplier },
-    fish: {
-      ...shared,
-      size: legacy.fishSizeMultiplier,
-      sharkEats: legacy.sharkEats,
-      seaFloor: legacy.seaFloor,
-      seaSurface: legacy.seaSurface,
-    },
-    mountains: { speed: legacy.bubbleSpeedMultiplier },
-  };
-  for (const config of Object.values(styles)) {
-    for (const [key, value] of Object.entries(config)) if (value === undefined) delete config[key];
-  }
-  return styles;
-}
-
-function withStyleDefaults(savedStyles = {}, legacy) {
-  const migrated = legacyStyleSettings(legacy);
+function withStyleDefaults(savedStyles = {}) {
   const ids = new Set([...Object.keys(defaultAmbientSettings.backgroundStyles), ...Object.keys(savedStyles)]);
   return Object.fromEntries(
-    [...ids].map((id) => [
-      id,
-      { ...defaultAmbientSettings.backgroundStyles[id], ...migrated[id], ...savedStyles[id] },
-    ])
+    [...ids].map((id) => [id, { ...defaultAmbientSettings.backgroundStyles[id], ...savedStyles[id] }])
   );
 }
 
-// Pre-picker saves only had a bubblesEnabled flag.
 function withAmbientDefaults(savedAmbient = {}) {
-  const { bubblesEnabled, backgroundStyles, ...rest } = savedAmbient;
-  const legacy = {};
-  for (const key of LEGACY_STYLE_KEYS) {
-    legacy[key] = rest[key];
-    delete rest[key];
-  }
-  const legacyType = bubblesEnabled === false ? { backgroundType: "none" } : {};
   return {
     ...defaultAmbientSettings,
-    ...legacyType,
-    ...rest,
-    backgroundStyles: withStyleDefaults(backgroundStyles, legacy),
+    ...savedAmbient,
+    backgroundStyles: withStyleDefaults(savedAmbient.backgroundStyles),
   };
 }
 
@@ -110,7 +67,7 @@ export async function load() {
   const raw = isExtensionContext
     ? await chrome.storage.local.get(STORAGE_KEYS)
     : await localStorageGet(STORAGE_KEYS);
-  return withDefaults(raw);
+  return withDefaults(migrate(raw));
 }
 
 export async function loadKey(key) {
