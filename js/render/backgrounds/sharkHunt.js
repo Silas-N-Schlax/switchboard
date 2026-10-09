@@ -4,6 +4,8 @@
 // .fish-field__steer layer, on top of the CSS swim, so nothing runs without a shark.
 // A passing submarine (submarine.js) scatters fish ahead of its nose the same way.
 
+import { randomInRange } from "./util.js";
+
 const IDLE_CHECK_MS = 500;
 const HUNT_RANGE = 0.4; // fraction of viewport width ahead of the shark's head
 const MAX_STEER = 0.28; // fraction of viewport height the shark may bend off its line
@@ -11,7 +13,7 @@ const STEER_SPEED = 70; // px/s
 const STEER_RESPONSE = 1.6; // how quickly steering velocity follows the target
 const MAX_PITCH_DEG = 10;
 const SCARE_RADIUS = 0.35; // fraction of shark length, measured from its head
-const DART_RANGE = [0.04, 0.08]; // fraction of viewport height
+const DART_RANGE = { min: 0.04, max: 0.08 }; // fraction of viewport height
 const DART_MS = 1400;
 const FLEE_BOOST = 2.4;
 const FLEE_MS = 1800;
@@ -71,7 +73,7 @@ function eat(prey, member) {
 function dart(prey, steer, sharkY, sharkFlip) {
   const preyY = center(steer.getBoundingClientRect()).y;
   const away = preyY === sharkY ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(preyY - sharkY);
-  const amount = window.innerHeight * (DART_RANGE[0] + Math.random() * (DART_RANGE[1] - DART_RANGE[0]));
+  const amount = window.innerHeight * randomInRange(DART_RANGE);
   const room = away < 0 ? preyY - 20 : window.innerHeight - 20 - preyY;
   const direction = room < amount * 0.5 ? -away : away;
 

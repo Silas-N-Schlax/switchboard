@@ -1,11 +1,10 @@
-import { svgEl, randomBetween, prefersReducedMotion, animationDone } from "./util.js";
+import { svgEl, randomBetween, randomInRange, prefersReducedMotion, animationDone } from "./util.js";
 import { rowerParts, bladeIsWet } from "./rowing.js";
 
 const TILE = 1600; // wave paths repeat every TILE units, so a -50% scroll loops seamlessly
 const RAY_COUNT = 5;
 const GLINT_COUNT = 6;
-const BOAT_DELAY_MS = [120000, 270000];
-const BOAT_CROSSING_MS = [26000, 36000];
+const BOAT_DELAY_MS = { min: 120000, max: 270000 };
 
 function wavePath(baseline, amplitude, period) {
   let d = `M0 0 L0 ${baseline}`;
@@ -59,9 +58,9 @@ const BOATS = [
   {
     kind: "motorboat",
     width: "10vw",
-    crossingMs: [16000, 22000],
+    crossingMs: { min: 16000, max: 22000 },
     viewBox: "-8 -20 128 56",
-    bubble: { everyMs: 80, size: [2, 6] },
+    bubble: { everyMs: 80, size: { min: 2, max: 6 } },
     parts: () => [
       svgEl("path", { d: "M6 -5 L108 -5 Q121 -4 118 3 Q100 13 74 16 L10 18 L6 15 Z" }),
       svgEl("path", { d: "M58 -5 L60 -9 L68 -9 L76 -16 L78 -16 L74 -9 L78 -5 Z" }),
@@ -78,9 +77,9 @@ const BOATS = [
   {
     kind: "sailboat",
     width: "13vw",
-    crossingMs: [30000, 40000],
+    crossingMs: { min: 30000, max: 40000 },
     viewBox: "0 -62 120 106",
-    bubble: { everyMs: 420, size: [2, 5] },
+    bubble: { everyMs: 420, size: { min: 2, max: 5 } },
     parts: () => [
       svgEl("path", { d: "M61 -4 L61 -60 L63 -60 L63 -4 Z M64 -6 L64 -56 L98 -6 Z M60 -6 L60 -48 L34 -6 Z" }),
       svgEl("path", { d: "M2 -4 L118 -4 L120 0 Q116 10 100 14 Q60 20 22 14 Q6 10 0 0 Z" }),
@@ -92,9 +91,9 @@ const BOATS = [
   {
     kind: "rowboat",
     width: "6vw",
-    crossingMs: [40000, 52000],
+    crossingMs: { min: 40000, max: 52000 },
     viewBox: "0 -26 80 54",
-    bubble: { everyMs: 110, size: [2, 5], while: bladeIsWet },
+    bubble: { everyMs: 110, size: { min: 2, max: 5 }, while: bladeIsWet },
     parts: () => [
       svgEl("path", { d: "M1 -4 L79 -4 L80 0 Q76 10 62 13 L18 13 Q4 10 0 0 Z M10 10 L8 17 L17 13 Z" }),
       ...rowerParts(),
@@ -110,7 +109,7 @@ function releaseWakeBubble(surface, boat, spec, flip) {
   const origin = surface.getBoundingClientRect();
   const bubble = document.createElement("div");
   bubble.className = "sea-surface__bubble";
-  const size = randomBetween(...spec.size);
+  const size = randomInRange(spec.size);
   bubble.style.width = bubble.style.height = `${size}px`;
   bubble.style.left = `${source.left + source.width / 2 - origin.left + randomBetween(-4, 4)}px`;
   bubble.style.top = `${source.top + source.height / 2 - origin.top + randomBetween(-3, 3)}px`;
@@ -141,7 +140,7 @@ function buildBoat(surface) {
   boat.style.setProperty("--flip", flip);
   const [, minY, viewWidth] = spec.viewBox.split(" ").map(Number);
   boat.style.setProperty("--waterline", `calc(${spec.width} * ${-minY / viewWidth})`);
-  boat.style.animationDuration = `${randomBetween(...spec.crossingMs)}ms`;
+  boat.style.animationDuration = `${randomInRange(spec.crossingMs)}ms`;
   boat.launchedAt = performance.now();
 
   const svg = svgEl("svg", { class: "sea-surface__hull", viewBox: spec.viewBox, "aria-hidden": "true" });
@@ -167,7 +166,7 @@ function scheduleBoats(surface) {
     if (!surface.isConnected) return;
     surface.appendChild(buildBoat(surface));
     scheduleBoats(surface);
-  }, randomBetween(...BOAT_DELAY_MS));
+  }, randomInRange(BOAT_DELAY_MS));
 }
 
 export function createSeaSurface(container) {

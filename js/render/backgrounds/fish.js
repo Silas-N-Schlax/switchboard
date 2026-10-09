@@ -4,7 +4,14 @@ import {
   fishDefaultSize as defaultFishSize,
   fishSizeScaleMax,
 } from "../../../defaults.js";
-import { randomBetween, createSpawnField, svgEl, prefersReducedMotion, scheduleRareEvent } from "./util.js";
+import {
+  randomBetween,
+  randomInRange,
+  createSpawnField,
+  svgEl,
+  prefersReducedMotion,
+  scheduleRareEvent,
+} from "./util.js";
 import { pickSpecies } from "./fishSpecies.js";
 import { startSharkHunt } from "./sharkHunt.js";
 import { launchSubmarine } from "./submarine.js";
@@ -84,10 +91,10 @@ function randomizeFish(el, sizeMultiplier, speedMultiplier, band, sharkFrequency
   const flip = swimsRight ? -1 : 1;
 
   const [vbWidth, vbHeight] = species.viewBox;
-  const width = randomBetween(...fishBaseSizeRange) * fishScale(sizeMultiplier) * species.size * (0.6 + 0.4 * depth);
+  const width = randomInRange(fishBaseSizeRange) * fishScale(sizeMultiplier) * species.size * (0.6 + 0.4 * depth);
   const height = width * (vbHeight / vbWidth);
   const duration =
-    (randomBetween(...fishBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
+    (randomInRange(fishBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
 
   const school = species.school ?? SOLO;
   const trail = Math.max(...school.map(([x]) => x)) * width;

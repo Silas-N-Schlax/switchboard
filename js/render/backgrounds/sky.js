@@ -11,7 +11,7 @@ import {
   skyBalloonChance,
   skyCountRatios,
 } from "../../../defaults.js";
-import { randomBetween, createSpawnField, svgEl } from "./util.js";
+import { randomBetween, randomInRange, createSpawnField, svgEl } from "./util.js";
 import { pickBird } from "./birdSpecies.js";
 
 const SOLO = [[0, 0]];
@@ -87,8 +87,8 @@ function randomizeCloud(el, { scale, speedMultiplier, band }) {
   // Clouds respond to the size slider more gently than birds and planes.
   const { svg, widthScale, aspect } = cloudShape();
   const width =
-    randomBetween(...skyCloudBaseWidthRange) * widthScale * (0.5 + scale / 2) * (0.5 + 0.5 * depth);
-  const duration = (randomBetween(...skyCloudBaseDurationRange) * (1.6 - 0.6 * depth)) / speedMultiplier;
+    randomInRange(skyCloudBaseWidthRange) * widthScale * (0.5 + scale / 2) * (0.5 + 0.5 * depth);
+  const duration = (randomInRange(skyCloudBaseDurationRange) * (1.6 - 0.6 * depth)) / speedMultiplier;
   el.style.zIndex = String(Math.round(depth * 10));
   el.style.setProperty("--size", `${width}px`);
   el.style.setProperty("--height", `${width * aspect}px`);
@@ -137,9 +137,9 @@ function randomizeBird(el, { scale, speedMultiplier, band }) {
   const depth = Math.random();
   const goesRight = Math.random() < 0.5;
   const flip = goesRight ? -1 : 1;
-  const width = randomBetween(...skyBirdBaseSizeRange) * scale * species.size * (0.55 + 0.45 * depth);
+  const width = randomInRange(skyBirdBaseSizeRange) * scale * species.size * (0.55 + 0.45 * depth);
   const duration =
-    (randomBetween(...skyBirdBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
+    (randomInRange(skyBirdBaseDurationRange) * species.pace * (1.3 - 0.3 * depth)) / speedMultiplier;
   const flock = species.flock ?? SOLO;
   const trail = Math.max(...flock.map(([x]) => x)) * width;
   // A random run-up offscreen spaces arrivals out instead of a steady stream.
@@ -174,8 +174,8 @@ export function planeShape() {
 function randomizePlane(el, { scale, speedMultiplier, band }) {
   const depth = Math.random();
   const goesRight = Math.random() < 0.5;
-  const width = randomBetween(...skyPlaneBaseSizeRange) * scale * (0.6 + 0.4 * depth);
-  const crossing = randomBetween(...skyPlaneBaseDurationRange) / speedMultiplier;
+  const width = randomInRange(skyPlaneBaseSizeRange) * scale * (0.6 + 0.4 * depth);
+  const crossing = randomInRange(skyPlaneBaseDurationRange) / speedMultiplier;
   el.style.zIndex = String(Math.round(depth * 10));
   el.style.setProperty("--size", `${width}px`);
   el.style.setProperty("--height", `${width * 0.3}px`);
@@ -212,9 +212,9 @@ function balloonShape() {
 // Most crossings run empty; the balloon only shows when its `chance` roll comes up.
 function randomizeBalloon(el, { scale, speedMultiplier, band, chance }) {
   const depth = Math.random();
-  const height = randomBetween(...skyBalloonBaseSizeRange) * scale * (0.6 + 0.4 * depth);
+  const height = randomInRange(skyBalloonBaseSizeRange) * scale * (0.6 + 0.4 * depth);
   const width = height * (40 / 60);
-  const duration = (randomBetween(...skyBalloonBaseDurationRange) * (1.3 - 0.3 * depth)) / speedMultiplier;
+  const duration = (randomInRange(skyBalloonBaseDurationRange) * (1.3 - 0.3 * depth)) / speedMultiplier;
   el.style.visibility = Math.random() < chance ? "visible" : "hidden";
   el.style.zIndex = String(Math.round(depth * 10));
   el.style.setProperty("--size", `${width}px`);

@@ -27,6 +27,10 @@ export function randomBetween(min, max) {
   return min + Math.random() * (max - min);
 }
 
+export function randomInRange({ min, max }) {
+  return randomBetween(min, max);
+}
+
 export function restartAnimation(el) {
   el.style.animation = "none";
   // eslint-disable-next-line no-unused-expressions

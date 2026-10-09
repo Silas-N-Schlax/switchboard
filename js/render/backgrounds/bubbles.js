@@ -1,9 +1,9 @@
 import { bubbleBaseSizeRange, bubbleBaseDurationRange } from "../../../defaults.js";
-import { randomBetween, createSpawnField } from "./util.js";
+import { randomBetween, randomInRange, createSpawnField } from "./util.js";
 
 function randomizeBubble(el, sizeMultiplier, speedMultiplier) {
-  const size = randomBetween(...bubbleBaseSizeRange) * sizeMultiplier;
-  const duration = randomBetween(...bubbleBaseDurationRange) / speedMultiplier;
+  const size = randomInRange(bubbleBaseSizeRange) * sizeMultiplier;
+  const duration = randomInRange(bubbleBaseDurationRange) / speedMultiplier;
   el.style.setProperty("--size", `${size}px`);
   el.style.setProperty("--start-x", `${randomBetween(0, 100)}vw`);
   el.style.setProperty("--drift-x", `${randomBetween(-15, 15)}vw`);

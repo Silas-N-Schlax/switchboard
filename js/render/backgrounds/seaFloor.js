@@ -1,4 +1,4 @@
-import { svgEl, seededRandom, randomBetween, createSpawnField } from "./util.js";
+import { svgEl, seededRandom, randomBetween, randomInRange, createSpawnField } from "./util.js";
 
 // Same framing as the mountain scene: a 1600x900 canvas, bottom-aligned and cropped to
 // cover, so scenery and critters share one coordinate system.
@@ -198,7 +198,7 @@ let critterScale = 1;
 
 // One size per critter for its whole stay, in the scene's scale.
 function critterWidth(el, range) {
-  if (!el.dataset.size) el.dataset.size = String(randomBetween(...range));
+  if (!el.dataset.size) el.dataset.size = String(randomInRange(range));
   return Number(el.dataset.size) * viewport().scale * critterScale;
 }
 
@@ -218,7 +218,7 @@ function depthScale(v) {
 function nextSpot(el, { across, deeper }) {
   const u0 = Number(el.dataset.u ?? randomBetween(0.05, 0.95));
   const v0 = Number(el.dataset.v ?? randomBetween(0.1, 0.9));
-  let u1 = u0 + randomBetween(...across) * (Math.random() < 0.5 ? -1 : 1);
+  let u1 = u0 + randomInRange(across) * (Math.random() < 0.5 ? -1 : 1);
   if (u1 < 0.03 || u1 > 0.97) u1 = 2 * u0 - u1;
   const v1 = Math.min(0.95, Math.max(0.05, v0 + randomBetween(-deeper, deeper)));
   el.dataset.u = String(u1);
@@ -254,8 +254,8 @@ function starfishField(container, speed, groundY) {
       return star;
     },
     randomize(el) {
-      const width = critterWidth(el, [24, 34]);
-      placeOnPlane(el, groundY, width, 24 / 40, nextSpot(el, { across: [0.02, 0.05], deeper: 0.15 }));
+      const width = critterWidth(el, { min: 24, max: 34 });
+      placeOnPlane(el, groundY, width, 24 / 40, nextSpot(el, { across: { min: 0.02, max: 0.05 }, deeper: 0.15 }));
       const duration = randomBetween(90000, 150000) / speed;
       el.style.setProperty("--duration", `${duration}ms`);
       return randomBetween(0, duration);
