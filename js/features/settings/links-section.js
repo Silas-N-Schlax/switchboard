@@ -7,6 +7,12 @@ import {
   hasFaviconHistoryAccess,
   clearFaviconCache,
 } from "../favicons/favicon.js";
+import {
+  requestLinkHealthAccess,
+  checkAllLinks,
+  clearLinkHealth,
+} from "../linkHealth/index.js";
+import { showToast } from "../dialog/toast.js";
 import { linkListSplitThresholdOptions, linkGroupLimitRange } from "../../../defaults.js";
 
 function buildSettingToggle(labelText, key, onChange) {
@@ -84,12 +90,60 @@ export function buildLinksSection(onChange) {
     accessRow.hidden = !state.settings.showFavicons || (await hasFaviconHistoryAccess());
   }
 
+  const { element: healthToggle, input: healthInput } = buildToggleSwitch(
+    state.settings.checkLinkHealth,
+    async (checked) => {
+      // Same user-gesture rule as the favicon prompt above.
+      const access = checked ? requestLinkHealthAccess() : null;
+      if (access && !(await access)) {
+        healthInput.checked = false;
+        return;
+      }
+      state.settings.checkLinkHealth = checked;
+      await save({ settings: state.settings });
+      if (!checked) await clearLinkHealth();
+      updateCheckNowRow();
+      onChange();
+      if (checked) checkAllLinks();
+    }
+  );
+  const healthRow = buildRow({ labelText: "Check links daily", control: healthToggle });
+
+  const checkNow = document.createElement("button");
+  checkNow.type = "button";
+  checkNow.className = "settings-panel__action";
+  checkNow.textContent = "Check";
+  // aria-disabled instead of disabled: a disabled button drops focus out of the panel,
+  // and then Esc no longer reaches it.
+  checkNow.addEventListener("click", async () => {
+    if (checkNow.getAttribute("aria-disabled") === "true") return;
+    checkNow.setAttribute("aria-disabled", "true");
+    checkNow.textContent = "Checking…";
+    try {
+      const broken = await checkAllLinks();
+      showToast(
+        broken ? `${broken} ${broken === 1 ? "link" : "links"} couldn't be reached` : "All links are reachable",
+        { tone: broken ? "error" : "success" }
+      );
+    } finally {
+      checkNow.removeAttribute("aria-disabled");
+      checkNow.textContent = "Check";
+    }
+  });
+  const checkNowRow = buildRow({ labelText: "Check links now", control: checkNow, tag: "div" });
+
+  function updateCheckNowRow() {
+    checkNowRow.hidden = !state.settings.checkLinkHealth;
+  }
+
   const { group } = buildDialogGroup({
     label: "Links",
-    rows: [newTab.row, fullUrl.row, splitRow, groupLimitRow, row, accessRow],
+    rows: [newTab.row, fullUrl.row, splitRow, groupLimitRow, row, accessRow, healthRow, checkNowRow],
     note:
       "Two columns only show on wide windows. Lowering the group limit keeps existing groups and only stops new ones. Favicons come from your browser's own cache, matched against your history, so nothing " +
-      "is fetched from the web. A site you haven't visited yet gets a placeholder until you do.",
+      "is fetched from the web. A site you haven't visited yet gets a placeholder until you do. " +
+      "Daily link checks visit each saved link from your browser once a day and mark any that are " +
+      "missing (404) or can't be reached.",
   });
 
   function refresh() {
@@ -98,9 +152,12 @@ export function buildLinksSection(onChange) {
     splitSelect.setValue(state.settings.linkListSplitThreshold);
     groupLimitInput.setValue(state.settings.linkGroupLimit);
     input.checked = state.settings.showFavicons;
+    healthInput.checked = state.settings.checkLinkHealth;
     updateAccessRow();
+    updateCheckNowRow();
   }
   updateAccessRow();
+  updateCheckNowRow();
 
   return { element: group, refresh };
 }

@@ -1,6 +1,7 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { createTab, createLink, createLinkGroup } from "../../schema.js";
+import { checkNewLink } from "../linkHealth/index.js";
 import { maxTabs } from "../../../defaults.js";
 import { recordEvent, StatEvent } from "../stats/recorder.js";
 
@@ -200,17 +201,20 @@ export async function addLink(tabId, { label, url, shortcutKey = null }) {
   state.links.push(link);
   await save({ links: state.links });
   recordEvent(StatEvent.linkAdd, { linkId: link.id, tabId, label: link.label, url: link.url });
+  checkNewLink(link.url);
   return link;
 }
 
 export async function updateLink(linkId, { label, url, shortcutKey }) {
   const link = state.links.find((l) => l.id === linkId);
   if (!link) return;
+  const previousUrl = link.url;
   if (label !== undefined) link.label = label;
   if (url !== undefined) link.url = normalizeUrl(url);
   if (shortcutKey !== undefined) link.shortcutKey = shortcutKey;
   await save({ links: state.links });
   recordEvent(StatEvent.linkUpdate, { linkId, label: link.label, url: link.url });
+  if (link.url !== previousUrl) checkNewLink(link.url);
 }
 
 export async function duplicateLink(linkId) {

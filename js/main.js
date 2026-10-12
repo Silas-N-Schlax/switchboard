@@ -15,6 +15,7 @@ import { initLinkShortcutListener } from "./features/tabLinks/linkShortcuts.js";
 import { initLinkTabbing } from "./features/tabLinks/linkTabbing.js";
 import { initLaunchGroups } from "./features/launchGroups/index.js";
 import { initActionKeybinds } from "./features/tabLinks/actionKeybinds.js";
+import { initLinkHealth } from "./features/linkHealth/index.js";
 import { recordEvent, StatEvent } from "./features/stats/recorder.js";
 
 const focusParam = "focus";
@@ -45,13 +46,13 @@ async function init() {
     state.activeTabId = defaultTab()?.id ?? null;
   }
   recordEvent(StatEvent.newTab, { tabId: state.activeTabId });
-  console.log("[switchboard] initialized:", initialized, data);
   initKeybindListener();
   initLinkShortcutListener();
   initLinkTabbing();
   initLaunchGroups(renderTabLinks);
   initActionKeybinds(renderTabLinks);
   initGlobalContextMenu(renderTabLinks);
+  await initLinkHealth(renderTabLinks);
   render();
   if (state.settings.focusPageOnOpen && state.settings.focusSearchOnOpen) focusSearchBar();
 }

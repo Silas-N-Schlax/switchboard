@@ -1,3 +1,10 @@
+let fieldCount = 0;
+
+function fieldName(kind) {
+  fieldCount += 1;
+  return `settings-${kind}-${fieldCount}`;
+}
+
 export function buildRow({ labelText, control, tag = "label" }) {
   const row = document.createElement(tag);
   row.className = "settings-panel__row";
@@ -14,6 +21,7 @@ export function buildToggleSwitch(checked, onChange) {
 
   const input = document.createElement("input");
   input.type = "checkbox";
+  input.name = fieldName("toggle");
   input.className = "toggle-switch__input";
   input.checked = checked;
   input.addEventListener("change", () => onChange(input.checked));
@@ -31,6 +39,7 @@ export function buildToggleSwitch(checked, onChange) {
 export function buildRange({ min, max, step, value, onChange }) {
   const input = document.createElement("input");
   input.type = "range";
+  input.name = fieldName("range");
   input.className = "range-slider";
   input.min = String(min);
   input.max = String(max);
@@ -43,6 +52,7 @@ export function buildRange({ min, max, step, value, onChange }) {
 export function buildNumberInput({ min, max, value, onChange }) {
   const input = document.createElement("input");
   input.type = "number";
+  input.name = fieldName("number");
   input.className = "number-input";
   input.min = String(min);
   input.max = String(max);
@@ -71,6 +81,7 @@ export function buildNumberInput({ min, max, value, onChange }) {
 
 export function buildSelect({ options, value, onChange }) {
   const select = document.createElement("select");
+  select.name = fieldName("select");
   select.className = "select-input";
   let currentOptions = [];
 

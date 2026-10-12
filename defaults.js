@@ -186,6 +186,10 @@ export const showFavicons = false;
 export const faviconFetchSize = 32;
 export const faviconHistoryCandidateLimit = 3;
 export const cacheTrimEnabled = false;
+export const checkLinkHealth = false;
+export const linkHealthIntervalMinutes = 24 * 60;
+export const linkHealthTimeoutMs = 15000;
+export const linkHealthConcurrency = 4;
 export const statsEnabled = true;
 export const showKeycapHints = true;
 // Takes keyboard focus from the address bar when a new tab opens — see js/main.js.
@@ -211,6 +215,7 @@ export const defaultAmbientSettings = {
 export const defaultSettings = {
   showFavicons,
   cacheTrimEnabled,
+  checkLinkHealth,
   statsEnabled,
   showKeycapHints,
   focusPageOnOpen,

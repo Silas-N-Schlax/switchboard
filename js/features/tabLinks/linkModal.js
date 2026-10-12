@@ -83,6 +83,7 @@ function buildModal() {
 
   const labelInput = document.createElement("input");
   labelInput.type = "text";
+  labelInput.name = "label";
   labelInput.className = "link-modal__input";
   labelInput.placeholder = "Label";
   labelInput.setAttribute("aria-label", "Label");
@@ -91,6 +92,7 @@ function buildModal() {
 
   const urlInput = document.createElement("input");
   urlInput.type = "text";
+  urlInput.name = "url";
   urlInput.className = "link-modal__input";
   urlInput.placeholder = "URL — example.com";
   urlInput.setAttribute("aria-label", "URL");

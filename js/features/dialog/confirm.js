@@ -138,6 +138,7 @@ export function typedConfirmDialog({ title, message, phrase, confirmLabel = "Con
 
       const input = document.createElement("input");
       input.type = "text";
+      input.name = "confirm-phrase";
       input.className = "confirm-dialog__input";
       input.autocomplete = "off";
       input.spellcheck = false;

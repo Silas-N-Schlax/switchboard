@@ -64,6 +64,7 @@ function build(root) {
 
   const filter = el("input", "launch-editor__filter");
   filter.type = "text";
+  filter.name = "launch-filter";
   filter.placeholder = "Filter links…";
   filter.autocomplete = "off";
   filter.spellcheck = false;
