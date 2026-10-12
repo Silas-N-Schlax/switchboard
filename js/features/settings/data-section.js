@@ -28,6 +28,7 @@ export function buildDataSection() {
 
   const fileInput = document.createElement("input");
   fileInput.type = "file";
+  fileInput.name = "backup-file";
   fileInput.accept = ".json,application/json";
   fileInput.hidden = true;
   fileInput.addEventListener("change", async () => {

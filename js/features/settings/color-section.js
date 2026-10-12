@@ -17,6 +17,7 @@ function selectablePaletteId() {
 
 function buildPaletteSelect(onChange) {
   const select = document.createElement("select");
+  select.name = "palette";
   select.className = "select-input";
 
   ambientPalettePresets.forEach((preset) => {

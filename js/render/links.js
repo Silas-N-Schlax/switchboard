@@ -197,6 +197,7 @@ function buildGroupLabel(group, onChange) {
 
   const input = document.createElement("input");
   input.type = "text";
+  input.name = "group-name";
   input.className = "link-group__rename-input";
   input.value = group.name;
   input.setAttribute("aria-label", "Group name");

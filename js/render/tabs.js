@@ -27,6 +27,7 @@ function buildAddControl(onAdd) {
 
   const input = document.createElement("input");
   input.type = "text";
+  input.name = "tab-name";
   input.className = "tab-dock__add-input";
   input.placeholder = "Tab name";
 
@@ -102,6 +103,7 @@ export function renderTabs(container, onChange) {
     if (renaming) {
       const input = document.createElement("input");
       input.type = "text";
+      input.name = "tab-name";
       input.className = "tab-dock__rename-input";
       input.value = tab.name;
       input.addEventListener("keydown", async (e) => {
