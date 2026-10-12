@@ -46,7 +46,6 @@ async function init() {
     state.activeTabId = defaultTab()?.id ?? null;
   }
   recordEvent(StatEvent.newTab, { tabId: state.activeTabId });
-  console.log("[switchboard] initialized:", initialized, data);
   initKeybindListener();
   initLinkShortcutListener();
   initLinkTabbing();
