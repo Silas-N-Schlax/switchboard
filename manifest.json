@@ -25,5 +25,9 @@
   ],
   "optional_permissions": [
     "history"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
   ]
 }

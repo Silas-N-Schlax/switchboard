@@ -17,6 +17,7 @@ import { getKeybind } from "../features/keybinds/registry.js";
 import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../features/stats/recorder.js";
 import { buildFavicon } from "../features/favicons/favicon.js";
+import { linkIssueFor, LinkIssue } from "../features/linkHealth/index.js";
 import {
   linkGroupsForTab,
   renameLinkGroup,
@@ -98,6 +99,20 @@ function buildLaunchBar(tab) {
   return bar;
 }
 
+const issueDateFormat = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
+
+function buildHealthAlert(issue) {
+  const alert = document.createElement("span");
+  alert.className = "link-health-alert";
+  const problem =
+    issue.reason === LinkIssue.notFound ? `Page not found (${issue.status})` : "Couldn't reach this site";
+  alert.title = `${problem} since ${issueDateFormat.format(issue.since)}`;
+  alert.setAttribute("role", "img");
+  alert.setAttribute("aria-label", `${problem}.`);
+  alert.textContent = "!";
+  return alert;
+}
+
 function buildLinkRow(link, { searching, compact, launchIndex, tabName, onChange }) {
   const row = document.createElement("div");
   row.className = "link-list__row";
@@ -115,6 +130,10 @@ function buildLinkRow(link, { searching, compact, launchIndex, tabName, onChange
   anchor.href = link.url;
   anchor.textContent = link.label;
   anchor.title = link.url;
+  const issue = linkIssueFor(link.url);
+  if (issue) {
+    anchor.prepend(buildHealthAlert(issue));
+  }
   anchor.draggable = false;
   trackOpens(anchor, link, searching);
 
