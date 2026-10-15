@@ -99,3 +99,28 @@ export function formatShortcutParts(canonical) {
   const modifiers = DISPLAY_ORDER.filter((m) => parts.includes(m)).map((m) => ({ modifier: m, label: MODIFIER_LABELS[m] }));
   return [...modifiers, { modifier: null, label: key.length === 1 ? key.toUpperCase() : key }];
 }
+
+const UNBINDABLE_BARE_KEYS = new Set(["Enter", "Escape", "Tab", " ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
+
+// App keybinds store a bare key as the character typed ("n", "/", "?" via its e.key),
+// and anything with Ctrl/Meta/Alt/Shift in canonical form. Returns null for keys that
+// can't be bound: lone modifiers, and bare keys the page already uses for navigation.
+export function keybindFromEvent(e) {
+  if (isModifierOnlyKey(e.key)) return null;
+  if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) {
+    if (e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && e.key === "Tab") return null;
+    return serializeShortcutEvent(e);
+  }
+  if (UNBINDABLE_BARE_KEYS.has(e.key)) return null;
+  return e.key.length === 1 ? e.key.toLowerCase() : e.key;
+}
+
+// App keybinds keep bare letters lowercase while link shortcuts store "G", and the
+// reserved list spells arrows "ArrowLeft" where captured shortcuts use "←"; this folds
+// them all into one form so they can be checked against each other.
+export function comparableShortcut(key) {
+  const resolved = resolveShortcut(key);
+  if (!resolved) return null;
+  if (resolved.length === 1) return resolved.toUpperCase();
+  return resolved.replace(/Arrow(Up|Down|Left|Right)$/, (_, dir) => NAMED_CODES[`Arrow${dir}`]);
+}

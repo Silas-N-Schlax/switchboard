@@ -21,13 +21,24 @@ export function unregisterKeybind(id) {
   registered.delete(id);
 }
 
-export function getKeybind(id) {
-  return resolveShortcut(state.settings?.keybinds?.[id] ?? defaultKeybinds[id] ?? null);
+// A stored null means the person cleared the key on purpose, so it must not fall back
+// to the default the way a missing entry does.
+export function getStoredKeybind(id) {
+  const overrides = state.settings?.keybinds ?? {};
+  return Object.hasOwn(overrides, id) ? overrides[id] : defaultKeybinds[id] ?? null;
 }
 
-export async function setKeybind(id, key) {
-  state.settings.keybinds = { ...state.settings.keybinds, [id]: key };
+export function getKeybind(id) {
+  return resolveShortcut(getStoredKeybind(id));
+}
+
+export async function setKeybinds(changes) {
+  state.settings.keybinds = { ...state.settings.keybinds, ...changes };
   await save({ settings: state.settings });
+}
+
+export function setKeybind(id, key) {
+  return setKeybinds({ [id]: key });
 }
 
 export function listKeybinds() {
@@ -56,7 +67,10 @@ export function matchesKeybind(e, id) {
 function matchesKey(e, key) {
   if (key == null) return false;
   if (key.length > 1 && key.includes("+")) return serializeShortcutEvent(e) === key;
-  if (e.key !== key || e.metaKey) return false;
+  if (e.metaKey) return false;
+  const isLetter = /^[a-z]$/i.test(key);
+  // Letters ignore Caps Lock but not Shift, which belongs to "Shift+L"-style combos.
+  if (isLetter ? e.shiftKey || e.key.toLowerCase() !== key.toLowerCase() : e.key !== key) return false;
   const altGr = e.getModifierState?.("AltGraph") ?? false;
   if (e.ctrlKey && !altGr) return false;
   return !e.altKey || altGr || !/^[a-z0-9]$/i.test(key);

@@ -1,5 +1,5 @@
 import { state } from "../../state.js";
-import { updateSettings, applyDisplaySettings } from "./store.js";
+import { updateSettings } from "./store.js";
 import { buildRow, buildToggleSwitch, buildSelect } from "./controls.js";
 import { createSwatchPicker } from "./swatch-picker.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
@@ -44,15 +44,6 @@ export function buildGeneralSection(onChange) {
     tag: "div",
   });
 
-  const { element: hintsToggle, input: hintsInput } = buildToggleSwitch(
-    state.settings.showKeycapHints,
-    async (showKeycapHints) => {
-      await updateSettings({ showKeycapHints });
-      applyDisplaySettings();
-    }
-  );
-  const hintsRow = buildRow({ labelText: "Show keyboard hints", control: hintsToggle });
-
   const { element: focusToggle, input: focusInput } = buildToggleSwitch(
     state.settings.focusPageOnOpen,
     async (focusPageOnOpen) => {
@@ -74,7 +65,7 @@ export function buildGeneralSection(onChange) {
 
   const { group } = buildDialogGroup({
     label: "General",
-    rows: [defaultTabRow, engineRow, fallbackRow, hintsRow, focusRow, searchFocusRow],
+    rows: [defaultTabRow, engineRow, fallbackRow, focusRow, searchFocusRow],
     note:
       "When nothing matches, Enter searches the web. The search bar takes the web search " +
       "color so you can tell before you press it. Focusing the page lets shortcuts work the " +
@@ -85,7 +76,6 @@ export function buildGeneralSection(onChange) {
     defaultTabSelect.setOptions(tabOptions(), defaultTab()?.id);
     engineSelect.setValue(state.settings.searchEngineId);
     fallbackPicker.setValue(state.settings.searchFallbackColor);
-    hintsInput.checked = state.settings.showKeycapHints;
     focusInput.checked = state.settings.focusPageOnOpen;
     searchFocusInput.checked = state.settings.focusSearchOnOpen;
     updateSearchFocusRow();

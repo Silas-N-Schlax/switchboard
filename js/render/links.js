@@ -89,9 +89,8 @@ function buildLaunchBar(tab) {
 
   const key = getKeybind("launch-group");
   if (key) {
-    const hint = document.createElement("span");
-    hint.className = "keybind-badge launch-bar__hint";
-    hint.textContent = key.toUpperCase();
+    const hint = buildShortcutBadges(key);
+    hint.classList.add("launch-bar__hint");
     bar.appendChild(hint);
   }
 

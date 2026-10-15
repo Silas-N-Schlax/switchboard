@@ -8,6 +8,7 @@ import { buildBackgroundSection } from "./background-section.js";
 import { buildStatsSection } from "./stats-section.js";
 import { buildLinksSection } from "./links-section.js";
 import { buildDataSection } from "./data-section.js";
+import { buildKeybindsSection } from "./keybinds-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../keybinds/registry.js";
 import { buildDialogHeader } from "../dialog/chrome.js";
@@ -31,6 +32,7 @@ function buildPanel() {
   const { header, close } = buildDialogHeader({ title: "Settings", closeLabel: "Close settings" });
 
   const generalSection = buildGeneralSection(() => onSettingsChange());
+  const keybindsSection = buildKeybindsSection(() => onSettingsChange());
   const colorSection = buildColorSection();
   const backgroundSection = buildBackgroundSection();
   const linksSection = buildLinksSection(() => onSettingsChange());
@@ -58,7 +60,7 @@ function buildPanel() {
   feedbackLink.textContent = "Send feedback ↗";
   footer.append(resetButton, feedbackLink);
 
-  sections = [generalSection, colorSection, backgroundSection, linksSection, statsSection, dataSection];
+  sections = [generalSection, keybindsSection, colorSection, backgroundSection, linksSection, statsSection, dataSection];
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";
