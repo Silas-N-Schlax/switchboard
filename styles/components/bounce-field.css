@@ -1,0 +1,129 @@
+/* The classic bouncing screensaver logo. js/render/backgrounds/bounce.js moves each logo
+   every frame and drops a confetti burst into the corner it hits. */
+.bounce-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  .bounce-field__logo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    will-change: transform;
+
+    svg,
+    img,
+    .bounce-field__favicon {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bounce-field__favicon img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .bounce-field__ghost {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+
+    svg,
+    img,
+    .bounce-field__favicon,
+    .bounce-field__favicon img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .bounce-field__logo--glow {
+    filter: drop-shadow(0 0 14px currentColor) drop-shadow(0 0 4px currentColor);
+  }
+
+  &.bounce-field--muted .bounce-field__logo {
+    opacity: 0.8;
+  }
+
+  &.bounce-field--muted .bounce-field__logo--glow {
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .bounce-field__disc-title {
+    fill: currentColor;
+    font-family: var(--font-ui);
+    font-size: 72px;
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -3px;
+    text-anchor: middle;
+  }
+
+  .bounce-field__disc-label {
+    fill: rgba(0, 0, 0, 0.55);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 7px;
+    text-anchor: middle;
+  }
+
+  .bounce-field__toast {
+    fill: #e8b36a;
+    stroke: #8a5a2e;
+    stroke-width: 3;
+  }
+
+  .bounce-field__toaster-slot {
+    fill: rgba(0, 0, 0, 0.45);
+  }
+
+  .bounce-field__wing {
+    fill: #f4f1ea;
+    transform-origin: 40px 48px;
+    animation: toasterFlap 420ms ease-in-out infinite alternate;
+  }
+
+  .bounce-field__wing--back {
+    fill: #c9c4ba;
+    animation-delay: -140ms;
+  }
+
+  .bounce-field__burst {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+
+  .bounce-field__burst--top-left { top: 0; left: 0; }
+  .bounce-field__burst--top-right { top: 0; right: 0; }
+  .bounce-field__burst--bottom-left { bottom: 0; left: 0; }
+  .bounce-field__burst--bottom-right { bottom: 0; right: 0; }
+
+  .bounce-field__confetti {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 2px;
+  }
+}
+
+@keyframes toasterFlap {
+  from {
+    transform: rotate(-18deg);
+  }
+  to {
+    transform: rotate(22deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bounce-field__wing {
+    animation: none;
+  }
+}

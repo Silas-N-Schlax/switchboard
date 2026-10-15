@@ -97,7 +97,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);
 
   const style = { ...backgroundStyleDefaults[background.id], ...ambientMode.backgroundStyles?.[background.id] };
-  const count = Math.max(backgroundCountMin, style.count ?? backgroundCountMin);
+  const count = Math.max(background.countMin ?? backgroundCountMin, style.count ?? backgroundCountMin);
   const sizeMultiplier = clamp(style.size ?? 1, backgroundSizeMin, 1);
   const speedMultiplier = clamp(style.speed ?? 1, backgroundSpeedMin, backgroundSpeedMax);
 
@@ -112,7 +112,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   skyLayer.className = "ambient-bg__sky";
   container.appendChild(skyLayer);
 
-  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style });
+  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style, colors });
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 

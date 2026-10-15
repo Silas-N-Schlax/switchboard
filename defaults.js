@@ -83,6 +83,18 @@ export const skyBalloonBaseDurationRange = { min: 70000, max: 100000 };
 export const skyBalloonChance = 0.05 / 3;
 // How many of each the Count slider spawns, per unit of count.
 export const skyCountRatios = { clouds: 1, birds: 0.5, planes: 0.2 };
+export const bounceDefaultLogo = "disc";
+export const bounceDefaultSize = 0.5;
+export const bounceCountMin = 1;
+export const bounceLogoWidthRange = { min: 48, max: 260 }; // px, across the Size slider
+export const bounceBaseSpeed = 110; // px/s, before speed multiplier
+// Every corner hit multiplies the logo's speed; past the terminal multiple it escapes.
+export const bounceCornerSpeedup = 1.35;
+export const bounceTerminalMultiple = 6;
+// How close to a true corner still counts, scaled by the "Corner luck" slider.
+export const bounceCornerTolerancePx = 6;
+export const bounceRespawnDelayMs = { min: 6000, max: 12000 };
+export const bounceGravity = 1400; // px/s² while falling back in
 
 export const backgroundStyleDefaults = {
   bubbles: { count: 8, size: 1, speed: 1 },
@@ -96,6 +108,18 @@ export const backgroundStyleDefaults = {
     seaSurface: true,
   },
   mountains: { count: 8, size: mountainsDefaultSize, speed: 1, balloonFrequency: 1, birds: true, planes: true },
+  bounce: {
+    count: 1,
+    size: bounceDefaultSize,
+    speed: 1,
+    logo: bounceDefaultLogo,
+    cornerLuck: 1,
+    speedUp: true,
+    escape: true,
+    confetti: true,
+    collide: false,
+    muted: false,
+  },
 };
 
 // ============================================================================

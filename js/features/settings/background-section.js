@@ -1,8 +1,8 @@
 // "Background" section: a style picker (one option per entry in the backgrounds
 // registry) plus count/size/speed sliders. Each style keeps its own slider values,
 // declares which sliders apply via its `controls`, and may add its own `frequencySliders` (rare
-// sight frequency) and on/off `toggles`, shown only while it's picked. Count is floored above 0 (backgroundCountMin) so only
-// picking "None" removes the effect.
+// sight frequency), on/off `toggles` and option `selects`, shown only while it's picked. Count is
+// floored above 0 (backgroundCountMin, or the style's own countMin) so only picking "None" removes the effect.
 
 import { ambientMode, backgroundStyle, updateAmbient, updateBackgroundStyle } from "./store.js";
 import { buildRow, buildRange, buildSelect, buildToggleSwitch } from "./controls.js";
@@ -62,6 +62,18 @@ export function buildBackgroundSection() {
   };
 
   const styleRows = backgrounds.flatMap((background) => [
+    ...(background.selects ?? []).map(({ key, label, options }) => {
+      const select = buildSelect({
+        options,
+        value: backgroundStyle(background.id)[key],
+        onChange: (value) => updateBackgroundStyle(background.id, { [key]: value }),
+      });
+      return {
+        backgroundId: background.id,
+        sync: () => select.setValue(backgroundStyle(background.id)[key]),
+        row: buildRow({ labelText: label, control: select.element }),
+      };
+    }),
     ...(background.frequencySliders ?? []).map(({ key, label }) => {
       const range = buildRange({
         min: rareFrequencyMin,
@@ -89,8 +101,9 @@ export function buildBackgroundSection() {
   ]);
 
   function syncControlRows(backgroundId) {
-    const { controls } = findBackground(backgroundId);
+    const { controls, countMin = backgroundCountMin } = findBackground(backgroundId);
     const config = backgroundStyle(backgroundId);
+    ranges.count.min = String(countMin);
     Object.entries(controlRows).forEach(([key, row]) => {
       const disabled = !controls.includes(key);
       row.classList.toggle("settings-panel__row--disabled", disabled);
