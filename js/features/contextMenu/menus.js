@@ -20,7 +20,7 @@ import {
 } from "../tabLinks/store.js";
 import {
   linkGroupsForTab,
-  canAddLinkGroup,
+  canMoveLinkToNewGroup,
   moveLinkToGroup,
   addLinkGroupWithLink,
   shiftLinkGroup,
@@ -50,7 +50,7 @@ function linkGroupMenuItems(link, onChange) {
   if (currentGroupId) items.push({ label: "Move to main list", onSelect: moveTo(null) });
   items.push({
     label: "Move to new group",
-    disabled: !canAddLinkGroup(link.tabId),
+    disabled: !canMoveLinkToNewGroup(link),
     onSelect: async () => {
       const group = await addLinkGroupWithLink(link.id);
       if (group) beginRenameLinkGroup(group.id, onChange);

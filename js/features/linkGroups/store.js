@@ -1,7 +1,7 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { createLinkGroup } from "../../schema.js";
-import { linksForTab, linksInGroup, pruneEmptyLinkGroups } from "../tabLinks/store.js";
+import { linksForTab, linksInGroup, linkGroupIdOf, pruneEmptyLinkGroups } from "../tabLinks/store.js";
 
 const newLinkGroupName = "New group";
 
@@ -15,6 +15,14 @@ export function linkGroupsForTab(tabId) {
 
 export function canAddLinkGroup(tabId) {
   return linkGroupsForTab(tabId).length < state.settings.linkGroupLimit;
+}
+
+// A link that is alone in its group frees that group's slot when it leaves, so it can
+// still start a new group at the limit.
+export function canMoveLinkToNewGroup(link) {
+  if (canAddLinkGroup(link.tabId)) return true;
+  const groupId = linkGroupIdOf(link);
+  return !!groupId && linksInGroup(link.tabId, groupId).length === 1;
 }
 
 function placeAtEndOfGroup(link, groupId) {
@@ -32,7 +40,7 @@ export async function moveLinkToGroup(linkId, groupId) {
 
 export async function addLinkGroupWithLink(linkId) {
   const link = state.links.find((l) => l.id === linkId);
-  if (!link || !canAddLinkGroup(link.tabId)) return null;
+  if (!link || !canMoveLinkToNewGroup(link)) return null;
   const group = createLinkGroup({
     id: crypto.randomUUID(),
     tabId: link.tabId,
