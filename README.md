@@ -76,10 +76,10 @@ settings are kept.
 | `t` | Add a tab |
 | `Shift+R` | Rename this tab |
 | `e` | Edit the selected link |
-| `⌘+Backspace` | Delete the selected link |
+| `⌘+Backspace` (`Ctrl+Backspace` on Windows/Linux) | Delete the selected link |
 | `Shift+C` | Copy the selected link's URL |
-| `⌘+Enter` | Open the selected link in a new tab |
-| `Alt+↑` / `Alt+↓` | Move the selected link up or down |
+| `⌘+Enter` (`Ctrl+Enter` on Windows/Linux) | Open the selected link in a new tab |
+| `Alt+↑` / `Alt+↓` (`⌥` on Mac) | Move the selected link up or down |
 | `l` | Open this tab's launch group |
 | `Shift+L` | Edit the launch group |
 | `,` | Settings |

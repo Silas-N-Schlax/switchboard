@@ -1,3 +1,5 @@
+import { isMac, platform } from "./platform.js";
+
 const MODIFIER_KEYS = new Set(["Control", "Shift", "Alt", "Meta"]);
 
 export function isModifierOnlyKey(key) {
@@ -61,14 +63,39 @@ export function serializeShortcutEvent(e) {
   });
 }
 
-// The canonical "Ctrl+Alt+C" string is only ever used for storage/matching — this
-// breaks it into the individual symbols ("⌃", "⌥", "C") each shown as its own keycap
-// wherever a shortcut is displayed to the user, rather than crammed into one badge.
-const DISPLAY_SYMBOLS = { Ctrl: "⌃", Meta: "⌘", Alt: "⌥", Shift: "⇧" };
+// "Mod" in a stored shortcut is the platform's primary modifier: Cmd on macOS, Ctrl
+// everywhere else, where Meta is the Windows/Super key the OS keeps for itself.
+const PRIMARY_MODIFIER = isMac ? "Meta" : "Ctrl";
 
+export function resolveShortcut(canonical) {
+  if (!canonical || !canonical.includes("+")) return canonical;
+  const parts = canonical.split("+");
+  if (!parts.includes("Mod")) return canonical;
+  const keyLabel = parts.pop();
+  const has = (modifier) => parts.includes(modifier) || (modifier === PRIMARY_MODIFIER && parts.includes("Mod"));
+  return serializeShortcut({
+    ctrlKey: has("Ctrl"),
+    metaKey: has("Meta"),
+    altKey: has("Alt"),
+    shiftKey: has("Shift"),
+    keyLabel,
+  });
+}
+
+const DISPLAY_ORDER = isMac ? ["Ctrl", "Alt", "Shift", "Meta"] : ["Meta", "Ctrl", "Alt", "Shift"];
+const META_LABELS = { windows: "Win", chromeos: "Search", linux: "Super" };
+const MODIFIER_LABELS = isMac
+  ? { Ctrl: "Control", Meta: "Command", Alt: "Option", Shift: "Shift" }
+  : { Ctrl: "Ctrl", Meta: META_LABELS[platform], Alt: "Alt", Shift: "Shift" };
+
+// Breaks a canonical shortcut into one part per keycap, modifiers first in the
+// platform's conventional order. `modifier` is set on modifier parts so macOS can draw
+// them as icons; `label` is the text shown (or the icon's accessible name).
 export function formatShortcutParts(canonical) {
-  if (!canonical) return [];
-  return canonical
-    .split("+")
-    .map((part) => DISPLAY_SYMBOLS[part] ?? (part.length === 1 ? part.toUpperCase() : part));
+  const resolved = resolveShortcut(canonical);
+  if (!resolved) return [];
+  const parts = resolved.length > 1 && resolved.includes("+") ? resolved.split("+") : [resolved];
+  const key = parts.pop();
+  const modifiers = DISPLAY_ORDER.filter((m) => parts.includes(m)).map((m) => ({ modifier: m, label: MODIFIER_LABELS[m] }));
+  return [...modifiers, { modifier: null, label: key.length === 1 ? key.toUpperCase() : key }];
 }

@@ -1,7 +1,7 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { defaultKeybinds } from "../../../defaults.js";
-import { serializeShortcutEvent } from "./shortcutFormat.js";
+import { serializeShortcutEvent, resolveShortcut } from "./shortcutFormat.js";
 
 // The standard for registering a keybind anywhere in the app: call
 // registerKeybind(id, {...}) with a stable id and a default key already
@@ -22,7 +22,7 @@ export function unregisterKeybind(id) {
 }
 
 export function getKeybind(id) {
-  return state.settings?.keybinds?.[id] ?? defaultKeybinds[id] ?? null;
+  return resolveShortcut(state.settings?.keybinds?.[id] ?? defaultKeybinds[id] ?? null);
 }
 
 export async function setKeybind(id, key) {
@@ -46,6 +46,9 @@ function isTypingTarget(el) {
 
 // Bare keys match on e.key (so "?"-style characters work across layouts); combos are
 // stored in the canonical "Shift+L" form and matched the same way link shortcuts are.
+// Layouts that type a bare-key character with AltGr (Windows/Linux, reported as
+// Ctrl+Alt) or Option (macOS) still match it; e.key already proves that character
+// was typed. Letters and digits never accept Alt, so Alt+L stays free.
 export function matchesKeybind(e, id) {
   return matchesKey(e, getKeybind(id));
 }
@@ -53,7 +56,10 @@ export function matchesKeybind(e, id) {
 function matchesKey(e, key) {
   if (key == null) return false;
   if (key.length > 1 && key.includes("+")) return serializeShortcutEvent(e) === key;
-  return e.key === key && !e.ctrlKey && !e.metaKey && !e.altKey;
+  if (e.key !== key || e.metaKey) return false;
+  const altGr = e.getModifierState?.("AltGraph") ?? false;
+  if (e.ctrlKey && !altGr) return false;
+  return !e.altKey || altGr || !/^[a-z0-9]$/i.test(key);
 }
 
 function findActiveKeybind(e) {

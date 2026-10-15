@@ -193,9 +193,9 @@ export const defaultKeybinds = {
   "tab-rename": "Shift+R",
   "link-new": "n",
   "link-edit": "e",
-  "link-delete": "Meta+Backspace",
+  "link-delete": "Mod+Backspace",
   "link-copy-url": "Shift+C",
-  "link-open-new-tab": "Meta+Enter",
+  "link-open-new-tab": "Mod+Enter",
   "link-move-up": "Alt+↑",
   "link-move-down": "Alt+↓",
 };

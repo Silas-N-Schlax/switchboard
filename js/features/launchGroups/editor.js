@@ -3,6 +3,8 @@ import { linksForTab, displayHost } from "../tabLinks/store.js";
 import { makeSortable } from "../tabLinks/sortable.js";
 import { buildDialogHeader } from "../dialog/chrome.js";
 import { launchGroupLinks, setLinkLaunchGroup, reorderLaunchGroup } from "./store.js";
+import { formatShortcutParts } from "../keybinds/shortcutFormat.js";
+import { buildKeyBadge } from "../keybinds/shortcutBadges.js";
 
 let editor = null;
 let tabId = null;
@@ -44,9 +46,9 @@ function buildItem(link, launchIndex, draggable) {
   return item;
 }
 
-function hint(keys, label) {
+function hint(shortcuts, label) {
   const wrap = el("span", "dialog-hint");
-  keys.forEach((k) => wrap.appendChild(el("span", "keybind-badge", k)));
+  shortcuts.flatMap(formatShortcutParts).forEach((part) => wrap.appendChild(buildKeyBadge(part)));
   wrap.appendChild(el("span", "dialog-hint__label", label));
   return wrap;
 }
@@ -84,7 +86,7 @@ function build(root) {
   footer.append(
     hint(["↑", "↓"], "move"),
     hint(["space"], "toggle"),
-    hint(["⌥", "↑", "↓"], "reorder")
+    hint(["Alt+↑", "↓"], "reorder")
   );
 
   dialog.append(header, filterWrap, body, footer);
