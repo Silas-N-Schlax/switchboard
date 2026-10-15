@@ -63,8 +63,17 @@ export const rareFrequencyMax = 10;
 export const rareEventMeanIntervalMs = 90 * 60 * 1000; // at frequency 1
 export const rareEventRollMs = 15000;
 export const skydiveMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
-export const bubbleBaseSizeRange = { min: 60, max: 220 }; // px, before size multiplier
-export const bubbleBaseDurationRange = { min: 16000, max: 30000 }; // ms, before speed multiplier
+export const bubbleBaseSizeRange = { min: 40, max: 200 }; // px, before size multiplier
+export const bubbleBaseDurationRange = { min: 20000, max: 34000 }; // ms per full rise, before speed multiplier
+export const bubblePopChance = 0.35; // with Pop on, share of bubbles that burst partway up
+// Rolled per bubble; at 8 bubbles and frequency 1, about one every 15 minutes.
+export const bubbleFishChance = 1 / 300;
+export const bubbleFishMinSize = 96; // px, so the fish has room to swim
+// Super rare: a bubble that swallows every bubble it touches, growing until it floats away.
+export const bubbleAbsorberChance = 1 / 3000;
+export const bubbleAbsorberStartSize = 160; // px, before size multiplier
+export const bubbleAbsorberBurstVmin = 55; // bursts into tiny bubbles once it grows this big
+export const bubbleAbsorberBurstCount = 70;
 export const fishDefaultSize = 0.15; // one slider step above the minimum
 export const fishSizeScaleMax = 2.5; // fish size at the top of the slider, vs. the default
 export const fishBaseSizeRange = { min: 28, max: 72 }; // px body length at the default size
@@ -97,7 +106,7 @@ export const bounceRespawnDelayMs = { min: 6000, max: 12000 };
 export const bounceGravity = 1400; // px/s² while falling back in
 
 export const backgroundStyleDefaults = {
-  bubbles: { count: 8, size: 1, speed: 1 },
+  bubbles: { count: 8, size: 1, speed: 1, rareFrequency: 1, pop: true, tint: true },
   fish: {
     count: 8,
     size: fishDefaultSize,
