@@ -9,7 +9,7 @@ trap 'rm -rf "$staging"' EXIT
 
 mkdir -p "$staging/$name"
 cd "$root"
-cp -R manifest.json newtab.html background.js defaults.js reservedShortcuts.js js styles graphics \
+cp -R manifest.json switchboard.html background.js defaults.js reservedShortcuts.js js styles graphics \
   "$staging/$name/"
 rm -f "$staging/$name"/graphics/extension/chrome-store-*
 find "$staging/$name" -name .DS_Store -delete

@@ -10,7 +10,7 @@
     "128": "graphics/extension/icon-128.png"
   },
   "chrome_url_overrides": {
-    "newtab": "newtab.html"
+    "newtab": "switchboard.html"
   },
   "background": {
     "service_worker": "background.js",

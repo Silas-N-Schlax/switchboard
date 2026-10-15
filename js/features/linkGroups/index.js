@@ -1,6 +1,6 @@
 export {
   linkGroupsForTab,
-  canAddLinkGroup,
+  canMoveLinkToNewGroup,
   moveLinkToGroup,
   addLinkGroupWithLink,
   renameLinkGroup,

@@ -109,14 +109,14 @@ see HTML/CSS/JS changes. Changes to `manifest.json` or `background.js` need the 
 icon on the extensions page.
 
 For quick UI work outside the extension, `js/storage.js` falls back to `localStorage`
-when `chrome.storage` isn't available. Serve the folder and open `newtab.html`:
+when `chrome.storage` isn't available. Serve the folder and open `switchboard.html`:
 
 ```
 npx serve .
 # or: python3 -m http.server
 ```
 
-Opening `newtab.html` over `file://` won't work, because browsers block ES modules there.
+Opening `switchboard.html` over `file://` won't work, because browsers block ES modules there.
 
 To build a zip for sharing without git, run `./scripts/package.sh` (output goes to
 `dist/`).
