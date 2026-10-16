@@ -47,6 +47,12 @@ export const ambientCuratedSwatches = [
   "#748038",
 ];
 
+// Palette files imported in Settings, each with the palettes and swatches it added. They
+// sit beside ambientMode, not in it, so Reset appearance keeps them.
+export const colorLibrary = { files: [] };
+export const colorLibraryPaletteLimit = 24;
+export const colorLibrarySwatchLimit = 100;
+
 // ============================================================================
 // Ambient background — style (bubbles, fish, …), each with its own count/size/speed
 // ============================================================================
@@ -293,6 +299,7 @@ export const defaultSettings = {
   showFullUrl,
   openLinksInNewTab,
   ambientMode: defaultAmbientSettings,
+  colorLibrary,
   backgroundConfig: { mode: "ambient" },
   keybinds: defaultKeybinds,
 };

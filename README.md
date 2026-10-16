@@ -28,7 +28,9 @@ your browser: no account, no cloud sync, no tracking.
   naming the link.
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
 - **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean, a mountain scene, the stratosphere above it or a bouncing screensaver logo, plus presets and custom
-  palettes. Respects your system's reduced-motion setting.
+  palettes. Import more from a palette file (JSON, a `.hex`/`.txt` list of hex colors,
+  or a GIMP `.gpl`) in Settings → Background, and remove any file again from the list
+  there. Respects your system's reduced-motion setting.
 - **Backups.** Export everything to a JSON file and restore it on another machine.
 - **Clearing.** Empty one tab (right-click it → **Clear links…**) or reset everything
   (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because

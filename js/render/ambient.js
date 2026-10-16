@@ -15,12 +15,12 @@ import {
 } from "../../defaults.js";
 import { findBackground } from "./backgrounds/index.js";
 
-export function resolveColors(ambientMode = {}) {
+export function resolveColors(ambientMode = {}, importedPalettes = []) {
   const paletteId = ambientMode.paletteId ?? ambientPaletteId;
   if (paletteId === "custom") {
     return ambientMode.customColors?.length ? ambientMode.customColors : ambientCustomColors;
   }
-  const preset = ambientPalettePresets.find((p) => p.id === paletteId);
+  const preset = [...ambientPalettePresets, ...importedPalettes].find((p) => p.id === paletteId);
   return preset ? preset.colors : ambientCustomColors;
 }
 
@@ -102,7 +102,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   const myGeneration = renderGeneration;
 
   const ambientMode = settings.ambientMode ?? {};
-  const colors = resolveColors(ambientMode);
+  const colors = resolveColors(ambientMode, settings.colorLibrary?.palettes);
   const colorCycleEnabled = ambientMode.colorCycleEnabled ?? ambientColorCycleEnabled;
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
   const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);
