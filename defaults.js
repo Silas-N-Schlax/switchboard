@@ -233,6 +233,25 @@ export const searchEngines = [
 ];
 export const searchEngineId = "google";
 
+// Fonts. Exchange and Patchcord only cover basic Latin, so each stack falls back to the
+// bundled Manrope or IBM Plex Mono for symbols like "…" and arrows.
+export const interfaceFontOptions = [
+  { id: "exchange", label: "Exchange", stack: '"Exchange", "Manrope", system-ui, sans-serif' },
+  { id: "patchcord", label: "Patchcord", stack: '"Patchcord", "Manrope", system-ui, sans-serif' },
+  { id: "manrope", label: "Manrope", stack: '"Manrope", system-ui, sans-serif' },
+  { id: "ibm-plex-mono", label: "IBM Plex Mono", stack: '"IBM Plex Mono", "Manrope", system-ui, sans-serif' },
+  { id: "system", label: "System", stack: "system-ui, sans-serif" },
+];
+export const monoFontOptions = [
+  { id: "patchcord", label: "Patchcord", stack: '"Patchcord", "IBM Plex Mono", ui-monospace, monospace' },
+  { id: "exchange", label: "Exchange", stack: '"Exchange", "IBM Plex Mono", ui-monospace, monospace' },
+  { id: "ibm-plex-mono", label: "IBM Plex Mono", stack: '"IBM Plex Mono", ui-monospace, monospace' },
+  { id: "manrope", label: "Manrope", stack: '"Manrope", "IBM Plex Mono", ui-monospace, monospace' },
+  { id: "system", label: "System", stack: "ui-monospace, monospace" },
+];
+export const interfaceFont = "exchange";
+export const monoFont = "patchcord";
+
 // Border shown around the search bar when the current query has no link matches
 // and Enter would fall back to a web search.
 export const searchFallbackColor = "#b5665f";
@@ -291,6 +310,8 @@ export const defaultSettings = {
   focusSearchOnOpen,
   defaultTabId,
   searchEngineId,
+  interfaceFont,
+  monoFont,
   searchFallbackColor,
   linkListSplitThreshold,
   linkGroupLimit,

@@ -37,6 +37,9 @@ your browser: no account, no cloud sync, no tracking.
   `.hex`/`.txt` list of hex colors, or a GIMP `.gpl`) in Settings → Background, and
   remove any file again from the list there. Respects your system's reduced-motion
   setting.
+- **Fonts.** Pick the interface font and the mono font (URLs and key hints) in
+  Settings → General. Exchange and Patchcord are the defaults; Manrope, IBM Plex Mono,
+  and your system font are there too, all bundled with the extension.
 - **Fun stats.** Optionally records link opens, searches, tab use, bookmark imports and
   exports, and Bounce corner hits, locally, for recaps to come.
 - **Bookmarks in and out.** Settings → Data → **Browser bookmarks**. Import reads this

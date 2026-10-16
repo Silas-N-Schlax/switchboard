@@ -1,13 +1,21 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { renderAmbient } from "../../render/ambient.js";
+import { interfaceFontOptions, monoFontOptions } from "../../../defaults.js";
 
 export function ambientMode() {
   return state.settings.ambientMode;
 }
 
+function fontStack(options, id) {
+  return (options.find((option) => option.id === id) ?? options[0]).stack;
+}
+
 export function applyDisplaySettings(root = document.body) {
   root.classList.toggle("hide-keycap-hints", !state.settings.showKeycapHints);
+  const { style } = document.documentElement;
+  style.setProperty("--font-ui", fontStack(interfaceFontOptions, state.settings.interfaceFont));
+  style.setProperty("--font-mono", fontStack(monoFontOptions, state.settings.monoFont));
 }
 
 export async function updateSettings(partial) {
