@@ -24,6 +24,8 @@ your browser: no account, no cloud sync, no tracking.
   Settings → Keybinds → **Customize shortcuts**, including actions that start without a
   key (duplicate or delete a tab, duplicate a link, move it to a new group, and more).
   The keycap hints on tabs, links, the search bar and menus can be turned off there too.
+  If a new Switchboard key takes over a link's shortcut, you get a one-time notice
+  naming the link.
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
 - **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean, a mountain scene, the stratosphere above it or a bouncing screensaver logo, plus presets and custom
   palettes. Respects your system's reduced-motion setting.
@@ -88,6 +90,7 @@ shortcuts**; press `/` to see the keys currently in effect.
 | `Alt+↑` / `Alt+↓` (`⌥` on Mac) | Move the selected link up or down |
 | `l` | Open this tab's launch group |
 | `Shift+L` | Edit the launch group |
+| `m` | Open the right-click menu for the selected link, tab or group (`↑`/`↓` to pick, `Enter` to run) |
 | `,` | Settings |
 | `/` | Show all shortcuts |
 | `Esc` | Close whatever is open |

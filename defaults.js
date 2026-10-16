@@ -185,6 +185,7 @@ export const defaultKeybinds = {
   "search-focus": "s",
   "cheatsheet-open": "/",
   "settings-open": ",",
+  "context-menu-open": "m",
   "launch-group": "l",
   "launch-group-edit": "Shift+L",
   "tab-prev": "[",

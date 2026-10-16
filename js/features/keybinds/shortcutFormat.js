@@ -100,6 +100,12 @@ export function formatShortcutParts(canonical) {
   return [...modifiers, { modifier: null, label: key.length === 1 ? key.toUpperCase() : key }];
 }
 
+export function describeShortcut(canonical) {
+  return formatShortcutParts(canonical)
+    .map((part) => part.label)
+    .join("+");
+}
+
 const UNBINDABLE_BARE_KEYS = new Set(["Enter", "Escape", "Tab", " ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
 
 // App keybinds store a bare key as the character typed ("n", "/", "?" via its e.key),

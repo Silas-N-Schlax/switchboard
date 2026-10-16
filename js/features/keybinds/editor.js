@@ -3,7 +3,7 @@ import { save } from "../../storage.js";
 import { defaultKeybinds } from "../../../defaults.js";
 import { getKeybind, getStoredKeybind, setKeybinds } from "./registry.js";
 import { keybindSections, tabSwitchSlot } from "./catalog.js";
-import { keybindFromEvent, formatShortcutParts, comparableShortcut } from "./shortcutFormat.js";
+import { keybindFromEvent, describeShortcut, comparableShortcut } from "./shortcutFormat.js";
 import { buildShortcutBadges } from "./shortcutBadges.js";
 import { findKeyOwner } from "./shortcutValidation.js";
 import { buildDialogHeader, buildDialogGroup } from "../dialog/chrome.js";
@@ -16,12 +16,6 @@ let rows = new Map();
 let capturingId = null;
 let returnFocusEl = null;
 let onChangeRef = () => {};
-
-function describeKey(key) {
-  return formatShortcutParts(key)
-    .map((part) => part.label)
-    .join("+");
-}
 
 function capitalize(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -50,7 +44,7 @@ function renderKey(id) {
   } else {
     row.button.textContent = "None";
   }
-  row.button.setAttribute("aria-label", `${row.label}: ${key ? describeKey(key) : "no shortcut"}. Press to change.`);
+  row.button.setAttribute("aria-label", `${row.label}: ${key ? describeShortcut(key) : "no shortcut"}. Press to change.`);
   row.reset.hidden = isDefault(id);
 }
 
@@ -87,12 +81,12 @@ async function assignKey(id, key) {
 
   const owner = findKeyOwner(key, { excludeActionId: id });
   if (owner?.type === "system") {
-    setError(id, `${describeKey(key)} is reserved by your browser or OS`);
+    setError(id, `${describeShortcut(key)} is reserved by your browser or OS`);
     return;
   }
   if (owner) {
     const replace = await confirmDialog({
-      title: `${describeKey(key)} is already in use`,
+      title: `${describeShortcut(key)} is already in use`,
       message: `It's the shortcut for ${owner.label}. Replace it? ${capitalize(owner.label)} will have no shortcut.`,
       confirmLabel: "Replace",
     });

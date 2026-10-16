@@ -13,7 +13,7 @@ function region() {
   return regionEl;
 }
 
-export function showToast(message, { tone = "default" } = {}) {
+export function showToast(message, { tone = "default", durationMs = TOAST_DURATION_MS } = {}) {
   const toast = document.createElement("div");
   toast.className = `toast surface toast--${tone}`;
   toast.textContent = message;
@@ -24,5 +24,5 @@ export function showToast(message, { tone = "default" } = {}) {
     toast.addEventListener("animationend", () => toast.remove(), { once: true });
     // Reduced motion disables the exit animation, so animationend never fires.
     setTimeout(() => toast.remove(), 400);
-  }, TOAST_DURATION_MS);
+  }, durationMs);
 }

@@ -67,6 +67,7 @@ export const keybindSections = [
     title: "General",
     actions: [
       { id: "settings-open", label: "Settings" },
+      { id: "context-menu-open", label: "Open the menu for the selected item" },
       { id: "cheatsheet-open", label: "Show keyboard shortcuts" },
     ],
   },

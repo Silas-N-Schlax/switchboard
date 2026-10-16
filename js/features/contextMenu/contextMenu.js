@@ -1,10 +1,46 @@
 import { buildShortcutBadges } from "../keybinds/shortcutBadges.js";
+import { matchesKeybind } from "../keybinds/registry.js";
 
 let openMenuEl = null;
+let returnFocusEl = null;
 
+// Cleared before removal: removing a menu that holds focus fires its focusout handler.
 function closeMenu() {
-  openMenuEl?.remove();
+  const menu = openMenuEl;
   openMenuEl = null;
+  returnFocusEl = null;
+  menu?.remove();
+}
+
+function closeAndReturnFocus() {
+  const target = returnFocusEl;
+  closeMenu();
+  if (target?.isConnected) target.focus();
+}
+
+function enabledItems() {
+  return [...openMenuEl.querySelectorAll(".context-menu__item:not(:disabled)")];
+}
+
+// Contains every key, like a modal, so app keybinds and the page's own arrow navigation
+// can't act behind the menu. Enter and Space still click the focused item natively.
+function onMenuKeyDown(e) {
+  e.stopPropagation();
+  if (e.key === "Escape" || e.key === "Tab" || matchesKeybind(e, "context-menu-open")) {
+    e.preventDefault();
+    closeAndReturnFocus();
+    return;
+  }
+  const items = enabledItems();
+  const index = items.indexOf(document.activeElement);
+  let next = null;
+  if (e.key === "ArrowDown") next = items[(index + 1) % items.length];
+  else if (e.key === "ArrowUp") next = items[(index - 1 + items.length) % items.length];
+  else if (e.key === "Home") next = items[0];
+  else if (e.key === "End") next = items.at(-1);
+  if (!next) return;
+  e.preventDefault();
+  next.focus();
 }
 
 document.addEventListener("click", (e) => {
@@ -16,12 +52,15 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("scroll", closeMenu, true);
 window.addEventListener("blur", closeMenu);
 
-export function openContextMenu(x, y, items) {
+// With `returnFocus`, the menu was opened from the keyboard: it takes focus, and gives it
+// back to that element once it closes.
+export function openContextMenu(x, y, items, { returnFocus = null } = {}) {
   closeMenu();
   if (!items.length) return;
 
   const menu = document.createElement("div");
   menu.className = "context-menu surface";
+  menu.setAttribute("role", "menu");
 
   items.forEach((item) => {
     if (item.divider) {
@@ -33,6 +72,7 @@ export function openContextMenu(x, y, items) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "context-menu__item";
+    button.setAttribute("role", "menuitem");
     if (item.danger) button.classList.add("context-menu__item--danger");
     const label = document.createElement("span");
     label.className = "context-menu__label";
@@ -41,7 +81,7 @@ export function openContextMenu(x, y, items) {
     if (item.hint) button.appendChild(buildShortcutBadges(item.hint));
     button.disabled = !!item.disabled;
     button.addEventListener("click", () => {
-      closeMenu();
+      closeAndReturnFocus();
       item.onSelect?.();
     });
     menu.appendChild(button);
@@ -56,6 +96,14 @@ export function openContextMenu(x, y, items) {
   menu.style.top = `${top}px`;
 
   openMenuEl = menu;
+  if (returnFocus) {
+    returnFocusEl = returnFocus;
+    menu.addEventListener("keydown", onMenuKeyDown);
+    menu.addEventListener("focusout", (e) => {
+      if (openMenuEl === menu && !menu.contains(e.relatedTarget)) closeMenu();
+    });
+    enabledItems()[0]?.focus();
+  }
 }
 
 export function closeContextMenu() {
