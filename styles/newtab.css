@@ -38,6 +38,7 @@
 @import url("components/keycap-hints.css");
 @import url("components/confirm-dialog.css");
 @import url("components/bookmark-dialog.css");
+@import url("components/move-dialog.css");
 @import url("components/toast.css");
 
 :focus-visible {
