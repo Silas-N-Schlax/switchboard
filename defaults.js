@@ -256,7 +256,6 @@ export const showFavicons = false;
 // Requested at 2x the 16px display size so icons stay sharp on high-DPI screens.
 export const faviconFetchSize = 32;
 export const faviconHistoryCandidateLimit = 3;
-export const cacheTrimEnabled = false;
 export const checkLinkHealth = false;
 export const linkHealthIntervalMinutes = 24 * 60;
 export const linkHealthTimeoutMs = 15000;
@@ -285,7 +284,6 @@ export const defaultAmbientSettings = {
 
 export const defaultSettings = {
   showFavicons,
-  cacheTrimEnabled,
   checkLinkHealth,
   statsEnabled,
   showKeycapHints,
