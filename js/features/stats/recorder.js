@@ -15,6 +15,7 @@ export const StatEvent = {
   tabRename: "tab-rename",
   tabDelete: "tab-delete",
   bounceCorners: "bounce-corners",
+  bookmarksImport: "bookmarks-import",
 };
 
 let queue = Promise.resolve();

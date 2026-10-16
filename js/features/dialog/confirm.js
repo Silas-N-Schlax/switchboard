@@ -9,16 +9,16 @@ function buildButton(text, variant) {
 }
 
 function focusableIn(el) {
-  return [...el.querySelectorAll("input, button:not(:disabled)")];
+  return [...el.querySelectorAll("input:not(:disabled), select:not(:disabled), button:not(:disabled)")];
 }
 
-function openDialog({ title, step, message, buttons, initialFocus, buildExtra }) {
+export function openDialog({ title, step, message, buttons, initialFocus, buildExtra, className = null, role = "alertdialog" }) {
   return new Promise((resolve) => {
     const returnFocusEl = document.activeElement;
 
     const root = document.createElement("div");
     root.className = "confirm-dialog";
-    root.setAttribute("role", "alertdialog");
+    root.setAttribute("role", role);
     root.setAttribute("aria-modal", "true");
 
     const backdrop = document.createElement("div");
@@ -26,6 +26,7 @@ function openDialog({ title, step, message, buttons, initialFocus, buildExtra })
 
     const dialog = document.createElement("div");
     dialog.className = "confirm-dialog__dialog dialog surface";
+    if (className) dialog.classList.add(className);
 
     const { header, titleEl, close } = buildDialogHeader({
       title,

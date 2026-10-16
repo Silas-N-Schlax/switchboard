@@ -87,8 +87,13 @@
     background: var(--accent);
     color: var(--accent-ink);
 
-    &:hover {
+    &:hover:not(:disabled) {
       filter: brightness(1.08);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 

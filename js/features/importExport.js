@@ -5,10 +5,6 @@ import { STATS_KEY_PATTERN } from "./stats/recorder.js";
 const BACKUP_FORMAT = "switchboard-backup";
 const CORE_KEYS = ["schemaVersion", "tabs", "links", "linkGroups", "settings"];
 
-// TODO: Google Bookmarks HTML import, export to chrome.bookmarks
-export function importFromBookmarksHtml() {}
-export function exportToChromeBookmarks() {}
-
 function backupFileName(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
