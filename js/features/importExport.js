@@ -5,10 +5,19 @@ import { STATS_KEY_PATTERN } from "./stats/recorder.js";
 const BACKUP_FORMAT = "switchboard-backup";
 const CORE_KEYS = ["schemaVersion", "tabs", "links", "linkGroups", "settings"];
 
-function backupFileName(date = new Date()) {
+export function dateStamp(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-  return `switchboard-backup-${date.getFullYear()}-${month}-${day}.json`;
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function downloadFile(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export async function exportToJson() {
@@ -18,12 +27,7 @@ export async function exportToJson() {
     data: await loadAll(),
   };
   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = backupFileName();
-  anchor.click();
-  setTimeout(() => URL.revokeObjectURL(url), 0);
+  downloadFile(blob, `switchboard-backup-${dateStamp()}.json`);
 }
 
 function isObject(value) {

@@ -1,4 +1,4 @@
-/* The bookmark import dialog, built on the confirm dialog shell. */
+/* The bookmark import and export dialogs, built on the confirm dialog shell. */
 .confirm-dialog .bookmark-dialog {
   --dialog-width: 560px;
 
@@ -17,7 +17,8 @@
     justify-content: space-between;
     gap: var(--space-4);
 
-    .tab-picker {
+    .tab-picker,
+    .select-input {
       width: 220px;
     }
   }
@@ -135,6 +136,23 @@
     &:disabled {
       cursor: not-allowed;
     }
+  }
+
+  .bookmark-dialog__settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .bookmark-dialog__option[hidden] {
+    display: none;
+  }
+
+  .bookmark-dialog__summary {
+    margin: 0;
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
+    line-height: 1.5;
   }
 
   .bookmark-dialog__problems:empty {

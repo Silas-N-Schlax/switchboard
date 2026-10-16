@@ -5,9 +5,11 @@ import { confirmDialog, alertDialog, typedConfirmDialog } from "../dialog/confir
 import { resetToDefaults } from "../../storage.js";
 import { clearEverythingPhrase } from "../../../defaults.js";
 import { showToast } from "../dialog/toast.js";
-import { hasChromeBookmarks, readChromeBookmarks, readBookmarksFile } from "../bookmarks/tree.js";
+import { hasChromeBookmarks, readChromeBookmarks, readBookmarksFile, browserName } from "../bookmarks/tree.js";
 import { importBookmarksDialog } from "../bookmarks/importDialog.js";
-import { chooseImportSource, BookmarkTarget } from "../bookmarks/chooser.js";
+import { chooseImportSource, chooseExportTarget, BookmarkTarget } from "../bookmarks/chooser.js";
+import { exportBookmarksDialog } from "../bookmarks/exportDialog.js";
+import { browserRootFolders, writeToBrowser, downloadBookmarksFile, exportableTabs } from "../bookmarks/exportStore.js";
 import { importBookmarks } from "../bookmarks/importStore.js";
 
 function buildActionButton(text, onClick) {
@@ -35,6 +37,37 @@ function buildActions(...buttons) {
   wrap.className = "settings-panel__actions";
   wrap.append(...buttons);
   return wrap;
+}
+
+async function runExport() {
+  if (!exportableTabs().some((entry) => entry.linkCount > 0)) {
+    await alertDialog({ title: "Nothing to export", message: "None of your tabs have links yet." });
+    return;
+  }
+  const target = hasChromeBookmarks() ? await chooseExportTarget() : BookmarkTarget.file;
+  if (!target) return;
+
+  const browserLabel = browserName() ?? "this browser";
+  const roots = target === BookmarkTarget.browser ? await browserRootFolders() : [];
+  const plan = await exportBookmarksDialog({ target, roots, browserLabel });
+  if (!plan) return;
+
+  if (target === BookmarkTarget.file) {
+    const { written } = downloadBookmarksFile(plan.tree);
+    showToast(`Downloaded ${pluralize(written, "link")}`, { tone: "success" });
+    return;
+  }
+  const { written, failed } = await writeToBrowser(plan.tree, plan);
+  if (failed) {
+    await alertDialog({
+      title: "Some links didn't export",
+      message:
+        `Added ${pluralize(written, "link")}, but ${browserLabel} refused ${pluralize(failed, "link")}, ` +
+        "usually because the address isn't one it can bookmark.",
+    });
+    return;
+  }
+  showToast(`Added ${pluralize(written, "link")} to ${browserLabel}`, { tone: "success" });
 }
 
 function buildBookmarksRow(onChange) {
@@ -73,7 +106,13 @@ function buildBookmarksRow(onChange) {
     else if (source === BookmarkTarget.file) fileInput.click();
   });
 
-  const row = buildRow({ labelText: "Browser bookmarks", control: buildActions(importButton), tag: "div" });
+  const exportButton = buildActionButton("Export", runExport);
+
+  const row = buildRow({
+    labelText: "Browser bookmarks",
+    control: buildActions(importButton, exportButton),
+    tag: "div",
+  });
   row.appendChild(fileInput);
   return row;
 }
@@ -146,7 +185,8 @@ export function buildDataSection(onChange = () => {}) {
     note:
       "A backup is a JSON file with your tabs, links, settings, and stats. Importing one " +
       "replaces everything here, so export first if you want to keep what you have. " +
-      "Importing bookmarks only adds links, from this browser or a file exported from any other.",
+      "Importing bookmarks only adds links, and exporting only adds bookmarks, either in this " +
+      "browser directly or through a file for any other.",
   });
 
   return { element: group };
