@@ -2,7 +2,8 @@ import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { buildRow, buildToggleSwitch } from "./controls.js";
 import { buildDialogGroup } from "../dialog/chrome.js";
-import { loadStatsBuckets, clearStats } from "../stats/recorder.js";
+import { loadStatsBuckets, clearStats, StatEvent } from "../stats/recorder.js";
+import { flushCornerCounts } from "../../render/backgrounds/bounceStats.js";
 import { confirmDialog } from "../dialog/confirm.js";
 import { showToast } from "../dialog/toast.js";
 
@@ -42,6 +43,26 @@ async function confirmClearStats() {
   return true;
 }
 
+async function bounceTotals() {
+  await flushCornerCounts();
+  const events = Object.values(await loadStatsBuckets()).flat();
+  return events
+    .filter((event) => event.type === StatEvent.bounceCorners)
+    .reduce(
+      (totals, event) => ({
+        corners: totals.corners + (event.corners ?? 0),
+        terminal: totals.terminal + (event.terminal ?? 0),
+      }),
+      { corners: 0, terminal: 0 }
+    );
+}
+
+function buildStatValue() {
+  const value = document.createElement("span");
+  value.className = "settings-panel__value";
+  return value;
+}
+
 export function buildStatsSection() {
   const { element: toggle, input } = buildToggleSwitch(state.settings.statsEnabled, async (checked) => {
     state.settings.statsEnabled = checked;
@@ -57,6 +78,7 @@ export function buildStatsSection() {
   clearButton.addEventListener("click", async () => {
     if (!(await confirmClearStats())) return;
     await clearStats();
+    updateBounceRows();
     showToast("Stats cleared", { tone: "success" });
   });
   const clearRow = buildRow({ labelText: "Clear recorded stats", control: clearButton, tag: "div" });
@@ -65,19 +87,34 @@ export function buildStatsSection() {
     clearRow.hidden = state.settings.statsEnabled;
   }
 
+  const cornersValue = buildStatValue();
+  const terminalValue = buildStatValue();
+  const cornersRow = buildRow({ labelText: "Corners hit", control: cornersValue, tag: "div" });
+  const terminalRow = buildRow({ labelText: "Terminal velocities", control: terminalValue, tag: "div" });
+
+  async function updateBounceRows() {
+    const { corners, terminal } = await bounceTotals();
+    cornersValue.textContent = corners.toLocaleString();
+    terminalValue.textContent = terminal.toLocaleString();
+    cornersRow.hidden = !corners;
+    terminalRow.hidden = !terminal;
+  }
+
   const { group } = buildDialogGroup({
     label: "Stats",
-    rows: [row, clearRow],
+    rows: [row, cornersRow, terminalRow, clearRow],
     note:
-      "Counts link opens, searches, and tab use. Recaps to see them are coming soon. " +
+      "Counts link opens, searches, tab use, and Bounce corner hits. Recaps to see them are coming soon. " +
       "Everything stays on this machine, and only goes elsewhere in exports you make yourself.",
   });
 
   function refresh() {
     input.checked = state.settings.statsEnabled;
     updateClearRow();
+    updateBounceRows();
   }
   updateClearRow();
+  updateBounceRows();
 
   return { element: group, refresh };
 }

@@ -20,7 +20,7 @@ import { createSeaSurface } from "./seaSurface.js";
 
 const SOLO = [[0, 0]];
 
-function buildSilhouette(species, flip) {
+export function buildSilhouette(species, flip) {
   const [width, height] = species.viewBox;
   const svg = svgEl("svg", {
     class: "fish-field__body",
