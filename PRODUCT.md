@@ -47,9 +47,14 @@ keyboard shortcuts rather than visible buttons.
   with a choice of scenes (Bubbles, Ocean, Mountains, Bounce), local usage-stats
   recording for future recaps. Bounce is a deliberately silly opt-in style; the default
   stays calm.
+- Bookmarks import (this browser via `chrome.bookmarks`, or a bookmarks HTML file from
+  any browser) and export (into this browser's bookmarks, or a bookmarks HTML file):
+  the path off native bookmarks, and back onto a phone through browser sync. A Move…
+  dialog sends links and link groups between tabs.
 - Dead links are never auto-deleted; health checks are informational only.
 - Permanently cut: quick-note scratchpad, clock/focus timer, custom photo backgrounds,
-  Recently Closed panel, "Most Used" tab.
+  Recently Closed panel, "Most Used" tab, clearing Chrome bookmarks (the browser's own
+  bookmark manager already does it).
 - No build step; plain ES modules, CSS with nesting, BEM class names.
 
 ## Brand Commitments

@@ -13,6 +13,8 @@ your browser: no account, no cloud sync, no tracking.
   reorder, right-click for more options.
 - **Link groups.** Split a busy tab into named groups shown side by side. Right-click a
   link and choose **Move to new group**, or drag links between groups.
+- **Moving things around.** Right-click a link or a group's name and choose **Move…** to
+  send it to another tab, a different group, or a new group, and pick where it lands.
 - **Search.** Press `s` to filter every link across every tab. Use the arrow keys to pick
   a result and Enter to open it. If nothing matches, Enter searches the web with the
   engine you pick (Google, DuckDuckGo, Bing, Kagi, or Brave Search).
@@ -36,7 +38,16 @@ your browser: no account, no cloud sync, no tracking.
   setting.
 - **Fun stats.** Optionally records link opens, searches, tab use and Bounce corner
   hits, locally, for recaps to come.
-- **Backups.** Export everything to a JSON file and restore it on another machine.
+- **Bookmarks in and out.** Settings → Data → **Browser bookmarks**. Import reads this
+  browser's bookmarks directly, or a bookmarks file exported from any other browser.
+  Each folder can go to its own tab (or a new one you name) and become a link group.
+  Export writes your tabs into this browser's bookmarks, where sync can carry them to
+  your phone, or downloads a bookmarks file for another browser. Each tab and link group
+  can get its own folder.
+- **Link health check.** Optionally checks your links once a day and marks the ones that
+  no longer load. It never deletes anything.
+- **Backups.** Settings → Data → **Switchboard backup** exports everything to a JSON file.
+  Importing one on another machine replaces what's there.
 - **Clearing.** Empty one tab (right-click it → **Clear links…**) or reset everything
   (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because
   neither can be undone.
@@ -108,6 +119,12 @@ Your tabs, links, settings, and usage stats live in your browser's local extensi
 storage and never leave your machine unless you export a backup yourself. Favicons come
 from the browser's own icon cache. The optional history permission (Settings → Links →
 Find icons in your history) is only used locally to find icons for links you've saved.
+
+- **Bookmarks:** Switchboard only reads or writes your browser's bookmarks when you run
+  an import or export.
+- **Link health check (off by default):** turning it on asks for access to all sites.
+  That access is only used to request each saved link directly from your browser, to
+  see whether it still loads. Local network addresses are skipped.
 
 ## Feedback
 
