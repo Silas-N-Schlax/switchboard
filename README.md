@@ -27,10 +27,15 @@ your browser: no account, no cloud sync, no tracking.
   If a new Switchboard key takes over a link's shortcut, you get a one-time notice
   naming the link.
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
-- **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean, a mountain scene, the stratosphere above it or a bouncing screensaver logo, plus presets and custom
-  palettes. Import more from a palette file (JSON, a `.hex`/`.txt` list of hex colors,
-  or a GIMP `.gpl`) in Settings → Background, and remove any file again from the list
-  there. Respects your system's reduced-motion setting.
+- **Ambient background.** Slowly drifting colors, presets and custom palettes, plus a
+  choice of scene: rising bubbles, an ocean, a mountain lake, the stratosphere above it,
+  or a bouncing screensaver logo. Each scene has its own sliders and toggles, and most
+  hide a rare sighting or two. Import more palettes from a palette file (JSON, a
+  `.hex`/`.txt` list of hex colors, or a GIMP `.gpl`) in Settings → Background, and
+  remove any file again from the list there. Respects your system's reduced-motion
+  setting.
+- **Fun stats.** Optionally records link opens, searches, tab use and Bounce corner
+  hits, locally, for recaps to come.
 - **Backups.** Export everything to a JSON file and restore it on another machine.
 - **Clearing.** Empty one tab (right-click it → **Clear links…**) or reset everything
   (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because

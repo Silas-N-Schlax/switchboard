@@ -44,7 +44,9 @@ keyboard shortcuts rather than visible buttons.
 - Tabs (max 9, slot 1 is the home/search tab; a default opening tab can be set), links
   with optional modifier-combo shortcuts, launch groups, cross-tab search with Google
   fallback, `/` shortcut cheat sheet, settings panel, ambient drifting color background
-  with bubbles, local usage-stats recording for future recaps.
+  with a choice of scenes (Bubbles, Ocean, Mountains, Bounce), local usage-stats
+  recording for future recaps. Bounce is a deliberately silly opt-in style; the default
+  stays calm.
 - Dead links are never auto-deleted; health checks are informational only.
 - Permanently cut: quick-note scratchpad, clock/focus timer, custom photo backgrounds,
   Recently Closed panel, "Most Used" tab.
@@ -73,5 +75,5 @@ No users, testimonials, or metrics yet. Do not fabricate any.
 
 ## Accessibility & Inclusion
 
-Respect `prefers-reduced-motion` (ambient drift and bubbles already do). Full keyboard
-operability is a core feature, not a compliance item.
+Respect `prefers-reduced-motion` (the ambient drift and every background scene already
+do). Full keyboard operability is a core feature, not a compliance item.
