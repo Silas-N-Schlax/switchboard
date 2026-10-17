@@ -186,9 +186,16 @@ export function buildDataSection(onChange = () => {}) {
   clearButton.classList.add("settings-panel__action--danger");
   const clearRow = buildRow({ labelText: "Clear everything", control: clearButton, tag: "div" });
 
+  const privacyLink = document.createElement("a");
+  privacyLink.className = "settings-panel__action";
+  privacyLink.href = "privacy.html";
+  privacyLink.target = "_blank";
+  privacyLink.textContent = "Read ↗";
+  const privacyRow = buildRow({ labelText: "Privacy policy", control: privacyLink, tag: "div" });
+
   const { group } = buildDialogGroup({
     label: "Data",
-    rows: [backupRow, buildBookmarksRow(onChange), clearRow],
+    rows: [backupRow, buildBookmarksRow(onChange), privacyRow, clearRow],
     note:
       "A backup is a JSON file with your tabs, links, settings, and stats. Importing one " +
       "replaces everything here, so export first if you want to keep what you have. " +

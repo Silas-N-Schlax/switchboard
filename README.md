@@ -94,6 +94,8 @@ shortcuts**; press `/` to see the keys currently in effect.
 
 ## Privacy
 
+The full policy ships with the extension (Settings → Data → Privacy policy).
+
 Your tabs, links, settings, and usage stats live in your browser's local extension
 storage and never leave your machine unless you export a backup or bookmarks yourself. Favicons come
 from the browser's own icon cache. The optional history permission (Settings → Links →

@@ -13,6 +13,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const shipped = [
   "manifest.json",
   "switchboard.html",
+  "privacy.html",
   "background.js",
   "defaults.js",
   "reservedShortcuts.js",
