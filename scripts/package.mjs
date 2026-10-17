@@ -29,6 +29,8 @@ const variants = {
   lite: {
     slug: "switchboard-lite",
     keeps: (feature) => feature.lite,
+    // graphics/lite mirrors graphics/ and replaces the icons and favicon it has.
+    graphics: "graphics/lite",
     manifest: {
       name: "Switchboard Lite",
       description:
@@ -115,6 +117,8 @@ function build(variantName, features, version) {
     fs.readdirSync(path.join(out, "graphics/extension"))
       .filter((f) => f.startsWith("chrome-store-"))
       .forEach((f) => fs.rmSync(path.join(out, "graphics/extension", f)));
+    if (variant.graphics) fs.cpSync(path.join(out, variant.graphics), path.join(out, "graphics"), { recursive: true });
+    fs.rmSync(path.join(out, "graphics/lite"), { recursive: true, force: true });
     execFileSync("find", [out, "-name", ".DS_Store", "-delete"]);
 
     const kept = features.filter(variant.keeps);
