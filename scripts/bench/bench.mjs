@@ -1,6 +1,7 @@
 // Switchboard performance + stress benchmark. Loads the repo as an unpacked extension in
 // headless Chromium and measures load, interaction, background, leak and storage costs.
 // Usage: npm run bench [-- section,...]  (sections: app, bg, leak, stress, startup)
+// EXT=<checkout> benchmarks another build; LABEL=<name> names its results file.
 // Set CHROME to a Chromium binary to use it instead of Playwright's own download.
 import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -446,6 +447,8 @@ if (want("startup")) {
 results.errors = [...new Set(errors)];
 const outDir = new URL("./results/", import.meta.url);
 mkdirSync(outDir, { recursive: true });
-writeFileSync(new URL(`./${only?.join("-") ?? "all"}.json`, outDir), JSON.stringify(results, null, 2));
+// LABEL names the results file, so runs of two builds don't overwrite each other.
+const name = [process.env.LABEL, only?.join("-") ?? "all"].filter(Boolean).join("-");
+writeFileSync(new URL(`./${name}.json`, outDir), JSON.stringify(results, null, 2));
 console.log("errors", JSON.stringify(results.errors));
 await ctx.close();
