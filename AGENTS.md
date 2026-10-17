@@ -45,5 +45,5 @@ and what it refuses to become, and `README.md` for features and development setu
 - Commits: an imperative sentence in plain words, no Conventional Commit prefixes, and
   no AI attribution anywhere.
 - Pull requests: follow `docs/pull-requests.md`.
-- Deploying: follow `docs/deploy.md`. Never publish a release or push to the store
-  unless the user asks.
+- Deploying: follow `docs/deploy.md`; store listing copy lives in `docs/store-listing.md`.
+  Never publish a release or push to the store unless the user asks.
