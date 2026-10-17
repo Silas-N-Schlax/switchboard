@@ -1,6 +1,6 @@
 // Switchboard performance + stress benchmark. Loads the repo as an unpacked extension in
 // headless Chromium and measures load, interaction, background, leak and storage costs.
-// Usage: npm run bench [-- section,...]  (sections: app, bg, leak, stress, startup)
+// Usage: npm run bench [-- section,...]  (sections: app, bg, leak, stress, startup, devices)
 // EXT=<checkout> benchmarks another build; LABEL=<name> names its results file.
 // Set CHROME to a Chromium binary to use it instead of Playwright's own download.
 import { chromium } from "playwright";
@@ -442,6 +442,101 @@ if (want("startup")) {
     results.startup[`stats${stats}`] = { directMs: await timeLoads(url) };
   }
   console.log("startup", JSON.stringify(results.startup));
+}
+
+// ---------------------------------------------------------------- devices
+// Slows the CPU down with DevTools throttling (as Lighthouse does) to estimate slower
+// machines: 4x is a mid-range laptop, 6x a budget laptop or Chromebook, 20x an old netbook.
+if (want("devices")) {
+  results.devices = {};
+  const base = url.replace("?focus", "");
+  const keyTimes = (keys) =>
+    page.evaluate(async (keys) => {
+      const out = [];
+      for (const k of keys) {
+        const t0 = performance.now();
+        __key(k);
+        await __frame();
+        out.push(performance.now() - t0);
+      }
+      return out;
+    }, keys);
+  for (const rate of [1, 4, 6, 20]) {
+    const row = {};
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    await seed({ tabs: 9, linksPerTab: 40, groupsPerTab: 3, background: "bubbles" });
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate });
+
+    // New tab opened the default way, through the page-focus redirect.
+    const loads = [];
+    for (let i = 0; i < 5; i++) {
+      const t0 = performance.now();
+      await page.goto(base, { waitUntil: "commit" });
+      await page.waitForSelector(".tab-dock__tab");
+      loads.push(performance.now() - t0);
+    }
+    row.newTabMs = r1(median(loads));
+    await page.evaluate(inPageHelpers);
+    row.tabSwitchMs = r1(median(await keyTimes(["2", "3", "4", "5", "6", "7", "8", "9", "1", "2", "3"])));
+
+    // Search over 1,800 links, after a warm-up keystroke.
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    await seed({ tabs: 9, linksPerTab: 200, groupsPerTab: 3, background: "none" });
+    await page.evaluate(inPageHelpers);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate });
+    const search = await page.evaluate(async () => {
+      const input = document.querySelector(".search-bar input");
+      input.focus();
+      const type = async (q) => {
+        const t0 = performance.now();
+        input.value = q;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        await __frame();
+        return performance.now() - t0;
+      };
+      await type("warm");
+      const out = [];
+      for (const q of ["l", "li", "lin", "link", "link 4", "link 4-1", "l"]) out.push(await type(q));
+      return out;
+    });
+    row.searchKeystrokeMs = r1(median(search));
+
+    // Each background at default settings: frame rate and main-thread share.
+    row.backgrounds = {};
+    for (const bg of ["bubbles", "fish", "mountains", "stratosphere", "bounce"]) {
+      await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+      await seed({ tabs: 9, linksPerTab: 40, groupsPerTab: 3, background: bg });
+      await cdp.send("Emulation.setCPUThrottlingRate", { rate });
+      await page.waitForTimeout(2500);
+      const before = await metrics();
+      const frames = await page.evaluate(async () => {
+        let n = 0;
+        let worst = 0;
+        let last = performance.now();
+        const end = last + 4000;
+        await new Promise((resolve) => {
+          const tick = (now) => {
+            n++;
+            worst = Math.max(worst, now - last);
+            last = now;
+            if (now < end) requestAnimationFrame(tick);
+            else resolve();
+          };
+          requestAnimationFrame(tick);
+        });
+        return { fps: n / 4, worst };
+      });
+      const after = await metrics();
+      row.backgrounds[bg] = {
+        fps: r1(frames.fps),
+        worstFrameMs: r1(frames.worst),
+        mainThreadPct: r1(((after.TaskDuration - before.TaskDuration) / 4) * 100),
+      };
+    }
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    results.devices[`${rate}x`] = row;
+    console.log("devices", `${rate}x`, JSON.stringify(row));
+  }
 }
 
 results.errors = [...new Set(errors)];
