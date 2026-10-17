@@ -1,0 +1,16 @@
+{
+  "id": "bubbles",
+  "name": "Bubbles",
+  "summary": "Rising bubbles that pop, with the odd fish trapped inside.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": {},
+  "entry": "bubbles.js",
+  "styles": [
+    "bubble-field.css",
+    "../fish/fish-field.css"
+  ],
+  "requires": [
+    "fish"
+  ]
+}

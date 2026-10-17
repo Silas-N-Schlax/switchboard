@@ -1,0 +1,8 @@
+{
+  "id": "search",
+  "name": "Search",
+  "summary": "Press s to filter every link across every tab, or search the web when nothing matches.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

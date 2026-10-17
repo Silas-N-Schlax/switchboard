@@ -1,0 +1,14 @@
+{
+  "id": "fish",
+  "name": "Ocean",
+  "summary": "Fish and sharks over a sea floor, under a surface with the odd rower, and a rare submarine.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": {},
+  "entry": "fish.js",
+  "styles": [
+    "fish-field.css",
+    "sea-floor.css",
+    "sea-surface.css"
+  ]
+}

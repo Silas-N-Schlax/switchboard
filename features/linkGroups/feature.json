@@ -1,0 +1,8 @@
+{
+  "id": "linkGroups",
+  "name": "Link groups",
+  "summary": "Split a busy tab into named groups shown side by side.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

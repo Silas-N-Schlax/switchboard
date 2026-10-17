@@ -1,0 +1,8 @@
+{
+  "id": "contextMenu",
+  "name": "Right-click menus",
+  "summary": "Right-click a link, tab or group (or press m) for more options.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

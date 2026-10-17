@@ -1,0 +1,22 @@
+[
+  "features/tabLinks",
+  "features/linkGroups",
+  "features/move",
+  "features/search",
+  "features/launchGroups",
+  "features/keybinds",
+  "features/cheatsheet",
+  "features/contextMenu",
+  "features/favicons",
+  "features/linkHealth",
+  "features/bookmarks",
+  "features/importExport",
+  "features/stats",
+  "features/settings",
+  "features/ambient",
+  "features/backgrounds/bubbles",
+  "features/backgrounds/stratosphere",
+  "features/backgrounds/mountains",
+  "features/backgrounds/fish",
+  "features/backgrounds/bounce"
+]

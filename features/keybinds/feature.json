@@ -1,0 +1,8 @@
+{
+  "id": "keybinds",
+  "name": "Custom shortcuts",
+  "summary": "Change, clear or add any app shortcut, and turn the keycap hints off.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

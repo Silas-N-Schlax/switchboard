@@ -1,0 +1,13 @@
+{
+  "id": "mountains",
+  "name": "Mountain lake",
+  "summary": "Clouds, birds and planes over a mountain lake, with the odd balloon and skydiver.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": {},
+  "entry": "mountains.js",
+  "styles": [
+    "sky-scene.css",
+    "mountain-scene.css"
+  ]
+}

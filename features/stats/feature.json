@@ -1,0 +1,8 @@
+{
+  "id": "stats",
+  "name": "Fun stats",
+  "summary": "Optionally records link opens, searches and more, locally, for recaps to come.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

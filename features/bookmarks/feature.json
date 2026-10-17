@@ -1,0 +1,8 @@
+{
+  "id": "bookmarks",
+  "name": "Bookmarks in and out",
+  "summary": "Import this browser's bookmarks or a bookmarks file, and export your tabs back to bookmarks.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

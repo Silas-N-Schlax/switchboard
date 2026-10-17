@@ -1,0 +1,12 @@
+{
+  "id": "stratosphere",
+  "name": "Stratosphere",
+  "summary": "Satellites and stars above a planet, with the odd space station, alien and shooting star.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": {},
+  "entry": "stratosphere.js",
+  "styles": [
+    "stratosphere-scene.css"
+  ]
+}
