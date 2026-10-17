@@ -193,11 +193,25 @@ export const defaultKeybinds = {
   "tab-rename": "Shift+R",
   "link-new": "n",
   "link-edit": "e",
-  "link-delete": "Meta+Backspace",
+  "link-delete": "Mod+Backspace",
   "link-copy-url": "Shift+C",
-  "link-open-new-tab": "Meta+Enter",
+  "link-open-new-tab": "Mod+Enter",
   "link-move-up": "Alt+↑",
   "link-move-down": "Alt+↓",
+  // Unbound until someone picks a key in Settings › Keybinds.
+  "tab-duplicate": null,
+  "tab-set-default": null,
+  "tab-clear": null,
+  "tab-delete": null,
+  "link-duplicate": null,
+  "link-move-new-group": null,
+  "link-move-main": null,
+  "group-rename": null,
+  "group-move-left": null,
+  "group-move-right": null,
+  "group-ungroup": null,
+  "link-launch-toggle": null,
+  "launch-group-clear": null,
 };
 
 // ============================================================================

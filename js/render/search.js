@@ -1,5 +1,6 @@
 import { searchLinks } from "../features/search/store.js";
 import { registerKeybind, getKeybind } from "../features/keybinds/registry.js";
+import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { activeTab, isHomeTab, setActiveTab, sortedTabs } from "../features/tabLinks/store.js";
 import {
   setSearchQuery,
@@ -34,7 +35,7 @@ function updateFallbackMode() {
 
 function updateHint() {
   const focused = document.activeElement === inputEl;
-  hintEl.textContent = focused ? "esc" : getKeybind("search-focus") ?? "";
+  hintEl.replaceChildren(...buildShortcutBadges(focused ? "esc" : getKeybind("search-focus")).children);
 }
 
 function build(container) {
@@ -50,7 +51,7 @@ function build(container) {
   inputEl.spellcheck = false;
 
   hintEl = document.createElement("span");
-  hintEl.className = "keybind-badge search-bar__hint";
+  hintEl.className = "shortcut-badges search-bar__hint";
 
   inputEl.addEventListener("input", () => {
     setSearchQuery(inputEl.value, searchLinks(inputEl.value));

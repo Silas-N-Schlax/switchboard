@@ -47,9 +47,10 @@ function linkGroupMenuItems(link, onChange) {
   const items = linkGroupsForTab(link.tabId)
     .filter((g) => g.id !== currentGroupId)
     .map((g) => ({ label: `Move to ${g.name}`, onSelect: moveTo(g.id) }));
-  if (currentGroupId) items.push({ label: "Move to main list", onSelect: moveTo(null) });
+  if (currentGroupId) items.push({ label: "Move to main list", hint: getKeybind("link-move-main"), onSelect: moveTo(null) });
   items.push({
     label: "Move to new group",
+    hint: getKeybind("link-move-new-group"),
     disabled: !canMoveLinkToNewGroup(link),
     onSelect: async () => {
       const group = await addLinkGroupWithLink(link.id);
@@ -79,6 +80,7 @@ function linkMenuItems(link, onChange) {
     },
     {
       label: link.launchGroup ? "Remove from launch group" : "Add to launch group",
+      hint: getKeybind("link-launch-toggle"),
       onSelect: async () => {
         await setLinkLaunchGroup(link.id, !link.launchGroup);
         onChange();
@@ -89,6 +91,7 @@ function linkMenuItems(link, onChange) {
     { divider: true },
     {
       label: "Duplicate",
+      hint: getKeybind("link-duplicate"),
       onSelect: async () => {
         await duplicateLink(link.id);
         onChange();
@@ -111,6 +114,7 @@ function defaultTabMenuItem(tab, onChange) {
   if (isExplicitDefaultTab(tab)) {
     return {
       label: "Remove as default",
+      hint: activeTabHint(tab, "tab-set-default"),
       onSelect: async () => {
         await setDefaultTab(null);
         onChange();
@@ -119,6 +123,7 @@ function defaultTabMenuItem(tab, onChange) {
   }
   return {
     label: "Set as default",
+    hint: activeTabHint(tab, "tab-set-default"),
     disabled: defaultTab()?.id === tab.id,
     onSelect: async () => {
       await setDefaultTab(isHomeTab(tab) ? null : tab.id);
@@ -154,6 +159,7 @@ function tabMenuItems(tab, onChange) {
     },
     {
       label: "Clear launch group",
+      hint: activeTabHint(tab, "launch-group-clear"),
       danger: true,
       disabled: !hasLaunchGroup(tab.id),
       onSelect: async () => {
@@ -164,6 +170,7 @@ function tabMenuItems(tab, onChange) {
     { divider: true },
     {
       label: "Duplicate",
+      hint: activeTabHint(tab, "tab-duplicate"),
       disabled: state.tabs.length >= maxTabs,
       onSelect: async () => {
         await duplicateTab(tab.id);
@@ -173,6 +180,7 @@ function tabMenuItems(tab, onChange) {
     { divider: true },
     {
       label: "Clear links…",
+      hint: activeTabHint(tab, "tab-clear"),
       danger: true,
       disabled: linksForTab(tab.id).length === 0,
       onSelect: async () => {
@@ -183,6 +191,7 @@ function tabMenuItems(tab, onChange) {
     },
     {
       label: "Delete",
+      hint: activeTabHint(tab, "tab-delete"),
       danger: true,
       disabled: state.tabs.length <= 1,
       onSelect: async () => {
@@ -238,6 +247,7 @@ function launchBarMenuItems(tab, onChange) {
     { divider: true },
     {
       label: "Clear launch group",
+      hint: getKeybind("launch-group-clear"),
       danger: true,
       onSelect: async () => {
         await clearLaunchGroup(tab.id);

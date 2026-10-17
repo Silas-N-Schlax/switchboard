@@ -20,7 +20,10 @@ your browser: no account, no cloud sync, no tracking.
   right away, though the address bar then shows the extension's own URL. You can turn
   this off, or have the search bar focused on open, in Settings → General.
 - **Shortcuts.** `1`–`9` switch tabs, and any link can get its own shortcut (including
-  modifier combos).
+  modifier combos). Every app shortcut can be changed, cleared, or added in
+  Settings → Keybinds → **Customize shortcuts**, including actions that start without a
+  key (duplicate or delete a tab, duplicate a link, move it to a new group, and more).
+  The keycap hints on tabs, links, the search bar and menus can be turned off there too.
 - **Launch groups.** Pick a few links on a tab and open them all at once with `l`.
 - **Ambient background.** Slowly drifting colors with a choice of bubbles, an ocean, a mountain scene, the stratosphere above it or a bouncing screensaver logo, plus presets and custom
   palettes. Respects your system's reduced-motion setting.
@@ -63,6 +66,9 @@ settings are kept.
 
 ## Keyboard shortcuts
 
+These are the defaults. Change any of them in Settings → Keybinds → **Customize
+shortcuts**; press `/` to see the keys currently in effect.
+
 | Key | Action |
 | --- | --- |
 | `1`–`9` | Switch tabs |
@@ -76,10 +82,10 @@ settings are kept.
 | `t` | Add a tab |
 | `Shift+R` | Rename this tab |
 | `e` | Edit the selected link |
-| `⌘+Backspace` | Delete the selected link |
+| `⌘+Backspace` (`Ctrl+Backspace` on Windows/Linux) | Delete the selected link |
 | `Shift+C` | Copy the selected link's URL |
-| `⌘+Enter` | Open the selected link in a new tab |
-| `Alt+↑` / `Alt+↓` | Move the selected link up or down |
+| `⌘+Enter` (`Ctrl+Enter` on Windows/Linux) | Open the selected link in a new tab |
+| `Alt+↑` / `Alt+↓` (`⌥` on Mac) | Move the selected link up or down |
 | `l` | Open this tab's launch group |
 | `Shift+L` | Edit the launch group |
 | `,` | Settings |

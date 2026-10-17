@@ -13,6 +13,7 @@ import { confirmTabDelete } from "../features/tabLinks/confirmTabDelete.js";
 import { registerTabSwitchKeybinds } from "../features/tabLinks/tabSwitchKeybinds.js";
 import { getRenamingTabId, endRenameTab } from "../features/tabLinks/renameState.js";
 import { getKeybind } from "../features/keybinds/registry.js";
+import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { maxTabs } from "../../defaults.js";
 
 function buildAddControl(onAdd) {
@@ -82,10 +83,7 @@ export function renderTabs(container, onChange) {
     }
     el.dataset.dragId = tab.id;
 
-    const badge = document.createElement("span");
-    badge.className = "keybind-badge";
-    badge.textContent =
-      index < maxTabs ? getKeybind(`tab-switch-${index + 1}`) ?? "" : "";
+    const badge = buildShortcutBadges(index < maxTabs ? getKeybind(`tab-switch-${index + 1}`) : null);
 
     const remove = document.createElement("button");
     remove.type = "button";

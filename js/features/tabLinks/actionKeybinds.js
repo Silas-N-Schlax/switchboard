@@ -9,7 +9,25 @@ import {
   addLink,
   linksInGroup,
   linkGroupIdOf,
+  linksForTab,
+  duplicateTab,
+  deleteTab,
+  clearTab,
+  isHomeTab,
+  isExplicitDefaultTab,
+  setDefaultTab,
+  duplicateLink,
 } from "./store.js";
+import { confirmTabDelete, confirmTabClear } from "./confirmTabDelete.js";
+import {
+  moveLinkToGroup,
+  addLinkGroupWithLink,
+  shiftLinkGroup,
+  ungroupLinkGroup,
+  beginRenameLinkGroup,
+} from "../linkGroups/index.js";
+import { hasLaunchGroup, setLinkLaunchGroup, clearLaunchGroup } from "../launchGroups/index.js";
+import { keybindLabel } from "../keybinds/catalog.js";
 import { beginRenameTab } from "./renameState.js";
 import { openAddLinkModal } from "./linkModal.js";
 import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl } from "./linkActions.js";
@@ -60,6 +78,15 @@ async function moveFocusedLink(delta, onChange) {
   await reorderLink(link.id, link.tabId, target);
   onChange();
   focusLink(link.id);
+}
+
+function hasGroupedFocusedLink() {
+  return hasMovableFocusedLink() && linkGroupIdOf(focusedLink()) !== null;
+}
+
+function focusedGroup() {
+  const groupId = linkGroupIdOf(focusedLink());
+  return state.linkGroups.find((g) => g.id === groupId) ?? null;
 }
 
 async function deleteFocusedLink(onChange) {
@@ -132,4 +159,91 @@ export function initActionKeybinds(onChange) {
     when: hasMovableFocusedLink,
     handler: () => moveFocusedLink(1, onChange),
   });
+
+  registerMenuActionKeybinds(onChange);
+}
+
+// Actions that otherwise live only in right-click menus. They ship unbound; Settings ›
+// Keybinds lets people give them keys.
+function registerMenuActionKeybinds(onChange) {
+  const bind = (id, options) => registerKeybind(id, { description: keybindLabel(id), ...options });
+  const withTab = (fn) => async () => {
+    const tab = activeTab();
+    if (tab) await fn(tab);
+  };
+  const withLink = (fn) => async () => {
+    const link = focusedLink();
+    await fn(link);
+    onChange();
+    focusLink(link.id);
+  };
+  const withGroup = (fn) => async () => {
+    const link = focusedLink();
+    await fn(focusedGroup());
+    onChange();
+    focusLink(link.id);
+  };
+
+  bind("tab-duplicate", {
+    handler: withTab(async (tab) => {
+      if (state.tabs.length >= maxTabs) return showToast(`You already have the most tabs (${maxTabs})`);
+      await duplicateTab(tab.id);
+      onChange();
+    }),
+  });
+  bind("tab-set-default", {
+    handler: withTab(async (tab) => {
+      const clearing = isExplicitDefaultTab(tab) || isHomeTab(tab);
+      await setDefaultTab(clearing ? null : tab.id);
+      onChange();
+      showToast(clearing ? "Tab 1 opens first again" : `“${tab.name}” opens first now`);
+    }),
+  });
+  bind("tab-clear", {
+    handler: withTab(async (tab) => {
+      if (!linksForTab(tab.id).length || !(await confirmTabClear(tab))) return;
+      await clearTab(tab.id);
+      onChange();
+    }),
+  });
+  bind("tab-delete", {
+    handler: withTab(async (tab) => {
+      if (state.tabs.length <= 1 || !(await confirmTabDelete(tab))) return;
+      await deleteTab(tab.id);
+      onChange();
+    }),
+  });
+
+  bind("link-duplicate", { when: hasMovableFocusedLink, handler: withLink((link) => duplicateLink(link.id)) });
+  bind("link-move-main", {
+    when: hasGroupedFocusedLink,
+    handler: withLink((link) => moveLinkToGroup(link.id, null)),
+  });
+  bind("link-move-new-group", {
+    when: hasMovableFocusedLink,
+    handler: async () => {
+      const group = await addLinkGroupWithLink(focusedLink().id);
+      if (group) beginRenameLinkGroup(group.id, onChange);
+      else showToast("This tab already has the most link groups");
+    },
+  });
+  bind("link-launch-toggle", {
+    when: hasFocusedLink,
+    handler: withLink((link) => setLinkLaunchGroup(link.id, !link.launchGroup)),
+  });
+  bind("launch-group-clear", {
+    handler: withTab(async (tab) => {
+      if (!hasLaunchGroup(tab.id)) return;
+      await clearLaunchGroup(tab.id);
+      onChange();
+    }),
+  });
+
+  bind("group-rename", {
+    when: hasGroupedFocusedLink,
+    handler: () => beginRenameLinkGroup(focusedGroup().id, onChange),
+  });
+  bind("group-move-left", { when: hasGroupedFocusedLink, handler: withGroup((g) => shiftLinkGroup(g.id, -1)) });
+  bind("group-move-right", { when: hasGroupedFocusedLink, handler: withGroup((g) => shiftLinkGroup(g.id, 1)) });
+  bind("group-ungroup", { when: hasGroupedFocusedLink, handler: withGroup((g) => ungroupLinkGroup(g.id)) });
 }

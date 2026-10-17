@@ -1,8 +1,13 @@
+/* "Show keyboard hints" off hides every keycap hint. The shortcuts sheet, the keybind
+   editor, and the link modal's shortcut field keep theirs: there the keys are the
+   content, not a hint. */
 .hide-keycap-hints {
   & .tab-dock .keybind-badge,
   & .search-bar__hint,
   & .launch-bar__hint,
-  & .link-list .shortcut-badges {
+  & .link-list .shortcut-badges,
+  & .context-menu .shortcut-badges,
+  & .dialog-hint {
     display: none;
   }
 }
