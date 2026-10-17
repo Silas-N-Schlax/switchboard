@@ -56,32 +56,7 @@ your browser: no account, no cloud sync, no tracking.
   (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because
   neither can be undone.
 
-## Install
-
-Switchboard isn't in a store yet, so you load it as an unpacked extension.
-
-1. Clone the repo somewhere permanent (your browser loads it from this folder):
-   ```
-   git clone https://github.com/Silas-N-Schlax/switchboard.git
-   ```
-2. Open your browser's extensions page: `brave://extensions`, `chrome://extensions`,
-   or `edge://extensions`.
-3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and select the `switchboard` folder.
-5. Open a new tab. If the browser asks whether to keep the extension's new tab page,
-   choose **Keep**.
-
-### Updating
-
-```
-cd switchboard
-git pull
-```
-
-Then click the reload icon on Switchboard in the extensions page. Your tabs, links, and
-settings are kept.
-
-### Brave notes
+## Brave notes
 
 - Changing Brave's theme can switch the extension off. If your new tab goes back to
   Brave's default, re-enable Switchboard on `brave://extensions`.
