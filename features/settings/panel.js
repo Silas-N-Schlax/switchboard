@@ -4,6 +4,7 @@ import { renderAmbient } from "../ambient/ambient.js";
 import { defaultAmbientSettings, feedbackUrl, interfaceFont, monoFont } from "../../defaults.js";
 import { applyDisplaySettings } from "./store.js";
 import { buildGeneralSection } from "./general-section.js";
+import { buildLayoutSection } from "../layout/section.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBackgroundSection } from "./background-section.js";
 import { buildStatsSection } from "./stats-section.js";
@@ -51,6 +52,7 @@ function buildPanel(backgrounds) {
   const { header, close } = buildDialogHeader({ title: "Settings", closeLabel: "Close settings" });
 
   const generalSection = buildGeneralSection(() => onSettingsChange());
+  const layoutSection = buildLayoutSection(() => onSettingsChange());
   const keybindsSection = buildKeybindsSection(() => onSettingsChange());
   const colorSection = buildColorSection();
   // Without any backgrounds (lite) there's nothing to pick, so the section is left out.
@@ -84,9 +86,16 @@ function buildPanel(backgrounds) {
   if (featureFolders.includes(releaseNotesFolder)) footer.append(buildReleaseNotesButton());
   footer.append(feedbackLink);
 
-  sections = [generalSection, keybindsSection, colorSection, backgroundSection, linksSection, statsSection, dataSection].filter(
-    Boolean
-  );
+  sections = [
+    generalSection,
+    layoutSection,
+    keybindsSection,
+    colorSection,
+    backgroundSection,
+    linksSection,
+    statsSection,
+    dataSection,
+  ].filter(Boolean);
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";

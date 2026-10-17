@@ -68,7 +68,8 @@ export const backgroundResizeSettleMs = 250;
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
 // Timed events (submarine, skydiver, ISS, alien craft) also scale with the rare-sight frequency.
-export const rareEventMeanIntervalMs = 90 * 60 * 1000; // at frequency 1
+// New tabs are open for seconds, so at 90 minutes almost nobody saw these.
+export const rareEventMeanIntervalMs = 30 * 60 * 1000; // at frequency 1
 export const rareEventRollMs = 15000;
 export const skydiveMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
 export const bubbleBaseSizeRange = { min: 40, max: 200 }; // px, before size multiplier
@@ -158,7 +159,12 @@ export const backgroundStyleDefaults = {
 // ============================================================================
 // Tabs & links
 // ============================================================================
-export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: "1" }];
+// Home starts as just the search bar (showHomeLinks), so Links gives new installs an
+// obvious place to put links.
+export const defaultTabs = [
+  { id: "tab-1", name: "Home", order: 0, shortcutKey: "1" },
+  { id: "tab-2", name: "Links", order: 1, shortcutKey: "2" },
+];
 export const defaultLinks = [];
 export const defaultLinkGroups = [];
 export const linkGroupLimit = 3;
@@ -228,14 +234,17 @@ export const defaultKeybinds = {
 // ============================================================================
 // Search
 // ============================================================================
+// "browser" has no URL: it hands the query to the browser's own default engine through
+// chrome.search, which needs the "search" permission (no install warning).
 export const searchEngines = [
+  { id: "browser", name: "Browser default" },
   { id: "google", name: "Google", url: "https://www.google.com/search?q=" },
   { id: "duckduckgo", name: "DuckDuckGo", url: "https://duckduckgo.com/?q=" },
   { id: "bing", name: "Bing", url: "https://www.bing.com/search?q=" },
   { id: "kagi", name: "Kagi", url: "https://kagi.com/search?q=" },
   { id: "brave", name: "Brave Search", url: "https://search.brave.com/search?q=" },
 ];
-export const searchEngineId = "google";
+export const searchEngineId = "browser";
 // Search shows the best matches only; drawing thousands of rows made each keystroke slow.
 export const searchResultLimit = 50;
 
@@ -291,6 +300,17 @@ export const showKeycapHints = true;
 export const focusPageOnOpen = true;
 // Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
 export const focusSearchOnOpen = false;
+// Settings › Layout. Off for Links on the home tab leaves the home tab (slot 1) as just the
+// search bar; core/migrations/homeLinks.js turns it on for anyone who already keeps links there.
+export const showHomeLinks = false;
+export const showAddLinkButton = true;
+// Off hides the tab dock and shows only the home tab; other tabs keep their links.
+export const showTabs = true;
+// Off hides the search bar until the search key brings it up.
+export const showSearchBar = true;
+// Off hides every clickable control that isn't a link: the corner buttons, the tab dock's
+// + and ×, each link's ×, and the Add link tile.
+export const showButtons = true;
 export const clearTabPhrase = "clear links";
 export const clearEverythingPhrase = "clear everything";
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
@@ -323,6 +343,13 @@ export const defaultSettings = {
   linkGroupLimit,
   showFullUrl,
   openLinksInNewTab,
+  showHomeLinks,
+  showAddLinkButton,
+  showTabs,
+  showSearchBar,
+  showButtons,
+  // Set once the "how to reach Settings" notice has shown, the first time Buttons goes off.
+  buttonsOffNoticeShown: false,
   ambientMode: defaultAmbientSettings,
   colorLibrary,
   backgroundConfig: { mode: "ambient" },

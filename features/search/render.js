@@ -12,21 +12,29 @@ import {
 import { highlightActiveSearchRow } from "../tabLinks/renderLinks.js";
 import { searchEngines } from "../../defaults.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../stats/recorder.js";
-import { openUrl } from "../tabLinks/openUrl.js";
+import { openUrl, opensInNewTab } from "../tabLinks/openUrl.js";
 import { state } from "../../core/state.js";
 
+const hasSearchApi = typeof chrome !== "undefined" && !!chrome.search?.query;
+
 function searchEngine() {
-  return searchEngines.find((e) => e.id === state.settings.searchEngineId) ?? searchEngines[0];
+  const engine = searchEngines.find((e) => e.id === state.settings.searchEngineId) ?? searchEngines[0];
+  // Served outside the extension (for UI work) there's no browser engine to hand off to.
+  return engine.url || hasSearchApi ? engine : searchEngines.find((e) => e.url);
 }
 
-function webSearchUrl(query) {
-  return searchEngine().url + encodeURIComponent(query);
+function searchWeb(query) {
+  const engine = searchEngine();
+  if (engine.url) return openUrl(engine.url + encodeURIComponent(query));
+  return chrome.search.query({ text: query, disposition: opensInNewTab() ? "NEW_TAB" : "CURRENT_TAB" });
 }
 
 let barEl = null;
 let inputEl = null;
 let hintEl = null;
 let onChangeRef = null;
+// With the Search bar switch off, the search key brings the bar up until Esc or blur.
+let summoned = false;
 
 function updateFallbackMode() {
   const query = inputEl.value.trim();
@@ -72,7 +80,7 @@ function build(container) {
         openUrl(active.link.url);
       } else {
         await recordEvent(StatEvent.search, { outcome: "web", engine: searchEngine().id });
-        openUrl(webSearchUrl(query));
+        searchWeb(query);
       }
     } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && getSearchMatches().length) {
       e.preventDefault();
@@ -90,15 +98,25 @@ function build(container) {
   });
 
   inputEl.addEventListener("focus", updateHint);
-  inputEl.addEventListener("blur", updateHint);
+  inputEl.addEventListener("blur", (e) => {
+    updateHint();
+    // Moving into the results (arrow keys, Tab) keeps a summoned bar up.
+    if (!summoned || e.relatedTarget?.closest?.(".link-list")) return;
+    summoned = false;
+    if (state.settings.showSearchBar) return;
+    inputEl.value = "";
+    clearSearchQuery();
+    updateFallbackMode();
+    onChangeRef?.();
+  });
 
   registerKeybind("search-focus", {
     description: "Focus search",
     handler: () => {
-      if (!isHomeTab(activeTab())) {
-        setActiveTab(sortedTabs()[0]?.id, "search");
-        onChangeRef?.();
-      }
+      const hidden = !isHomeTab(activeTab()) || !state.settings.showSearchBar;
+      summoned = true;
+      if (!isHomeTab(activeTab())) setActiveTab(sortedTabs()[0]?.id, "search");
+      if (hidden) onChangeRef?.();
       inputEl.focus();
       inputEl.select();
     },
@@ -117,5 +135,5 @@ export function renderSearch(container, onChange) {
   if (!barEl) build(container);
   updateHint();
   barEl.style.setProperty("--search-fallback-border", state.settings.searchFallbackColor);
-  barEl.classList.toggle("search-bar--hidden", !isHomeTab(activeTab()));
+  barEl.classList.toggle("search-bar--hidden", !isHomeTab(activeTab()) || (!state.settings.showSearchBar && !summoned));
 }

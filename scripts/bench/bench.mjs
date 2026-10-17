@@ -98,6 +98,8 @@ async function seed({ tabs, linksPerTab, groupsPerTab = 0, background = "none", 
       const settings = current.settings;
       settings.statsEnabled = statsEnabled;
       settings.focusSearchOnOpen = false;
+      // Load times are measured on the home tab, so it shows its links as it did before Layout.
+      settings.showHomeLinks = true;
       settings.ambientMode.backgroundType = background;
       settings.ambientMode.backgroundStyles[background] = { ...settings.ambientMode.backgroundStyles[background], ...style };
       const data = { schemaVersion: current.schemaVersion, tabs: T, links: L, linkGroups: G, settings };

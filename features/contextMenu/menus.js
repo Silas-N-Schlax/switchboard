@@ -13,6 +13,7 @@ import {
   activeTab,
   linksForTab,
   isHomeTab,
+  tabTakesLinks,
   defaultTab,
   isExplicitDefaultTab,
   setDefaultTab,
@@ -34,7 +35,7 @@ import {
   clearLaunchGroup,
   openLaunchGroupEditor,
 } from "../launchGroups/index.js";
-import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl } from "../tabLinks/linkActions.js";
+import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl, startAddLink } from "../tabLinks/linkActions.js";
 import { beginRenameTab } from "../tabLinks/renameState.js";
 import { maxTabs } from "../../defaults.js";
 import { openMoveLinkDialog, openMoveGroupDialog } from "../move/moveDialog.js";
@@ -260,8 +261,14 @@ function launchBarMenuItems(tab, onChange) {
   ];
 }
 
-function defaultMenuItems() {
+// Add link stays here even with the Add link button or Buttons switched off, so the mouse
+// always has a way to add one.
+function defaultMenuItems(onChange) {
+  const addLink = tabTakesLinks(activeTab())
+    ? [{ label: "Add link", hint: getKeybind("link-new"), onSelect: () => startAddLink(onChange) }, { divider: true }]
+    : [];
   return [
+    ...addLink,
     { label: "Settings", hint: getKeybind("settings-open"), onSelect: () => openSettings(document.body) },
     {
       label: "Keyboard shortcuts",
@@ -297,7 +304,7 @@ function resolveMenuItems(target, onChange) {
     if (tab) return tabMenuItems(tab, onChange);
   }
 
-  return defaultMenuItems();
+  return defaultMenuItems(onChange);
 }
 
 // Opens under the focused item, or near the top middle when nothing is focused.

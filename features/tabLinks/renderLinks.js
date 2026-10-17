@@ -2,7 +2,7 @@ import {
   linksInGroup,
   activeTab,
   isHomeTab,
-  addLink,
+  tabTakesLinks,
   deleteLink,
   reorderLink,
   displayHost,
@@ -12,7 +12,7 @@ import {
 import { longLinkListThreshold } from "../../defaults.js";
 import { openUrl } from "./openUrl.js";
 import { makeSortable } from "./sortable.js";
-import { openAddLinkModal } from "./linkModal.js";
+import { startAddLink } from "./linkActions.js";
 import { getSearchQuery, getSearchMatches, getShownMatches, getActiveMatchIndex } from "../search/state.js";
 import { buildShortcutBadges } from "../../shared/keybinds/shortcutBadges.js";
 import { getKeybind } from "../../shared/keybinds/registry.js";
@@ -275,15 +275,16 @@ export function renderLinks(container, onChange) {
 
   const home = isHomeTab(tab);
   const searching = home && getSearchQuery().trim().length > 0;
+  const showsOwnLinks = !searching && tabTakesLinks(tab);
   const shownMatches = searching ? getShownMatches() : [];
   const tabNameByLinkId = searching ? new Map(shownMatches.map((m) => [m.link.id, m.tabName])) : null;
 
-  const links = searching ? shownMatches.map((m) => m.link) : linksInGroup(tab.id, null);
+  const links = searching ? shownMatches.map((m) => m.link) : showsOwnLinks ? linksInGroup(tab.id, null) : [];
   const splitThreshold = state.settings.linkListSplitThreshold;
   list.classList.toggle("link-list--split", splitThreshold !== null && links.length >= splitThreshold);
   list.classList.toggle("link-list--long", !searching && linksForTab(tab.id).length >= longLinkListThreshold);
 
-  const launchBar = searching ? null : buildLaunchBar(tab);
+  const launchBar = showsOwnLinks ? buildLaunchBar(tab) : null;
   if (launchBar) list.appendChild(launchBar);
   const launchIndexById = searching
     ? new Map()
@@ -310,23 +311,16 @@ export function renderLinks(container, onChange) {
     highlightActiveSearchRow({ scroll: false });
   }
 
-  if (!home) {
+  if (showsOwnLinks && state.settings.showAddLinkButton && state.settings.showButtons) {
     const addTile = document.createElement("button");
     addTile.type = "button";
     addTile.className = "link-list__add-tile";
     addTile.textContent = "+ Add link";
-    addTile.addEventListener("click", () => {
-      openAddLinkModal(document.body, async ({ label, url, shortcutKey }) => {
-        const currentTab = activeTab();
-        if (!currentTab) return;
-        await addLink(currentTab.id, { label, url, shortcutKey });
-        onChange();
-      });
-    });
+    addTile.addEventListener("click", () => startAddLink(onChange));
     list.appendChild(addTile);
   }
 
-  const groups = searching ? [] : linkGroupsForTab(tab.id);
+  const groups = showsOwnLinks ? linkGroupsForTab(tab.id) : [];
   if (groups.length) {
     const row = document.createElement("div");
     row.className = "link-groups";

@@ -60,13 +60,20 @@ export function pruneEmptyLinkGroups() {
 }
 
 export function activeTab() {
+  // With Tabs off (Settings › Layout) Switchboard is a single page: the home tab.
+  if (!state.settings.showTabs) return sortedTabs()[0] ?? null;
   return state.tabs.find((t) => t.id === state.activeTabId) ?? sortedTabs()[0] ?? null;
 }
 
 // The tab in slot 1 (keybind "1") doubles as the search-first home view — see
-// features/search/render.js and the "no add-link tile" guard in features/tabLinks/renderLinks.js.
+// features/search/render.js and tabTakesLinks below.
 export function isHomeTab(tab) {
   return !!tab && sortedTabs()[0]?.id === tab.id;
+}
+
+// Home only shows and takes links of its own while Links on the home tab is on.
+export function tabTakesLinks(tab) {
+  return !!tab && (!isHomeTab(tab) || state.settings.showHomeLinks);
 }
 
 // Null (or a deleted tab's id) falls back to slot 1, so slot 1 is the default until

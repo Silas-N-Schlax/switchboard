@@ -1,6 +1,6 @@
 import { state } from "../../core/state.js";
 import { openDialog } from "../../shared/dialog/confirm.js";
-import { sortedTabs, linkGroupIdOf, linksInGroup } from "../tabLinks/store.js";
+import { sortedTabs, linkGroupIdOf, linksInGroup, tabTakesLinks } from "../tabLinks/store.js";
 import {
   linkGroupsForTab,
   canAddLinkGroup,
@@ -121,7 +121,12 @@ export async function openMoveLinkDialog(link, onChange) {
       fields.append(tab.row, place.row, name.row, position.row);
 
       tab.setOptions(
-        sortedTabs().map((t) => ({ value: t.id, label: t.id === link.tabId ? `${t.name} (current)` : t.name })),
+        sortedTabs().map((t) => {
+          if (t.id === link.tabId) return { value: t.id, label: `${t.name} (current)` };
+          // Home while Links on the home tab is off: a link sent there would be hidden.
+          if (!tabTakesLinks(t)) return { value: t.id, label: `${t.name} (links off)`, disabled: true };
+          return { value: t.id, label: t.name };
+        }),
         current.tabId
       );
       position.setOptions(
@@ -200,6 +205,7 @@ export async function openMoveGroupDialog(group, onChange) {
       tab.setOptions(
         sortedTabs().map((t) => {
           if (t.id === group.tabId) return { value: t.id, label: `${t.name} (current)` };
+          if (!tabTakesLinks(t)) return { value: t.id, label: `${t.name} (links off)`, disabled: true };
           const full = !canMoveLinkGroupTo(group, t.id);
           return { value: t.id, label: full ? `${t.name} (full)` : t.name, disabled: full };
         }),
