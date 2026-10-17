@@ -2,7 +2,10 @@
 # zips, creates the v<version> tag and GitHub release with them attached, and sends each zip
 # to its Chrome Web Store listing for review. Nothing happens if that version's tag already
 # exists, and a listing is skipped until its extension id is set as a repo variable.
-# The whole workflow stays off until the repo variable DEPLOY_ENABLED is set to true.
+# Deploying stays off until the repo variable DEPLOY_ENABLED is set to true.
+#
+# Running the workflow by hand (Actions → Deploy → Run workflow) only builds both zips and
+# attaches them to the run as an artifact: no tag, release or store upload.
 #
 # Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
 # Repo variables: DEPLOY_ENABLED, CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
@@ -12,13 +15,32 @@ on:
   push:
     branches: [main]
     paths: [manifest.json]
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  build:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the zips
+        run: node scripts/package.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: switchboard-zips
+          path: dist/*.zip
+
   deploy:
-    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

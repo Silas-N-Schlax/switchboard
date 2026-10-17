@@ -44,7 +44,10 @@ Deploy workflow:
    notes, with both zips attached
 3. submits each zip to its Chrome Web Store listing for review
 
-It does nothing until these are set in the repo settings:
+To get both zips without releasing anything, run the workflow by hand (Actions → Deploy →
+Run workflow). That only builds them and attaches them to the run.
+
+Deploying does nothing until these are set in the repo settings:
 - **Variables:** `DEPLOY_ENABLED` set to `true`, then `CWS_EXTENSION_ID` and
   `CWS_LITE_EXTENSION_ID`. A listing is skipped while its ID is unset.
 - **Secrets:** `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`, `CWS_PUBLISHER_ID`.
