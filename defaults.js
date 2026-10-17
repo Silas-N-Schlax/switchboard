@@ -151,6 +151,7 @@ export const backgroundStyleDefaults = {
     issFrequency: 1,
     planet: "earth",
     shootingStars: true,
+    twinklingStars: true,
   },
 };
 

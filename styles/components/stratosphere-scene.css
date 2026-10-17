@@ -40,6 +40,10 @@
     animation: starTwinkle var(--twinkle-duration, 5s) ease-in-out infinite alternate;
   }
 
+  .stratosphere-scene__stars--still .stratosphere-scene__star-group {
+    animation: none;
+  }
+
   /* Height matches BAND_ASPECT and BAND_MIN_VH in js/render/backgrounds/stratosphere.js. */
   .stratosphere-scene__world {
     position: absolute;

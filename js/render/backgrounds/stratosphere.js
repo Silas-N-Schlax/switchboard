@@ -60,7 +60,7 @@ function starShadow({ x, y, size, opacity }) {
   return `${across.start + spread}px ${down.start + spread}px 0 ${spread}px ${color}`;
 }
 
-function buildStars() {
+function buildStars({ twinkle = true } = {}) {
   const random = seededRandom(STAR_SEED);
   const groups = Array.from({ length: TWINKLE_GROUPS }, () => []);
   for (let i = 0; i < starCount; i++) {
@@ -77,6 +77,7 @@ function buildStars() {
   const timing = seededRandom(STAR_SEED + 1);
   const field = document.createElement("div");
   field.className = "stratosphere-scene__stars";
+  if (!twinkle) field.classList.add("stratosphere-scene__stars--still");
   for (const stars of groups.filter((g) => g.length)) {
     const el = document.createElement("div");
     el.className = "stratosphere-scene__star-group";
@@ -190,7 +191,12 @@ export const stratosphere = {
       options: [...planetTypes.map(({ id, label }) => ({ value: id, label })), { value: "none", label: "None" }],
     },
   ],
-  toggles: [{ key: "shootingStars", label: "Shooting stars" }],
+  // Twinkling is most of this scene's cost on slow machines, so it can be turned off;
+  // the stars stay, just still.
+  toggles: [
+    { key: "twinklingStars", label: "Twinkling stars" },
+    { key: "shootingStars", label: "Shooting stars" },
+  ],
   create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
     const scale = sizeMultiplier / stratosphereDefaultSize;
     // Open space above the planet, in vh.
@@ -202,7 +208,7 @@ export const stratosphere = {
     scene.className = "stratosphere-scene";
     const space = document.createElement("div");
     space.className = "stratosphere-scene__space";
-    scene.append(space, buildStars());
+    scene.append(space, buildStars({ twinkle: settings.twinklingStars !== false }));
     if (planetOn) scene.appendChild(buildPlanet(settings.planet, speedMultiplier));
     container.appendChild(scene);
 
