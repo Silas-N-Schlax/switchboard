@@ -139,12 +139,13 @@ if (want("app")) {
     await seed(set);
     const bytes = await page.evaluate(async () => chrome.storage.local.getBytesInUse(null));
 
-    // Cold loads: navigation start to the first link row painted.
+    // Cold loads: navigation start to the first link row existing, read in the page.
+    // (Waiting for a frame here would round every result to the frame rate.)
     const loads = [];
     for (let i = 0; i < 5; i++) {
-      await page.goto(url);
+      await page.goto(url, { waitUntil: "commit" });
       await page.waitForSelector(".link-list__row, .link-list__add-tile");
-      loads.push(await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r(performance.now())))));
+      loads.push(await page.evaluate(() => performance.now()));
     }
     await page.evaluate(inPageHelpers);
     await gc();
