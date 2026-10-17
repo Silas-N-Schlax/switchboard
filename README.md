@@ -107,9 +107,8 @@ Find icons in your history) is only used locally to find icons for links you've 
 
 ## Feedback
 
-- Bugs and feature requests: [open an issue](https://github.com/Silas-N-Schlax/switchboard/issues)
-- Quick thoughts: the **Send feedback** link at the bottom of Settings, or
-  [this form](https://forms.gle/23ozsD4amrUqTjGe7)
+Bugs, feature requests and quick thoughts all go through the **Send feedback** link at
+the bottom of Settings, or [this form](https://forms.gle/23ozsD4amrUqTjGe7).
 
 When reporting a bug, it helps to include your browser and version, and what you
 expected versus what happened.
