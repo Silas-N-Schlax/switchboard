@@ -3,14 +3,6 @@
 @import url("../../shared/dialog/dialog.css");
 @import url("../../shared/dialog/dialog-close.css");
 @import url("../../features/ambient/ambient-bg.css");
-@import url("../../features/backgrounds/bounce/bounce-field.css");
-@import url("../../features/backgrounds/bubbles/bubble-field.css");
-@import url("../../features/backgrounds/fish/fish-field.css");
-@import url("../../features/backgrounds/fish/sea-floor.css");
-@import url("../../features/backgrounds/fish/sea-surface.css");
-@import url("../../features/backgrounds/mountains/sky-scene.css");
-@import url("../../features/backgrounds/mountains/mountain-scene.css");
-@import url("../../features/backgrounds/stratosphere/stratosphere-scene.css");
 @import url("../../features/settings/settings-toggle.css");
 @import url("../../features/settings/settings-panel.css");
 @import url("../../features/cheatsheet/help-toggle.css");

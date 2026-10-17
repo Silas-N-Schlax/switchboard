@@ -1,5 +1,4 @@
-// "Background" section: a style picker (one option per entry in the backgrounds
-// registry) plus count/size/speed sliders. Each style keeps its own slider values,
+// "Background" section: a style picker (one option per background this build ships) plus count/size/speed sliders. Each style keeps its own slider values,
 // declares which sliders apply via its `controls`, and may add its own `frequencySliders` (rare
 // sight frequency), on/off `toggles` and option `selects`, shown only while it's picked. Count is
 // floored above 0 (backgroundCountMin, or the style's own countMin) so only picking "None" removes the effect.
@@ -7,7 +6,6 @@
 import { ambientMode, backgroundStyle, updateAmbient, updateBackgroundStyle } from "./store.js";
 import { buildRow, buildRange, buildSelect, buildToggleSwitch } from "../../shared/controls/controls.js";
 import { buildDialogGroup } from "../../shared/dialog/chrome.js";
-import { backgrounds, findBackground } from "../backgrounds/index.js";
 import {
   backgroundCountMin,
   backgroundCountMax,
@@ -30,7 +28,9 @@ function updateActiveStyle(partial) {
   return updateBackgroundStyle(activeStyleId(), partial);
 }
 
-export function buildBackgroundSection() {
+export function buildBackgroundSection(backgrounds) {
+  const findBackground = (id) => backgrounds.find((background) => background.id === id) ?? backgrounds.at(-1);
+
   const ranges = {
     count: buildRange({
       min: backgroundCountMin,

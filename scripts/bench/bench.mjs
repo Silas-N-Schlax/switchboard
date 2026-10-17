@@ -186,13 +186,16 @@ if (want("app")) {
 
     // Settings panel open / close, and the shortcuts sheet.
     const dialogs = await page.evaluate(async () => {
-      const t = async (fn) => {
+      // `until` keeps waiting frames for dialogs that open asynchronously (settings loads the
+      // backgrounds list the first time it opens).
+      const t = async (fn, until = () => true) => {
         const t0 = performance.now();
         fn();
-        await __frame();
+        do await __frame();
+        while (!until());
         return performance.now() - t0;
       };
-      const settingsOpen = await t(() => __key(","));
+      const settingsOpen = await t(() => __key(","), () => document.querySelector(".settings-panel--open"));
       const settingsClose = await t(() => __key("Escape", {}, document.querySelector(".settings-panel__dialog") ?? document.body));
       const sheetOpen = await t(() => __key("/"));
       const sheetClose = await t(() => __key("Escape", {}, document.activeElement ?? document.body));

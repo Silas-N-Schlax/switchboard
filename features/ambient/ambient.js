@@ -13,7 +13,7 @@ import {
   backgroundStyleDefaults,
   backgroundResizeSettleMs,
 } from "../../defaults.js";
-import { findBackground } from "../backgrounds/index.js";
+import { loadBackground } from "../backgrounds/index.js";
 
 export function resolveColors(ambientMode = {}, importedPalettes = []) {
   const paletteId = ambientMode.paletteId ?? ambientPaletteId;
@@ -105,12 +105,6 @@ export function renderAmbient(root = document.body, settings = {}) {
   const colors = resolveColors(ambientMode, settings.colorLibrary?.files?.flatMap((file) => file.palettes));
   const colorCycleEnabled = ambientMode.colorCycleEnabled ?? ambientColorCycleEnabled;
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
-  const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);
-
-  const style = { ...backgroundStyleDefaults[background.id], ...ambientMode.backgroundStyles?.[background.id] };
-  const count = Math.max(background.countMin ?? backgroundCountMin, style.count ?? backgroundCountMin);
-  const sizeMultiplier = clamp(style.size ?? 1, backgroundSizeMin, 1);
-  const speedMultiplier = clamp(style.speed ?? 1, backgroundSpeedMin, backgroundSpeedMax);
 
   // Re-rendering (settings changed) replaces the previous background in place.
   document.querySelector(".ambient-bg")?.remove();
@@ -123,7 +117,16 @@ export function renderAmbient(root = document.body, settings = {}) {
   skyLayer.className = "ambient-bg__sky";
   container.appendChild(skyLayer);
 
-  background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style, colors });
+  // Once a background has loaded this resolves before the next paint, so re-rendering on a
+  // settings change doesn't flash an empty sky.
+  loadBackground(ambientMode.backgroundType ?? defaultBackgroundType).then((background) => {
+    if (myGeneration !== renderGeneration) return; // superseded by a newer render
+    const style = { ...backgroundStyleDefaults[background.id], ...ambientMode.backgroundStyles?.[background.id] };
+    const count = Math.max(background.countMin ?? backgroundCountMin, style.count ?? backgroundCountMin);
+    const sizeMultiplier = clamp(style.size ?? 1, backgroundSizeMin, 1);
+    const speedMultiplier = clamp(style.speed ?? 1, backgroundSpeedMin, backgroundSpeedMax);
+    background.create?.(container, { count, sizeMultiplier, speedMultiplier, settings: style, colors });
+  });
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 

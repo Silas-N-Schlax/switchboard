@@ -13,13 +13,15 @@ import { buildKeybindsSection } from "./keybinds-section.js";
 import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../../shared/keybinds/registry.js";
 import { buildDialogHeader } from "../../shared/dialog/chrome.js";
+import { hasBackgrounds, loadBackgrounds } from "../backgrounds/index.js";
 
 let panelEl = null;
 let returnFocusEl = null;
 let onSettingsChange = () => {};
 let sections = [];
+let panelReady = null;
 
-function buildPanel() {
+function buildPanel(backgrounds) {
   const panel = document.createElement("div");
   panel.className = "settings-panel";
 
@@ -35,7 +37,8 @@ function buildPanel() {
   const generalSection = buildGeneralSection(() => onSettingsChange());
   const keybindsSection = buildKeybindsSection(() => onSettingsChange());
   const colorSection = buildColorSection();
-  const backgroundSection = buildBackgroundSection();
+  // Without any backgrounds (lite) there's nothing to pick, so the section is left out.
+  const backgroundSection = hasBackgrounds ? buildBackgroundSection(backgrounds) : null;
   const linksSection = buildLinksSection(() => onSettingsChange());
   const statsSection = buildStatsSection();
   const dataSection = buildDataSection(() => onSettingsChange());
@@ -53,7 +56,7 @@ function buildPanel() {
     applyDisplaySettings();
     generalSection.refresh();
     colorSection.refresh();
-    backgroundSection.refresh();
+    backgroundSection?.refresh();
   });
   const feedbackLink = document.createElement("a");
   feedbackLink.className = "settings-panel__feedback";
@@ -63,7 +66,9 @@ function buildPanel() {
   feedbackLink.textContent = "Send feedback ↗";
   footer.append(resetButton, feedbackLink);
 
-  sections = [generalSection, keybindsSection, colorSection, backgroundSection, linksSection, statsSection, dataSection];
+  sections = [generalSection, keybindsSection, colorSection, backgroundSection, linksSection, statsSection, dataSection].filter(
+    Boolean
+  );
 
   const body = document.createElement("div");
   body.className = "dialog__body custom-scrollbar";
@@ -104,11 +109,14 @@ export function closeSettings() {
   returnFocusEl = null;
 }
 
-export function openSettings(root = document.body) {
-  if (!panelEl) {
-    panelEl = buildPanel();
+// The background picker needs every background's controls, so they load the first time the
+// panel opens rather than on every new tab.
+export async function openSettings(root = document.body) {
+  panelReady ??= loadBackgrounds().then((backgrounds) => {
+    panelEl = buildPanel(backgrounds);
     root.appendChild(panelEl);
-  }
+  });
+  await panelReady;
   if (isOpen()) return;
   returnFocusEl = document.activeElement;
   sections.forEach((section) => section.refresh?.());
