@@ -85,8 +85,14 @@ export function buildSelect({ options, value, onChange }) {
   select.className = "select-input";
   let currentOptions = [];
 
+  // Settings refreshes every select each time it opens; options only get rebuilt when
+  // they actually changed, so opening Settings doesn't throw away and recreate them.
   function setOptions(nextOptions, nextValue) {
+    const same =
+      nextOptions.length === currentOptions.length &&
+      nextOptions.every((option, i) => option.value === currentOptions[i].value && option.label === currentOptions[i].label);
     currentOptions = nextOptions;
+    if (same) return setValue(nextValue);
     select.replaceChildren(
       ...nextOptions.map((option, index) => {
         const el = document.createElement("option");
