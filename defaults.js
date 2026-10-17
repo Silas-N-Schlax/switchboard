@@ -232,6 +232,8 @@ export const searchEngines = [
   { id: "brave", name: "Brave Search", url: "https://search.brave.com/search?q=" },
 ];
 export const searchEngineId = "google";
+// Search shows the best matches only; drawing thousands of rows made each keystroke slow.
+export const searchResultLimit = 50;
 
 // Fonts. Exchange and Patchcord only cover basic Latin, so each stack falls back to the
 // bundled Manrope or IBM Plex Mono for symbols like "…" and arrows.

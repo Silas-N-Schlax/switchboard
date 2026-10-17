@@ -11,7 +11,7 @@ import {
 import { openUrl } from "../features/tabLinks/openUrl.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
-import { getSearchQuery, getSearchMatches, getActiveMatchIndex } from "../features/search/state.js";
+import { getSearchQuery, getSearchMatches, getShownMatches, getActiveMatchIndex } from "../features/search/state.js";
 import { buildShortcutBadges } from "../features/keybinds/shortcutBadges.js";
 import { getKeybind } from "../features/keybinds/registry.js";
 import { launchGroup, launchGroupLinks } from "../features/launchGroups/index.js";
@@ -249,11 +249,13 @@ function buildLinkGroup(group, tab, launchIndexById, onChange) {
   return section;
 }
 
-export function highlightActiveSearchRow() {
+// Scrolling forces a layout of the whole list, so it only happens when the arrow keys
+// move the active row, not on every keystroke's re-render (which always starts at the top).
+export function highlightActiveSearchRow({ scroll = true } = {}) {
   const rows = document.querySelectorAll(".link-list .link-list__row--static");
   const index = getActiveMatchIndex();
   rows.forEach((row, i) => row.classList.toggle("link-list__row--active", i === index));
-  rows[index]?.scrollIntoView({ block: "nearest" });
+  if (scroll) rows[index]?.scrollIntoView({ block: "nearest" });
 }
 
 export function renderLinks(container, onChange) {
@@ -271,11 +273,10 @@ export function renderLinks(container, onChange) {
 
   const home = isHomeTab(tab);
   const searching = home && getSearchQuery().trim().length > 0;
-  const tabNameByLinkId = searching
-    ? new Map(getSearchMatches().map((m) => [m.link.id, m.tabName]))
-    : null;
+  const shownMatches = searching ? getShownMatches() : [];
+  const tabNameByLinkId = searching ? new Map(shownMatches.map((m) => [m.link.id, m.tabName])) : null;
 
-  const links = searching ? getSearchMatches().map((m) => m.link) : linksInGroup(tab.id, null);
+  const links = searching ? shownMatches.map((m) => m.link) : linksInGroup(tab.id, null);
   const splitThreshold = state.settings.linkListSplitThreshold;
   list.classList.toggle("link-list--split", splitThreshold !== null && links.length >= splitThreshold);
 
@@ -295,7 +296,16 @@ export function renderLinks(container, onChange) {
       })
     );
   });
-  if (searching) highlightActiveSearchRow();
+  if (searching) {
+    const hidden = getSearchMatches().length - shownMatches.length;
+    if (hidden > 0) {
+      const more = document.createElement("p");
+      more.className = "link-list__more";
+      more.textContent = `${hidden.toLocaleString()} more ${hidden === 1 ? "match" : "matches"}. Keep typing to narrow it down.`;
+      list.appendChild(more);
+    }
+    highlightActiveSearchRow({ scroll: false });
+  }
 
   if (!home) {
     const addTile = document.createElement("button");
