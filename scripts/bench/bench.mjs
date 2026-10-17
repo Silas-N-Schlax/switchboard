@@ -5,6 +5,7 @@
 import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { performance } from "node:perf_hooks";
 
 // EXT points at another checkout (say, a worktree of main) to benchmark that build instead.
 const ext = process.env.EXT || fileURLToPath(new URL("../../", import.meta.url));
@@ -419,16 +420,17 @@ if (want("stress")) {
 if (want("startup")) {
   results.startup = {};
   const base = url.replace("?focus", "");
+  // Wall clock from asking for the page to the tab dock existing, the thrown-away redirect
+  // page included. Waiting on a frame here would round every result to the frame rate.
   const timeLoads = async (target) => {
     const out = [];
-    for (let i = 0; i < 7; i++) {
-      const t0 = Date.now();
-      await page.goto(target);
+    for (let i = 0; i < 10; i++) {
+      const t0 = performance.now();
+      await page.goto(target, { waitUntil: "commit" });
       await page.waitForSelector(".tab-dock__tab");
-      await page.evaluate(() => new Promise((r) => requestAnimationFrame(r)));
-      out.push(Date.now() - t0);
+      out.push(performance.now() - t0);
     }
-    return median(out);
+    return r1(median(out));
   };
   for (const background of ["none", "bubbles"]) {
     await seed({ tabs: 9, linksPerTab: 40, groupsPerTab: 3, background });
