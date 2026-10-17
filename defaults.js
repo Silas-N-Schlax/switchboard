@@ -233,14 +233,17 @@ export const defaultKeybinds = {
 // ============================================================================
 // Search
 // ============================================================================
+// "browser" has no URL: it hands the query to the browser's own default engine through
+// chrome.search, which needs the "search" permission (no install warning).
 export const searchEngines = [
+  { id: "browser", name: "Browser default" },
   { id: "google", name: "Google", url: "https://www.google.com/search?q=" },
   { id: "duckduckgo", name: "DuckDuckGo", url: "https://duckduckgo.com/?q=" },
   { id: "bing", name: "Bing", url: "https://www.bing.com/search?q=" },
   { id: "kagi", name: "Kagi", url: "https://kagi.com/search?q=" },
   { id: "brave", name: "Brave Search", url: "https://search.brave.com/search?q=" },
 ];
-export const searchEngineId = "google";
+export const searchEngineId = "browser";
 // Search shows the best matches only; drawing thousands of rows made each keystroke slow.
 export const searchResultLimit = 50;
 

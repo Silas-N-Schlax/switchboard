@@ -18,7 +18,7 @@ your browser: no account, no cloud sync, no tracking.
   and pick where it lands.
 - **Search.** Press `s` to filter every link across every tab. Use the arrow keys to pick
   a result and Enter to open it. If nothing matches, Enter searches the web with the
-  engine you pick (Google, DuckDuckGo, Bing, Kagi, or Brave Search).
+  engine you pick: your browser's default, or Google, DuckDuckGo, Bing, Kagi, or Brave Search.
 - **Keyboard first.** New tabs take focus away from the address bar so shortcuts work
   right away, though the address bar then shows the extension's own URL. You can turn
   this off, or have the search bar focused on open, in Settings → General.

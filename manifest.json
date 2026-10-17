@@ -21,7 +21,8 @@
     "unlimitedStorage",
     "bookmarks",
     "alarms",
-    "favicon"
+    "favicon",
+    "search"
   ],
   "optional_permissions": [
     "history"

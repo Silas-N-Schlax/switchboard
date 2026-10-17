@@ -12,15 +12,21 @@ import {
 import { highlightActiveSearchRow } from "../tabLinks/renderLinks.js";
 import { searchEngines } from "../../defaults.js";
 import { recordEvent, recordLinkOpen, StatEvent } from "../stats/recorder.js";
-import { openUrl } from "../tabLinks/openUrl.js";
+import { openUrl, opensInNewTab } from "../tabLinks/openUrl.js";
 import { state } from "../../core/state.js";
 
+const hasSearchApi = typeof chrome !== "undefined" && !!chrome.search?.query;
+
 function searchEngine() {
-  return searchEngines.find((e) => e.id === state.settings.searchEngineId) ?? searchEngines[0];
+  const engine = searchEngines.find((e) => e.id === state.settings.searchEngineId) ?? searchEngines[0];
+  // Served outside the extension (for UI work) there's no browser engine to hand off to.
+  return engine.url || hasSearchApi ? engine : searchEngines.find((e) => e.url);
 }
 
-function webSearchUrl(query) {
-  return searchEngine().url + encodeURIComponent(query);
+function searchWeb(query) {
+  const engine = searchEngine();
+  if (engine.url) return openUrl(engine.url + encodeURIComponent(query));
+  return chrome.search.query({ text: query, disposition: opensInNewTab() ? "NEW_TAB" : "CURRENT_TAB" });
 }
 
 let barEl = null;
@@ -74,7 +80,7 @@ function build(container) {
         openUrl(active.link.url);
       } else {
         await recordEvent(StatEvent.search, { outcome: "web", engine: searchEngine().id });
-        openUrl(webSearchUrl(query));
+        searchWeb(query);
       }
     } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && getSearchMatches().length) {
       e.preventDefault();
