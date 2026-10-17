@@ -6,7 +6,8 @@ import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const ext = fileURLToPath(new URL("../../", import.meta.url));
+// EXT points at another checkout (say, a worktree of main) to benchmark that build instead.
+const ext = process.env.EXT || fileURLToPath(new URL("../../", import.meta.url));
 const only = process.argv[2]?.split(",");
 const want = (s) => !only || only.includes(s);
 const results = {};
@@ -99,8 +100,15 @@ async function seed({ tabs, linksPerTab, groupsPerTab = 0, background = "none", 
       settings.ambientMode.backgroundStyles[background] = { ...settings.ambientMode.backgroundStyles[background], ...style };
       const data = { schemaVersion: current.schemaVersion, tabs: T, links: L, linkGroups: G, settings };
       if (stats) {
-        const key = `stats:${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`;
-        data[key] = Array.from({ length: stats }, (_, i) => ({ t: Date.now() - i * 1000, type: "link-open", linkId: `l-0-${i % 50}`, tabId: "tab-1", via: "click" }));
+        // Spread over the last 30 days and filed under the build's own bucket keys, so an
+        // older build (monthly buckets) and a newer one (daily) hold the same history.
+        const { statsBucketKey } = await import("/js/features/stats/recorder.js");
+        const spacing = (30 * 86400000) / stats;
+        for (let i = 0; i < stats; i++) {
+          const t = Date.now() - i * spacing;
+          const key = statsBucketKey(new Date(t));
+          (data[key] ??= []).push({ t, type: "link-open", linkId: `l-0-${i % 50}`, tabId: "tab-1", via: "click" });
+        }
       }
       await chrome.storage.local.set(data);
     },
