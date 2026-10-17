@@ -145,7 +145,7 @@ There's no build step: the repo root is the extension. After editing, open a new
 see HTML/CSS/JS changes. Changes to `manifest.json` or `background.js` need the reload
 icon on the extensions page.
 
-For quick UI work outside the extension, `js/storage.js` falls back to `localStorage`
+For quick UI work outside the extension, `core/storage.js` falls back to `localStorage`
 when `chrome.storage` isn't available. Serve the folder and open `switchboard.html`:
 
 ```
