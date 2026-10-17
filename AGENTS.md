@@ -38,7 +38,7 @@ and what it refuses to become, and `README.md` for features and development setu
 - `scripts/bench` (Playwright) also benchmarks the extension. Run the relevant sections
   before and after a performance-sensitive change.
 - For UI changes, look at the result in a browser and take screenshots for the PR, then
-  upload them yourself (see `docs/pull-requests.md`).
+  attach them with `gh --attach` (see `docs/pull-requests.md`).
 
 ## Git and GitHub
 

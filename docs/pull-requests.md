@@ -46,18 +46,21 @@ stacks on and which one to merge first.
 
 ## Adding screenshots
 
-Upload screenshots to GitHub yourself. Don't leave local file paths for the owner to drag
-in. The GitHub CLI can't attach images, so use the browser:
+Upload screenshots with the PR itself. Don't leave local file paths for the owner to
+drag in. `gh` 2.99 or newer attaches images directly with the repeatable `--attach` flag
+(run `gh --version`, and `brew upgrade gh` if it's older):
 
-1. Take the screenshots of the real extension (`scripts/bench/smoke.mjs` shows how to load a
-   build in headless Chromium; `deviceScaleFactor: 2` keeps them sharp) and save them as PNGs.
-2. Open the PR in Chrome (Claude in Chrome) and upload the files to the new-comment box's
-   file input with the file upload tool. Don't click the attach button, which opens a native
-   picker.
-3. Wait for the upload, then read the comment textarea (`#new_comment_field`). It now holds
-   one `<img … src="https://github.com/user-attachments/assets/…">` tag per file.
-4. Clear the textarea without posting the comment, and close the tab.
-5. Put the images under their captions in the description (`gh pr edit <n> --body-file …`).
-   Halve the `width` of 2× screenshots so they show at their real size.
-6. Reload the PR and check every image loads.
-- No AI attribution anywhere in the PR.
+1. Take the screenshots of the real extension (`scripts/bench/smoke.mjs` shows how to load
+   a build in headless Chromium; `deviceScaleFactor: 2` keeps them sharp) and save them as
+   PNGs next to the body file.
+2. In the description, put each image under its caption as a Markdown image pointing at
+   the local file, e.g. `![Release notes dialog](./release-notes.png)`.
+3. Create or update the PR with one `--attach` per file. `gh` uploads each file and swaps
+   the local path in the body for its GitHub URL:
+
+   ```
+   gh pr create --body-file body.md --attach ./release-notes.png --attach ./icons.png …
+   gh pr edit <n> --body-file body.md --attach ./release-notes.png …
+   ```
+
+4. Check the PR in the browser and make sure every image loads.
