@@ -11,6 +11,7 @@ import {
   backgroundSpeedMin,
   backgroundSpeedMax,
   backgroundStyleDefaults,
+  backgroundResizeSettleMs,
 } from "../../defaults.js";
 import { findBackground } from "./backgrounds/index.js";
 
@@ -85,8 +86,18 @@ function applyPalette(root, [c1, c2, c3]) {
 }
 
 let renderGeneration = 0;
+let lastRender = null;
+let resizeTimer = null;
+
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (lastRender) renderAmbient(...lastRender);
+  }, backgroundResizeSettleMs);
+});
 
 export function renderAmbient(root = document.body, settings = {}) {
+  lastRender = [root, settings];
   renderGeneration += 1;
   const myGeneration = renderGeneration;
 

@@ -154,9 +154,10 @@ function randomizeBird(el, { scale, speedMultiplier, band }) {
   el.style.setProperty("--to-x", goesRight ? `calc(102vw + ${trail}px)` : `calc(-${width + trail}px - 2vw)`);
   el.style.setProperty("--y", `${randomBetween(band.top, band.bottom)}vh`);
   el.style.setProperty("--drift-y", `${randomBetween(-8, 8)}vh`);
-  el.style.setProperty("--duration", `${duration * (1 + runUp / 100)}ms`);
+  const cycle = duration * (1 + runUp / 100);
+  el.style.setProperty("--duration", `${cycle}ms`);
   el.replaceChildren(...flock.map((offset) => buildBird(species, { offset, width, flip, speedMultiplier })));
-  return randomBetween(0, duration);
+  return randomBetween(0, cycle);
 }
 
 export function planeShape() {
