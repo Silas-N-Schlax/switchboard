@@ -13,6 +13,7 @@
   "features/importExport",
   "features/stats",
   "features/settings",
+  "features/releaseNotes",
   "features/ambient",
   "features/backgrounds/bubbles",
   "features/backgrounds/stratosphere",

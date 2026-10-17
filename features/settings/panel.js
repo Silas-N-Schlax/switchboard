@@ -14,12 +14,28 @@ import { dismissSwatchPopover } from "./swatch-picker.js";
 import { registerKeybind, matchesKeybind } from "../../shared/keybinds/registry.js";
 import { buildDialogHeader } from "../../shared/dialog/chrome.js";
 import { hasBackgrounds, loadBackgrounds } from "../backgrounds/index.js";
+import { featureFolders, loadFeature } from "../../core/features.js";
 
 let panelEl = null;
 let returnFocusEl = null;
 let onSettingsChange = () => {};
 let sections = [];
 let panelReady = null;
+
+const releaseNotesFolder = "features/releaseNotes";
+
+// Release notes load only when asked for, so they cost a normal new tab nothing.
+function buildReleaseNotesButton() {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "settings-panel__release-notes";
+  button.textContent = "Release notes";
+  button.addEventListener("click", async () => {
+    const { openReleaseNotes } = await loadFeature(releaseNotesFolder);
+    openReleaseNotes();
+  });
+  return button;
+}
 
 function buildPanel(backgrounds) {
   const panel = document.createElement("div");
@@ -64,7 +80,9 @@ function buildPanel(backgrounds) {
   feedbackLink.target = "_blank";
   feedbackLink.rel = "noopener";
   feedbackLink.textContent = "Send feedback ↗";
-  footer.append(resetButton, feedbackLink);
+  footer.append(resetButton);
+  if (featureFolders.includes(releaseNotesFolder)) footer.append(buildReleaseNotesButton());
+  footer.append(feedbackLink);
 
   sections = [generalSection, keybindsSection, colorSection, backgroundSection, linksSection, statsSection, dataSection].filter(
     Boolean

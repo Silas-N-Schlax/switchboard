@@ -100,7 +100,8 @@
     }
   }
 
-  .settings-panel__reset {
+  .settings-panel__reset,
+  .settings-panel__release-notes {
     padding: 4px 0;
     background: none;
     border: none;
@@ -112,6 +113,14 @@
 
     &:hover {
       color: var(--ink);
+    }
+  }
+
+  .settings-panel__release-notes {
+    margin-left: auto;
+
+    & + .settings-panel__feedback {
+      margin-left: 0;
     }
   }
 

@@ -1,0 +1,66 @@
+/* Settings › Release notes. Opaque surface like the keybind editor: it opens on top of the
+   translucent settings panel. */
+.release-notes {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+
+  &.release-notes--open {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .release-notes__dialog {
+    --dialog-width: 460px;
+  }
+
+  .release-notes__release {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .release-notes__version {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .release-notes__date {
+    font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--ink-faint);
+  }
+
+  .release-notes__notes {
+    margin: 0;
+    padding-left: var(--space-5);
+    font-size: var(--text-md);
+    line-height: 1.5;
+    color: var(--ink-dim);
+  }
+
+  .release-notes__row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .release-notes__name {
+    font-size: var(--text-md);
+    color: var(--ink);
+  }
+
+  .release-notes__text {
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
+}
