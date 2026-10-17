@@ -102,7 +102,7 @@ export function renderAmbient(root = document.body, settings = {}) {
   const myGeneration = renderGeneration;
 
   const ambientMode = settings.ambientMode ?? {};
-  const colors = resolveColors(ambientMode, settings.colorLibrary?.palettes);
+  const colors = resolveColors(ambientMode, settings.colorLibrary?.files?.flatMap((file) => file.palettes));
   const colorCycleEnabled = ambientMode.colorCycleEnabled ?? ambientColorCycleEnabled;
   const segmentHours = ambientMode.segmentHours ?? ambientSegmentHours;
   const background = findBackground(ambientMode.backgroundType ?? defaultBackgroundType);

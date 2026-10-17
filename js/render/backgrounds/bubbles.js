@@ -300,8 +300,12 @@ async function live(el, ctx, firstLife) {
 
 // Hidden tabs hold back finish events, so on return every overdue rise ends at once and
 // all bubbles restart from the bottom together. play() would rewind a finished animation,
-// so only the ones paused here are resumed.
+// so only the ones paused here are resumed. Only one field is live at a time, so a new
+// one drops the listener left by the field it replaced.
+let stopFreezing = null;
+
 function freezeWhileHidden(field) {
+  stopFreezing?.();
   let frozen = [];
   function sync() {
     if (!field.isConnected) {
@@ -317,6 +321,7 @@ function freezeWhileHidden(field) {
     frozen = [];
   }
   document.addEventListener("visibilitychange", sync);
+  stopFreezing = () => document.removeEventListener("visibilitychange", sync);
 }
 
 function placeStatic(el, options) {
