@@ -177,6 +177,7 @@ cd scripts/bench
 npm install && npm run setup
 npm run bench               # everything (about 10 minutes)
 npm run bench -- app,leak   # or pick sections: app, bg, leak, stress, startup, devices
+npm run smoke               # quick check: every background, Settings and Release notes load
 ```
 
 `devices` repeats the key checks with the CPU slowed 4×, 6× and 20× to estimate a
