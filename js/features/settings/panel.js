@@ -1,7 +1,8 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { renderAmbient } from "../../render/ambient.js";
-import { defaultAmbientSettings, feedbackUrl } from "../../../defaults.js";
+import { defaultAmbientSettings, feedbackUrl, interfaceFont, monoFont } from "../../../defaults.js";
+import { applyDisplaySettings } from "./store.js";
 import { buildGeneralSection } from "./general-section.js";
 import { buildColorSection } from "./color-section.js";
 import { buildBackgroundSection } from "./background-section.js";
@@ -46,9 +47,11 @@ function buildPanel() {
   resetButton.className = "settings-panel__reset";
   resetButton.textContent = "Reset appearance";
   resetButton.addEventListener("click", async () => {
-    state.settings.ambientMode = { ...defaultAmbientSettings };
+    Object.assign(state.settings, { ambientMode: { ...defaultAmbientSettings }, interfaceFont, monoFont });
     await save({ settings: state.settings });
     renderAmbient(document.body, state.settings);
+    applyDisplaySettings();
+    generalSection.refresh();
     colorSection.refresh();
     backgroundSection.refresh();
   });
