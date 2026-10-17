@@ -61,7 +61,7 @@ submission; the tag and GitHub release are only created once.
 Deploying does nothing until these are set in the repo settings:
 - **Variables:** `DEPLOY_ENABLED` set to `true`, then `CWS_EXTENSION_ID` and
   `CWS_LITE_EXTENSION_ID`. A listing is skipped while its ID is unset.
-- **Secrets:** `CWS_CLIENT_ID`, `CWS_CLIENT_SECRET`, `CWS_REFRESH_TOKEN`, `CWS_PUBLISHER_ID`.
+- **Secrets:** `CWS_SERVICE_ACCOUNT_KEY` (the service account's JSON key) and `CWS_PUBLISHER_ID`.
 
 ## First-time setup
 
@@ -76,18 +76,16 @@ Done once, by the owner, before the first store release.
    dashboard URL) is that listing's extension ID. Submitting these first versions by hand is
    fine; the workflow takes over from the next version.
 3. **Find the publisher ID** under Publisher settings in the developer dashboard.
-4. **Create API credentials** in the [Google Cloud console](https://console.cloud.google.com/):
-   1. Create a project and enable the **Chrome Web Store API**.
-   2. Set up the OAuth consent screen (External), add yourself as a test user, then
-      **publish the app to production**. Refresh tokens for an app left in testing expire
-      after 7 days.
-   3. Create an OAuth client ID of type **Web application**, with
-      `https://developers.google.com/oauthplayground` as an authorized redirect URI. Note
-      the client ID and secret.
-   4. In the [OAuth playground](https://developers.google.com/oauthplayground), open the
-      settings (gear), tick "Use your own OAuth credentials" and enter the client ID and
-      secret. Authorize the scope `https://www.googleapis.com/auth/chromewebstore`, then
-      exchange the authorization code for tokens and copy the **refresh token**.
+4. **Create a service account** for the API. A service account needs no OAuth consent
+   screen, so it works without a domain of your own, and its key doesn't expire by default.
+   1. In the [Google Cloud console](https://console.cloud.google.com/), create a project
+      and enable the **Chrome Web Store API** (APIs & Services → Library).
+   2. Go to **IAM & Admin → Service accounts → Create service account**. Give it a name;
+      it needs no roles.
+   3. Open it, go to **Keys → Add key → Create new key → JSON**, and keep the downloaded
+      file safe. Its whole contents is the `CWS_SERVICE_ACCOUNT_KEY` secret.
+   4. In the developer dashboard's **Account** section, add the service account's email
+      (`…@….iam.gserviceaccount.com`) so it can manage your items.
 5. **Add the repo secrets and variables** listed above (Settings → Secrets and variables →
    Actions). Set `DEPLOY_ENABLED` to `true` last.
 6. **Check it:** run the Deploy workflow by hand with **deploy** ticked. For a version the

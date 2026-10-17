@@ -10,7 +10,7 @@
 # release merged before deploying was set up gets published, and how a failed store
 # submission is retried (the tag and release are only created once).
 #
-# Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
+# Repo secrets: CWS_SERVICE_ACCOUNT_KEY (the service account's JSON key), CWS_PUBLISHER_ID
 # Repo variables: DEPLOY_ENABLED, CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
 name: Deploy
 
@@ -99,16 +99,12 @@ jobs:
         if: ${{ steps.version.outputs.ready == 'true' && vars.CWS_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-$VERSION.zip" "${{ vars.CWS_EXTENSION_ID }}"
         env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_SERVICE_ACCOUNT_KEY: ${{ secrets.CWS_SERVICE_ACCOUNT_KEY }}
           CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
 
       - name: Publish Switchboard Lite
         if: ${{ steps.version.outputs.ready == 'true' && vars.CWS_LITE_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-lite-$VERSION.zip" "${{ vars.CWS_LITE_EXTENSION_ID }}"
         env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_SERVICE_ACCOUNT_KEY: ${{ secrets.CWS_SERVICE_ACCOUNT_KEY }}
           CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
