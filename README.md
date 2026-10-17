@@ -13,8 +13,9 @@ your browser: no account, no cloud sync, no tracking.
   reorder, right-click for more options.
 - **Link groups.** Split a busy tab into named groups shown side by side. Right-click a
   link and choose **Move to new group**, or drag links between groups.
-- **Moving things around.** Right-click a link or a group's name and choose **Move…** to
-  send it to another tab, a different group, or a new group, and pick where it lands.
+- **Moving things around.** Right-click a link or a group's name (or select it and press
+  `m`) and choose **Move…** to send it to another tab, a different group, or a new group,
+  and pick where it lands.
 - **Search.** Press `s` to filter every link across every tab. Use the arrow keys to pick
   a result and Enter to open it. If nothing matches, Enter searches the web with the
   engine you pick (Google, DuckDuckGo, Bing, Kagi, or Brave Search).
@@ -36,8 +37,8 @@ your browser: no account, no cloud sync, no tracking.
   `.hex`/`.txt` list of hex colors, or a GIMP `.gpl`) in Settings → Background, and
   remove any file again from the list there. Respects your system's reduced-motion
   setting.
-- **Fun stats.** Optionally records link opens, searches, tab use and Bounce corner
-  hits, locally, for recaps to come.
+- **Fun stats.** Optionally records link opens, searches, tab use, bookmark imports and
+  exports, and Bounce corner hits, locally, for recaps to come.
 - **Bookmarks in and out.** Settings → Data → **Browser bookmarks**. Import reads this
   browser's bookmarks directly, or a bookmarks file exported from any other browser.
   Each folder can go to its own tab (or a new one you name) and become a link group.
@@ -116,7 +117,7 @@ shortcuts**; press `/` to see the keys currently in effect.
 ## Privacy
 
 Your tabs, links, settings, and usage stats live in your browser's local extension
-storage and never leave your machine unless you export a backup yourself. Favicons come
+storage and never leave your machine unless you export a backup or bookmarks yourself. Favicons come
 from the browser's own icon cache. The optional history permission (Settings → Links →
 Find icons in your history) is only used locally to find icons for links you've saved.
 

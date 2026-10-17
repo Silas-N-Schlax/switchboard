@@ -49,7 +49,10 @@ export function pendingNewTabs(rows, exceptRow = null) {
   return names;
 }
 
+// Reuses a "Bookmarks" tab from an earlier import instead of making a second one.
 export function defaultDestination() {
+  const bookmarksTab = state.tabs.find((t) => sameName(t.name, defaultNewTabName));
+  if (bookmarksTab) return tabDestination(bookmarksTab.id);
   if (newTabRoom() > 0) return newTabDestination(defaultNewTabName);
   return tabDestination((state.tabs.find((t) => t.id === state.activeTabId) ?? sortedTabs()[0]).id);
 }

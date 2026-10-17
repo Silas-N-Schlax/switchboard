@@ -49,6 +49,13 @@ async function runExport() {
 
   const browserLabel = browserName() ?? "this browser";
   const roots = target === BookmarkTarget.browser ? await browserRootFolders() : [];
+  if (target === BookmarkTarget.browser && !roots.length) {
+    await alertDialog({
+      title: `Can't add to ${browserLabel}'s bookmarks`,
+      message: "There's no bookmark folder Switchboard is allowed to write to. Download a bookmarks file instead.",
+    });
+    return;
+  }
   const plan = await exportBookmarksDialog({ target, roots, browserLabel });
   if (!plan) return;
 
