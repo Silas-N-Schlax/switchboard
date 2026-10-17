@@ -1,0 +1,255 @@
+/* The bookmark import and export dialogs, built on the confirm dialog shell. */
+.confirm-dialog .bookmark-dialog {
+  --dialog-width: 560px;
+
+  .bookmark-dialog__body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: 0 var(--space-5) var(--space-5);
+  }
+
+  .bookmark-dialog__bulk {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+
+    .tab-picker,
+    .select-input {
+      width: 220px;
+    }
+  }
+
+  .bookmark-dialog__bulk-label {
+    color: var(--ink);
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .bookmark-dialog__select-all {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 var(--space-3);
+    cursor: pointer;
+  }
+
+  .bookmark-dialog__select-all-label {
+    flex: 1;
+    color: var(--ink-dim);
+    font-size: var(--text-sm);
+  }
+
+  .bookmark-dialog__list {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-md);
+
+    & > * + * {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .bookmark-dialog__folder {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: 10px var(--space-3);
+    transition: opacity var(--duration-fast) ease;
+
+    &.bookmark-dialog__folder--skipped .bookmark-dialog__name,
+    &.bookmark-dialog__folder--skipped .bookmark-dialog__options {
+      opacity: 0.4;
+    }
+  }
+
+  .bookmark-dialog__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  .bookmark-dialog__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--ink);
+    font-size: var(--text-md);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bookmark-dialog__parents {
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+
+  .bookmark-dialog__count {
+    flex-shrink: 0;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .bookmark-dialog__options {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-left: 24px;
+
+    .tab-picker {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .bookmark-dialog__option {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--ink-dim);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+
+  .bookmark-dialog__checkbox {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  .bookmark-dialog__settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .bookmark-dialog__option[hidden] {
+    display: none;
+  }
+
+  .bookmark-dialog__summary {
+    margin: 0;
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .bookmark-dialog__problems:empty {
+    display: none;
+  }
+
+  .bookmark-dialog__problem {
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    background: color-mix(in oklch, var(--flag) 10%, transparent);
+    border: 1px solid color-mix(in oklch, var(--flag) 35%, transparent);
+    border-radius: var(--radius-sm);
+    color: var(--flag);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+
+    & + & {
+      margin-top: var(--space-2);
+    }
+  }
+}
+
+.tab-picker {
+  .tab-picker__input {
+    box-sizing: border-box;
+    cursor: text;
+
+    &::placeholder {
+      color: var(--ink-faint);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent-line);
+    }
+  }
+}
+
+/* Unscoped: the menu is appended to <body> so the scrolling folder list can't clip it.
+   Sits above the confirm dialog layer it opens from. */
+.tab-picker__menu {
+  position: fixed;
+  z-index: 60;
+  max-height: 240px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+
+  .tab-picker__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--ink-dim);
+    font-size: var(--text-md);
+    cursor: pointer;
+
+    &.tab-picker__option--active {
+      background: var(--glass-hi);
+      color: var(--ink);
+    }
+
+    &[aria-selected="true"] .tab-picker__label {
+      color: var(--accent);
+    }
+
+    &.tab-picker__option--create {
+      color: var(--accent);
+    }
+
+    &[aria-disabled="true"] {
+      color: var(--ink-faint);
+      cursor: not-allowed;
+    }
+  }
+
+  .tab-picker__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tab-picker__hint {
+    flex-shrink: 0;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .tab-picker__empty {
+    padding: 7px 10px;
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
+  }
+}

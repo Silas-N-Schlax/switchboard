@@ -1,7 +1,8 @@
 import { state } from "../../state.js";
 import { save } from "../../storage.js";
 import { createLinkGroup } from "../../schema.js";
-import { linksForTab, linksInGroup, linkGroupIdOf, pruneEmptyLinkGroups } from "../tabLinks/store.js";
+import { linksForTab, linksInGroup, linkGroupIdOf, pruneEmptyLinkGroups, reorderLink } from "../tabLinks/store.js";
+import { recordEvent, StatEvent } from "../stats/recorder.js";
 
 const newLinkGroupName = "New group";
 
@@ -52,6 +53,66 @@ export async function addLinkGroupWithLink(linkId) {
   pruneEmptyLinkGroups();
   await save({ links: state.links, linkGroups: state.linkGroups });
   return group;
+}
+
+// A group moving to another tab doesn't take a slot it already holds there.
+export function canMoveLinkGroupTo(group, tabId) {
+  return group.tabId === tabId || canAddLinkGroup(tabId);
+}
+
+// groupId is null for the main list, an existing group's id, or { name } to start a new
+// group in the target tab. position is "top" or "bottom" of that list.
+export async function moveLink(linkId, { tabId, groupId, position }) {
+  const link = state.links.find((l) => l.id === linkId);
+  if (!link) return;
+  let targetGroupId = groupId;
+  if (groupId && typeof groupId === "object") {
+    const group = createLinkGroup({
+      id: crypto.randomUUID(),
+      tabId,
+      name: groupId.name || newLinkGroupName,
+      order: nextOrder(linkGroupsForTab(tabId)),
+    });
+    state.linkGroups.push(group);
+    targetGroupId = group.id;
+  }
+  const bucket = linksInGroup(tabId, targetGroupId).filter((l) => l.id !== linkId);
+  await reorderLink(linkId, tabId, position === "top" ? 0 : bucket.length, targetGroupId);
+  await save({ linkGroups: state.linkGroups });
+}
+
+export async function moveLinkGroup(groupId, tabId, index) {
+  const group = state.linkGroups.find((g) => g.id === groupId);
+  if (!group || !canMoveLinkGroupTo(group, tabId)) return;
+  const sourceTabId = group.tabId;
+  const moved = linksInGroup(sourceTabId, groupId);
+
+  if (sourceTabId !== tabId) {
+    // Launch groups belong to a tab, so links leave theirs when they change tabs.
+    let order = nextOrder(linksForTab(tabId));
+    moved.forEach((l) => {
+      l.tabId = tabId;
+      l.launchGroup = false;
+      l.launchOrder = null;
+      l.order = order++;
+    });
+    group.tabId = tabId;
+    linkGroupsForTab(sourceTabId).forEach((g, i) => {
+      g.order = i;
+    });
+  }
+
+  const groups = linkGroupsForTab(tabId).filter((g) => g.id !== groupId);
+  groups.splice(Math.min(index, groups.length), 0, group);
+  groups.forEach((g, i) => {
+    g.order = i;
+  });
+  await save({ links: state.links, linkGroups: state.linkGroups });
+  if (sourceTabId !== tabId) {
+    moved.forEach((l) =>
+      recordEvent(StatEvent.linkMove, { linkId: l.id, fromTabId: sourceTabId, toTabId: tabId, via: "group-move" })
+    );
+  }
 }
 
 export async function renameLinkGroup(groupId, name) {

@@ -37,6 +37,7 @@ import {
 import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl } from "../tabLinks/linkActions.js";
 import { beginRenameTab } from "../tabLinks/renameState.js";
 import { maxTabs } from "../../../defaults.js";
+import { openMoveLinkDialog, openMoveGroupDialog } from "../move/moveDialog.js";
 
 function linkGroupMenuItems(link, onChange) {
   const currentGroupId = linkGroupIdOf(link);
@@ -87,6 +88,7 @@ function linkMenuItems(link, onChange) {
       },
     },
     { divider: true },
+    { label: "Move…", onSelect: () => openMoveLinkDialog(link, onChange) },
     ...linkGroupMenuItems(link, onChange),
     { divider: true },
     {
@@ -225,6 +227,7 @@ function groupMenuItems(group, onChange) {
         onChange();
       },
     },
+    { label: "Move…", onSelect: () => openMoveGroupDialog(group, onChange) },
     { divider: true },
     {
       label: "Ungroup",

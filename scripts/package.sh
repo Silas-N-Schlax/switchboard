@@ -31,7 +31,8 @@ Brave notes
 - Brave's own new-tab settings (background images, widgets) stop applying while
   Switchboard is on.
 
-Everything stays on your computer. Settings > Data > Export makes a backup file.
+Everything stays on your computer. Settings > Data > Switchboard backup > Export makes
+a backup file.
 
 Updating: replace this folder with the new version, then click the reload icon on
 Switchboard in the extensions page. Your tabs and links are kept.

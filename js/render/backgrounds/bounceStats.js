@@ -6,7 +6,7 @@ let flushing = false;
 
 // Corner hits can come every second at high Corner luck, so they're batched into one
 // stats event per flush instead of one event per hit.
-export function flushCornerCounts() {
+function flushCornerCounts() {
   if (!pending.corners && !pending.terminal) return Promise.resolve();
   const written = recordEvent(StatEvent.bounceCorners, { ...pending });
   pending.corners = 0;

@@ -37,7 +37,7 @@ function buildPanel() {
   const backgroundSection = buildBackgroundSection();
   const linksSection = buildLinksSection(() => onSettingsChange());
   const statsSection = buildStatsSection();
-  const dataSection = buildDataSection();
+  const dataSection = buildDataSection(() => onSettingsChange());
 
   const footer = document.createElement("div");
   footer.className = "dialog__footer";
