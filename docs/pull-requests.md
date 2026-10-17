@@ -43,4 +43,21 @@ stacks on and which one to merge first.
 - **Screenshots** is required whenever the UI changes: one labelled screenshot per visible
   change, showing the real extension. Leave it out only for changes with nothing visible.
 - A small change can skip the headings and use one to three plain sentences instead.
+
+## Adding screenshots
+
+Upload screenshots to GitHub yourself. Don't leave local file paths for the owner to drag
+in. The GitHub CLI can't attach images, so use the browser:
+
+1. Take the screenshots of the real extension (`scripts/bench/smoke.mjs` shows how to load a
+   build in headless Chromium; `deviceScaleFactor: 2` keeps them sharp) and save them as PNGs.
+2. Open the PR in Chrome (Claude in Chrome) and upload the files to the new-comment box's
+   file input with the file upload tool. Don't click the attach button, which opens a native
+   picker.
+3. Wait for the upload, then read the comment textarea (`#new_comment_field`). It now holds
+   one `<img … src="https://github.com/user-attachments/assets/…">` tag per file.
+4. Clear the textarea without posting the comment, and close the tab.
+5. Put the images under their captions in the description (`gh pr edit <n> --body-file …`).
+   Halve the `width` of 2× screenshots so they show at their real size.
+6. Reload the PR and check every image loads.
 - No AI attribution anywhere in the PR.
