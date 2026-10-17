@@ -7,7 +7,9 @@ import {
   reorderLink,
   displayHost,
   displayUrl,
+  linksForTab,
 } from "../features/tabLinks/store.js";
+import { longLinkListThreshold } from "../../defaults.js";
 import { openUrl } from "../features/tabLinks/openUrl.js";
 import { makeSortable } from "../features/tabLinks/sortable.js";
 import { openAddLinkModal } from "../features/tabLinks/linkModal.js";
@@ -279,6 +281,7 @@ export function renderLinks(container, onChange) {
   const links = searching ? shownMatches.map((m) => m.link) : linksInGroup(tab.id, null);
   const splitThreshold = state.settings.linkListSplitThreshold;
   list.classList.toggle("link-list--split", splitThreshold !== null && links.length >= splitThreshold);
+  list.classList.toggle("link-list--long", !searching && linksForTab(tab.id).length >= longLinkListThreshold);
 
   const launchBar = searching ? null : buildLaunchBar(tab);
   if (launchBar) list.appendChild(launchBar);

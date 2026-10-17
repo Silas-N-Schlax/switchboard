@@ -163,6 +163,9 @@ export const defaultLinkGroups = [];
 export const linkGroupLimit = 3;
 export const linkGroupLimitRange = { min: 1, max: 9 };
 export const linkListSplitThreshold = 6;
+// Tabs with at least this many links skip drawing rows scrolled out of view. It costs a
+// little on short tabs, where nearly every row is on screen, and saves a lot on long ones.
+export const longLinkListThreshold = 150;
 // null means the list never splits.
 export const linkListSplitThresholdOptions = [4, 6, 8, 10, 12, null];
 export const showFullUrl = false;
