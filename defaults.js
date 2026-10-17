@@ -68,7 +68,8 @@ export const backgroundResizeSettleMs = 250;
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
 // Timed events (submarine, skydiver, ISS, alien craft) also scale with the rare-sight frequency.
-export const rareEventMeanIntervalMs = 90 * 60 * 1000; // at frequency 1
+// New tabs are open for seconds, so at 90 minutes almost nobody saw these.
+export const rareEventMeanIntervalMs = 30 * 60 * 1000; // at frequency 1
 export const rareEventRollMs = 15000;
 export const skydiveMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
 export const bubbleBaseSizeRange = { min: 40, max: 200 }; // px, before size multiplier
