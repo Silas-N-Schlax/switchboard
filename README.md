@@ -155,8 +155,41 @@ npx serve .
 
 Opening `switchboard.html` over `file://` won't work, because browsers block ES modules there.
 
-To build a zip for sharing without git, run `./scripts/package.sh` (output goes to
-`dist/`).
+### Layout, features and the lite build
+
+- `core/` is the app shell that always loads (boot, state, storage, migrations, base styles).
+- `shared/` holds plumbing many features use (dialogs, form controls, keybind handling).
+- `features/<name>/` keeps one feature's JS, CSS and a `feature.json` together.
+  Backgrounds live in `features/backgrounds/<id>/`, with helpers they share in
+  `features/backgrounds/shared/`.
+
+`features.json` lists every feature folder, and the app reads it at runtime, so adding a
+feature means making its folder and adding one line there. Each `feature.json` looks like:
+
+```json
+{
+  "id": "fish",
+  "name": "Ocean",
+  "summary": "One line for the release notes.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": { "1.1.0": "What changed in that version." },
+  "entry": "fish.js",
+  "styles": ["fish-field.css"],
+  "requires": ["other-feature-id"]
+}
+```
+
+`entry` and `styles` are only needed for features loaded on demand (backgrounds and the
+release notes); `requires` only when a feature uses another one's files. Release notes
+in Settings come from these files plus `release.json`, which holds each version's date
+and general notes.
+
+To build the store zips, run `node scripts/package.mjs` (or add `full` or `lite`). It
+writes `dist/switchboard-<version>.zip` with everything and
+`dist/switchboard-lite-<version>.zip` without the features marked `"lite": false`, and
+fails if `features.json` and the folders disagree, if `release.json` has no entry for the
+version, or if anything shipped points at a file that was left out.
 
 ### Benchmarks
 
