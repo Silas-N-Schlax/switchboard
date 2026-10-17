@@ -39,6 +39,10 @@
     border-radius: var(--radius-md);
     cursor: grab;
     touch-action: none;
+    /* Rows scrolled out of view skip style, layout and paint, so tabs with hundreds of
+       links (easy to get from a bookmark import) still switch quickly. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 44px;
     transition: background var(--duration-base) var(--ease-out),
       border-color var(--duration-base) var(--ease-out);
 
