@@ -3,7 +3,7 @@ import { save } from "../../storage.js";
 import { defaultKeybinds } from "../../../defaults.js";
 import { getKeybind, getStoredKeybind, setKeybinds } from "./registry.js";
 import { keybindSections, tabSwitchSlot } from "./catalog.js";
-import { keybindFromEvent, formatShortcutParts } from "./shortcutFormat.js";
+import { keybindFromEvent, formatShortcutParts, comparableShortcut } from "./shortcutFormat.js";
 import { buildShortcutBadges } from "./shortcutBadges.js";
 import { findKeyOwner } from "./shortcutValidation.js";
 import { buildDialogHeader, buildDialogGroup } from "../dialog/chrome.js";
@@ -108,6 +108,25 @@ async function assignKey(id, key) {
   return commit({ [id]: key });
 }
 
+// Links holding a key that some action gets back on Reset all, so the reset can take it
+// from them instead of leaving two owners on one key.
+function linksClashingWithDefaults() {
+  const defaults = new Set(Object.values(defaultKeybinds).map(comparableShortcut).filter(Boolean));
+  return state.links.filter((l) => l.shortcutKey && defaults.has(comparableShortcut(l.shortcutKey)));
+}
+
+function focusableIn(el) {
+  return [...el.querySelectorAll("button:not(:disabled):not([hidden])")];
+}
+
+function trapTab(e) {
+  const focusable = focusableIn(rootEl.querySelector(".keybind-editor__dialog"));
+  const index = focusable.indexOf(document.activeElement);
+  const next = (index + (e.shiftKey ? -1 : 1) + focusable.length) % focusable.length;
+  e.preventDefault();
+  focusable[next].focus();
+}
+
 function onKeyDown(e) {
   // Contain every key so app keybinds and link shortcuts can't fire behind the editor.
   e.stopPropagation();
@@ -115,6 +134,8 @@ function onKeyDown(e) {
     if (e.key === "Escape") {
       e.preventDefault();
       closeKeybindEditor();
+    } else if (e.key === "Tab") {
+      trapTab(e);
     }
     return;
   }
@@ -214,13 +235,22 @@ function build() {
   resetAll.textContent = "Reset all";
   resetAll.addEventListener("click", async () => {
     stopCapturing();
+    const clashing = linksClashingWithDefaults();
+    const linkNote = clashing.length
+      ? ` ${clashing.length === 1 ? `The link "${clashing[0].label}" loses its shortcut` : `${clashing.length} links lose their shortcuts`}, since an action takes that key back.`
+      : "";
     const confirmed = await confirmDialog({
       title: "Reset every shortcut?",
-      message: "Every action goes back to its default key, and ones you added keys to go back to none.",
+      message: `Every action goes back to its default key, and ones you added keys to go back to none.${linkNote}`,
       confirmLabel: "Reset all",
       danger: true,
     });
-    if (confirmed) await commit({ ...defaultKeybinds });
+    if (!confirmed) return;
+    if (clashing.length) {
+      clashing.forEach((link) => (link.shortcutKey = null));
+      await save({ links: state.links });
+    }
+    await commit({ ...defaultKeybinds });
   });
   footer.append(note, resetAll);
 
