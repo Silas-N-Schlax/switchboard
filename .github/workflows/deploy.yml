@@ -1,0 +1,61 @@
+# Publishing a GitHub release (tag v1.2.3) builds both zips, attaches them to the release, and
+# sends each to its Chrome Web Store listing for review. A listing is skipped until its
+# extension id is set as a repo variable, and pre-releases only get the zips attached.
+#
+# Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
+# Repo variables: CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check the tag matches manifest.json
+        run: |
+          version="$(node -p 'require("./manifest.json").version')"
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::Release tag $TAG doesn't match manifest.json version $version"
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Build the zips
+        run: node scripts/package.mjs
+
+      - name: Attach the zips to the release
+        run: gh release upload "$TAG" dist/switchboard-$VERSION.zip dist/switchboard-lite-$VERSION.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish Switchboard
+        if: ${{ !github.event.release.prerelease && vars.CWS_EXTENSION_ID != '' }}
+        run: node scripts/publish-store.mjs "dist/switchboard-$VERSION.zip" "${{ vars.CWS_EXTENSION_ID }}"
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+
+      - name: Publish Switchboard Lite
+        if: ${{ !github.event.release.prerelease && vars.CWS_LITE_EXTENSION_ID != '' }}
+        run: node scripts/publish-store.mjs "dist/switchboard-lite-$VERSION.zip" "${{ vars.CWS_LITE_EXTENSION_ID }}"
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
