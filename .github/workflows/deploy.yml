@@ -1,11 +1,14 @@
-# Merging a release PR (one that changes the version in manifest.json) into main builds both
-# zips, creates the v<version> tag and GitHub release with them attached, and sends each zip
-# to its Chrome Web Store listing for review. Nothing happens if that version's tag already
-# exists, and a listing is skipped until its extension id is set as a repo variable.
+# Merging a release PR into main (one that gives the version in manifest.json a date in
+# release.json) builds both zips, creates the v<version> tag and GitHub release with them
+# attached, and sends each zip to its Chrome Web Store listing for review. Nothing happens
+# while that version has no date in release.json or already has a tag, and a listing is
+# skipped until its extension id is set as a repo variable.
 # Deploying stays off until the repo variable DEPLOY_ENABLED is set to true.
 #
-# Running the workflow by hand (Actions → Deploy → Run workflow) only builds both zips and
-# attaches them to the run as an artifact: no tag, release or store upload.
+# Running the workflow by hand (Actions → Deploy → Run workflow) builds both zips and
+# attaches them to the run. Tick "deploy" to also release and submit them: that's how a
+# release merged before deploying was set up gets published, and how a failed store
+# submission is retried (the tag and release are only created once).
 #
 # Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
 # Repo variables: DEPLOY_ENABLED, CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
@@ -14,15 +17,20 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths: [manifest.json]
+    paths: [manifest.json, release.json]
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: Also tag, release and submit to the Chrome Web Store
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.deploy }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +48,7 @@ jobs:
           path: dist/*.zip
 
   deploy:
-    if: ${{ github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true' }}
+    if: ${{ vars.DEPLOY_ENABLED == 'true' && (github.event_name == 'push' || inputs.deploy) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,24 +57,33 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check this version hasn't been released
+      - name: Check this version is ready to release
         id: version
+        env:
+          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           version="$(node -p 'require("./manifest.json").version')"
           echo "VERSION=$version" >> "$GITHUB_ENV"
-          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+          dated="$(node -p 'Boolean(require("./release.json").releases.find((r) => r.version === process.argv[1])?.date)' "$version")"
+          tagged=false
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then tagged=true; fi
+          echo "tagged=$tagged" >> "$GITHUB_OUTPUT"
+          if [ "$dated" != "true" ]; then
+            echo "$version has no date in release.json yet; nothing to do."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          elif [ "$tagged" = "true" ] && [ "$MANUAL" != "true" ]; then
             echo "v$version is already released; nothing to do."
-            echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
           else
-            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build the zips
-        if: steps.version.outputs.new == 'true'
+        if: steps.version.outputs.ready == 'true'
         run: node scripts/package.mjs
 
       - name: Create the release
-        if: steps.version.outputs.new == 'true'
+        if: ${{ steps.version.outputs.ready == 'true' && steps.version.outputs.tagged != 'true' }}
         run: |
           node -e '
             const { releases } = require("./release.json");
@@ -79,7 +96,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: Publish Switchboard
-        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_EXTENSION_ID != '' }}
+        if: ${{ steps.version.outputs.ready == 'true' && vars.CWS_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-$VERSION.zip" "${{ vars.CWS_EXTENSION_ID }}"
         env:
           CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
@@ -88,7 +105,7 @@ jobs:
           CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
 
       - name: Publish Switchboard Lite
-        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_LITE_EXTENSION_ID != '' }}
+        if: ${{ steps.version.outputs.ready == 'true' && vars.CWS_LITE_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-lite-$VERSION.zip" "${{ vars.CWS_LITE_EXTENSION_ID }}"
         env:
           CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
