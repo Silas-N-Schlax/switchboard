@@ -56,10 +56,12 @@ export const backgroundCountMax = 30;
 export const backgroundSizeMin = 0.1;
 export const backgroundSpeedMin = 0.1;
 export const backgroundSpeedMax = 3;
-// Multiplier on how often a style's rare sightings (shark and submarine, balloon and skydiver) appear; 1 is the original rarity.
+// Scenes measure the viewport when they render, so they re-render once a resize settles.
+export const backgroundResizeSettleMs = 250;
+// Multiplier on how often a style's rare sightings (shark and submarine, balloon and skydiver, ISS and alien craft) appear; 1 is the original rarity.
 export const rareFrequencyMin = 0.5;
 export const rareFrequencyMax = 10;
-// Timed events (submarine, skydiver) also scale with the rare-sight frequency.
+// Timed events (submarine, skydiver, ISS, alien craft) also scale with the rare-sight frequency.
 export const rareEventMeanIntervalMs = 90 * 60 * 1000; // at frequency 1
 export const rareEventRollMs = 15000;
 export const skydiveMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the fish shark
@@ -105,6 +107,13 @@ export const bounceCornerTolerancePx = 6;
 export const bounceRespawnDelayMs = { min: 6000, max: 12000 };
 export const bounceGravity = 1400; // px/s² while falling back in
 
+export const stratosphereDefaultSize = 0.5; // orbiting craft draw at base size here; the slider scales 0.2x–2x
+export const satelliteBaseSizeRange = { min: 22, max: 38 }; // px span, panels included
+export const satelliteBaseDurationRange = { min: 60000, max: 110000 }; // ms per screen crossing, before speed multiplier
+export const starCount = 140;
+export const shootingStarMeanIntervalMs = 40 * 1000;
+export const issMeanIntervalMs = 13.5 * 60 * 1000; // at frequency 1; as rare as the skydiver
+
 export const backgroundStyleDefaults = {
   bubbles: { count: 8, size: 1, speed: 1, rareFrequency: 1, pop: true, tint: true },
   fish: {
@@ -128,6 +137,14 @@ export const backgroundStyleDefaults = {
     confetti: true,
     collide: false,
     muted: false,
+  },
+  stratosphere: {
+    count: 8,
+    size: stratosphereDefaultSize,
+    speed: 1,
+    issFrequency: 1,
+    planet: "earth",
+    shootingStars: true,
   },
 };
 
