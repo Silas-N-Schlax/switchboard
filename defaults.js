@@ -158,7 +158,12 @@ export const backgroundStyleDefaults = {
 // ============================================================================
 // Tabs & links
 // ============================================================================
-export const defaultTabs = [{ id: "tab-1", name: "Home", order: 0, shortcutKey: "1" }];
+// Home starts as just the search bar (showHomeLinks), so Links gives new installs an
+// obvious place to put links.
+export const defaultTabs = [
+  { id: "tab-1", name: "Home", order: 0, shortcutKey: "1" },
+  { id: "tab-2", name: "Links", order: 1, shortcutKey: "2" },
+];
 export const defaultLinks = [];
 export const defaultLinkGroups = [];
 export const linkGroupLimit = 3;
