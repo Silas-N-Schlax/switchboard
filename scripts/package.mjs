@@ -115,9 +115,8 @@ function build(variantName, features, version) {
   try {
     fs.mkdirSync(out);
     shipped.forEach((entry) => fs.cpSync(path.join(root, entry), path.join(out, entry), { recursive: true }));
-    fs.readdirSync(path.join(out, "graphics/extension"))
-      .filter((f) => f.startsWith("chrome-store-"))
-      .forEach((f) => fs.rmSync(path.join(out, "graphics/extension", f)));
+    // Store listing images (graphics/store) are uploaded to the dashboard, not shipped.
+    fs.rmSync(path.join(out, "graphics/store"), { recursive: true, force: true });
     if (variant.graphics) fs.cpSync(path.join(out, variant.graphics), path.join(out, "graphics"), { recursive: true });
     fs.rmSync(path.join(out, "graphics/lite"), { recursive: true, force: true });
     execFileSync("find", [out, "-name", ".DS_Store", "-delete"]);
