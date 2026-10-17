@@ -1,0 +1,8 @@
+{
+  "id": "cheatsheet",
+  "name": "Shortcut cheat sheet",
+  "summary": "Press / to see every shortcut currently in effect.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

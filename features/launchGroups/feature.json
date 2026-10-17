@@ -1,0 +1,8 @@
+{
+  "id": "launchGroups",
+  "name": "Launch groups",
+  "summary": "Pick a few links on a tab and open them all at once with l.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

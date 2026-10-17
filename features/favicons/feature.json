@@ -1,0 +1,8 @@
+{
+  "id": "favicons",
+  "name": "Favicons",
+  "summary": "Link icons from the browser's own icon cache, or optionally your history.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

@@ -1,5 +1,5 @@
 // Best-effort lists of common OS/browser shortcuts, in the "Ctrl+Shift+Key" canonical
-// form produced by js/features/keybinds/shortcutFormat.js. None of this can ever be
+// form produced by shared/keybinds/shortcutFormat.js. None of this can ever be
 // exhaustive — every OS version, browser, window manager, and installed extension
 // differs — so it exists to hard-block obviously-colliding link shortcuts, not to
 // guarantee nothing else conflicts. Kept in its own file (imported by defaults.js)

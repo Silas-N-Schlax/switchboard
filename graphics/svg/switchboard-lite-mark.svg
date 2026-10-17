@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Switchboard Lite">
+  <title>Switchboard Lite</title>
+  <defs>
+    <linearGradient id="sbl-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4eee4"/>
+      <stop offset="1" stop-color="#d8cdbd"/>
+    </linearGradient>
+    <linearGradient id="sbl-cable" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4b3654"/>
+      <stop offset="1" stop-color="#25182b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#sbl-tile)"/><rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="#170f1b" stroke-opacity="0.1" stroke-width="6"/><g fill="#e9e1d4" stroke="#33233a" stroke-opacity="0.22" stroke-width="10"><circle cx="146" cy="146" r="30"/><circle cx="256" cy="146" r="30"/><circle cx="366" cy="146" r="30"/><circle cx="146" cy="256" r="30"/><circle cx="256" cy="256" r="30"/><circle cx="366" cy="256" r="30"/><circle cx="146" cy="366" r="30"/><circle cx="256" cy="366" r="30"/><circle cx="366" cy="366" r="30"/></g><path d="M146 146 C 146 330, 366 420, 366 256" fill="none" stroke="url(#sbl-cable)" stroke-width="26" stroke-linecap="round"/><circle cx="146" cy="146" r="34" fill="url(#sbl-cable)"/><circle cx="366" cy="256" r="34" fill="url(#sbl-cable)"/><circle cx="146" cy="146" r="11" fill="#f4eee4" fill-opacity="0.6"/><circle cx="366" cy="256" r="11" fill="#f4eee4" fill-opacity="0.6"/>
+</svg>

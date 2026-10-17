@@ -1,0 +1,8 @@
+{
+  "id": "move",
+  "name": "Moving things around",
+  "summary": "Send a link or group to another tab or group, and pick where it lands.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

@@ -1,0 +1,8 @@
+{
+  "id": "linkHealth",
+  "name": "Link health check",
+  "summary": "Optionally checks your links once a day and marks the ones that no longer load.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

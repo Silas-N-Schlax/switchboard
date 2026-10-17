@@ -1,0 +1,97 @@
+# Merging a release PR (one that changes the version in manifest.json) into main builds both
+# zips, creates the v<version> tag and GitHub release with them attached, and sends each zip
+# to its Chrome Web Store listing for review. Nothing happens if that version's tag already
+# exists, and a listing is skipped until its extension id is set as a repo variable.
+# Deploying stays off until the repo variable DEPLOY_ENABLED is set to true.
+#
+# Running the workflow by hand (Actions → Deploy → Run workflow) only builds both zips and
+# attaches them to the run as an artifact: no tag, release or store upload.
+#
+# Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
+# Repo variables: DEPLOY_ENABLED, CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+    paths: [manifest.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the zips
+        run: node scripts/package.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: switchboard-zips
+          path: dist/*.zip
+
+  deploy:
+    if: ${{ github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check this version hasn't been released
+        id: version
+        run: |
+          version="$(node -p 'require("./manifest.json").version')"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "v$version is already released; nothing to do."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build the zips
+        if: steps.version.outputs.new == 'true'
+        run: node scripts/package.mjs
+
+      - name: Create the release
+        if: steps.version.outputs.new == 'true'
+        run: |
+          node -e '
+            const { releases } = require("./release.json");
+            const release = releases.find((r) => r.version === process.env.VERSION);
+            console.log((release?.notes ?? []).map((note) => `- ${note}`).join("\n"));
+          ' > notes.md
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file notes.md \
+            "dist/switchboard-$VERSION.zip" "dist/switchboard-lite-$VERSION.zip"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Publish Switchboard
+        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_EXTENSION_ID != '' }}
+        run: node scripts/publish-store.mjs "dist/switchboard-$VERSION.zip" "${{ vars.CWS_EXTENSION_ID }}"
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+
+      - name: Publish Switchboard Lite
+        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_LITE_EXTENSION_ID != '' }}
+        run: node scripts/publish-store.mjs "dist/switchboard-lite-$VERSION.zip" "${{ vars.CWS_LITE_EXTENSION_ID }}"
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}

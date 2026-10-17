@@ -1,0 +1,8 @@
+{
+  "id": "tabLinks",
+  "name": "Tabs of links",
+  "summary": "Up to nine named tabs of links, with a shortcut for every tab and any link.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

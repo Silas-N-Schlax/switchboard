@@ -1,4 +1,4 @@
-import { runScheduledLinkCheck } from "./js/features/linkHealth/check.js";
+import { runScheduledLinkCheck } from "./features/linkHealth/check.js";
 import { linkHealthIntervalMinutes } from "./defaults.js";
 
 const LINK_HEALTH_ALARM = "linkHealthCheck";

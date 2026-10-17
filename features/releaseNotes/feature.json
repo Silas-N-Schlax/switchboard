@@ -1,0 +1,12 @@
+{
+  "id": "releaseNotes",
+  "name": "Release notes",
+  "summary": "What's new in each version, from the link at the bottom of Settings.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {},
+  "entry": "panel.js",
+  "styles": [
+    "release-notes.css"
+  ]
+}

@@ -1,0 +1,392 @@
+/* Stratosphere scene (features/backgrounds/stratosphere/stratosphere.js): the level above the
+   mountain sky. Space darkens the ambient palette, stars twinkle, satellites cross, and
+   Earth's limb curves along the bottom with a glowing rim of atmosphere. The ISS and an
+   alien craft (iss.js, alien.js) are its rare sightings. Fills mix from the palette so
+   the scene follows the color cycle. */
+.stratosphere-scene {
+  position: absolute;
+  inset: 0;
+  /* Keeps the depth z-indexes inside the scene. */
+  isolation: isolate;
+
+  .stratosphere-scene__space,
+  .stratosphere-scene__stars,
+  .stratosphere-scene__satellites,
+  .stratosphere-scene__events {
+    position: absolute;
+    inset: 0;
+  }
+
+  .stratosphere-scene__space {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--bg-1) 55%, black) 0%,
+      color-mix(in oklab, var(--bg-1) 80%, black) 55%,
+      transparent 100%
+    );
+    opacity: 0.75;
+  }
+
+  /* A transparent 1px dot whose box-shadows are the stars (see buildStars). Each star's
+     brightness is in its shadow color, so the group only fades between full and 35%. */
+  .stratosphere-scene__star-group {
+    --star-color: color-mix(in oklab, var(--bg-3) 15%, white);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    animation: starTwinkle var(--twinkle-duration, 5s) ease-in-out infinite alternate;
+  }
+
+  .stratosphere-scene__stars--still .stratosphere-scene__star-group {
+    animation: none;
+  }
+
+  /* Height matches BAND_ASPECT and BAND_MIN_VH in features/backgrounds/stratosphere/stratosphere.js. */
+  .stratosphere-scene__world {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: max(18.75vw, 28vh);
+    overflow: visible;
+  }
+
+  .stratosphere-scene__atmosphere {
+    fill: color-mix(in oklab, var(--bg-3) 55%, white);
+    opacity: 0.3;
+  }
+
+  .stratosphere-scene__planet {
+    fill: url(#stratosphere-scene-surface);
+  }
+
+  .stratosphere-scene__surface-lit {
+    stop-color: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 60%, var(--bg-2)) 85%, white);
+  }
+
+  .stratosphere-scene__surface-deep {
+    stop-color: color-mix(in oklab, var(--bg-1) 70%, black);
+  }
+
+  .stratosphere-scene__tone--light {
+    fill: color-mix(in oklab, var(--bg-3) 20%, white);
+  }
+
+  .stratosphere-scene__tone--dark {
+    fill: color-mix(in oklab, var(--bg-1) 70%, black);
+  }
+
+  .stratosphere-scene__tone-stroke--light {
+    stroke: color-mix(in oklab, var(--bg-3) 20%, white);
+  }
+
+  .stratosphere-scene__tone-stroke--dark {
+    stroke: color-mix(in oklab, var(--bg-1) 70%, black);
+  }
+
+  /* --spin-origin and --spin-period come from planet.js; one period of spin is one repeat of the layer. */
+  .stratosphere-scene__weather {
+    transform-box: view-box;
+    transform-origin: var(--spin-origin);
+    animation: planetSpin calc(var(--spin-ms) * 1ms / var(--speed, 1)) linear infinite;
+  }
+
+  .stratosphere-scene__weather--reverse {
+    animation-direction: reverse;
+  }
+
+  .stratosphere-scene__swirl {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: swirlTurn calc(var(--swirl-ms) * 1ms / var(--speed, 1)) linear infinite;
+  }
+
+  .stratosphere-scene__swirl--reverse {
+    animation-direction: reverse;
+  }
+
+  .stratosphere-scene__arm {
+    fill: none;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .stratosphere-scene__limb {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-3) 45%, white);
+    stroke-width: 1.5;
+    opacity: 0.45;
+  }
+
+  .stratosphere-scene__satellite {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size);
+    height: var(--height);
+    transform: translateX(var(--from-x, 50vw));
+    animation: orbitCross var(--duration, 60s) linear forwards;
+  }
+
+  /* Rides the y half of the crossing so the path bows like the limb (--bow from stratosphere.js). */
+  .stratosphere-scene__satellite-arc {
+    position: absolute;
+    inset: 0;
+    transform: translateY(calc(var(--y, 20vh) + var(--bow, 0px)));
+    animation: orbitArc var(--duration, 60s) linear forwards;
+    animation-delay: inherit;
+  }
+
+  .stratosphere-scene__satellite-member {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  .stratosphere-scene__satellite-tumble {
+    width: 100%;
+    height: 100%;
+    opacity: var(--depth-opacity, 1);
+    transform: rotate(var(--tilt, 0deg));
+    animation: satelliteTumble 18s ease-in-out infinite alternate;
+  }
+
+  .stratosphere-scene__satellite-tumble--steady {
+    animation: none;
+  }
+
+  .stratosphere-scene__satellite-shape {
+    transform: scaleX(var(--flip, 1));
+  }
+
+  .stratosphere-scene__satellite-shape,
+  .stratosphere-scene__iss-shape,
+  .stratosphere-scene__alien-shape {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .stratosphere-scene__part--panel,
+  .stratosphere-scene__iss-array {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-2) 50%, var(--bg-3)) 65%, white);
+    opacity: 0.45;
+  }
+
+  .stratosphere-scene__part--cells,
+  .stratosphere-scene__iss-cells {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-1) 60%, black);
+    stroke-width: 0.5;
+    opacity: 0.4;
+  }
+
+  .stratosphere-scene__part--strut {
+    fill: none;
+    stroke: color-mix(in oklab, var(--bg-3) 25%, white);
+    stroke-width: 0.8;
+    stroke-linecap: round;
+    opacity: 0.5;
+  }
+
+  .stratosphere-scene__part--body,
+  .stratosphere-scene__iss-hull {
+    fill: color-mix(in oklab, var(--bg-3) 40%, white);
+    opacity: 0.55;
+  }
+
+  .stratosphere-scene__part--metal,
+  .stratosphere-scene__part--flare {
+    fill: color-mix(in oklab, var(--bg-3) 20%, white);
+    opacity: 0.5;
+  }
+
+  /* Catches the sun now and then, like the real Iridium flares. */
+  .stratosphere-scene__part--flare {
+    animation: iridiumFlare 24s ease-in-out infinite;
+    animation-delay: var(--flare-delay, 0s);
+  }
+
+  .stratosphere-scene__iss-radiator {
+    fill: color-mix(in oklab, var(--bg-3) 20%, white);
+    opacity: 0.35;
+  }
+
+  .stratosphere-scene__satellite-light,
+  .stratosphere-scene__iss-light {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, white) 35%, #ff6b6b);
+    animation: orbitBlink 1.8s steps(1) infinite;
+    animation-delay: var(--blink-delay, 0s);
+  }
+
+  .stratosphere-scene__shooting-star {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, transparent, color-mix(in oklab, var(--bg-3) 15%, white));
+    opacity: 0;
+  }
+
+  .stratosphere-scene__iss,
+  .stratosphere-scene__alien {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .stratosphere-scene__iss-arc {
+    width: 100%;
+    height: 100%;
+  }
+
+  .stratosphere-scene__alien-bob {
+    width: 100%;
+    height: 100%;
+    animation: alienBob 2.6s ease-in-out infinite alternate;
+  }
+
+  .stratosphere-scene__alien-halo {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 50%, white) 50%, #8ef0b0);
+    opacity: 0.1;
+    filter: blur(6px);
+  }
+
+  .stratosphere-scene__alien-dome {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 50%, #8ef0b0) 60%, white);
+    opacity: 0.45;
+  }
+
+  .stratosphere-scene__alien-hull {
+    fill: color-mix(in oklab, var(--bg-3) 30%, white);
+    opacity: 0.6;
+  }
+
+  .stratosphere-scene__alien-underside {
+    fill: color-mix(in oklab, var(--bg-1) 60%, black);
+    opacity: 0.6;
+  }
+
+  .stratosphere-scene__alien-light {
+    fill: color-mix(in oklab, color-mix(in oklab, var(--bg-3) 40%, white) 35%, #8ef0b0);
+    animation: alienPulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes orbitCross {
+  from {
+    transform: translateX(var(--from-x));
+  }
+  to {
+    transform: translateX(var(--to-x));
+  }
+}
+
+/* Quadratic ease-out then ease-in: with the linear x above, an exact parabola. */
+@keyframes orbitArc {
+  0% {
+    transform: translateY(calc(var(--y) + var(--bow, 0px)));
+    animation-timing-function: cubic-bezier(0.333, 0.667, 0.667, 1);
+  }
+  50% {
+    transform: translateY(calc(var(--y) + var(--drift-y, 0vh) / 2));
+    animation-timing-function: cubic-bezier(0.333, 0, 0.667, 0.333);
+  }
+  100% {
+    transform: translateY(calc(var(--y) + var(--drift-y, 0vh) + var(--bow, 0px)));
+  }
+}
+
+@keyframes starTwinkle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.35;
+  }
+}
+
+@keyframes planetSpin {
+  to {
+    transform: rotate(var(--spin-period));
+  }
+}
+
+@keyframes swirlTurn {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes satelliteTumble {
+  from {
+    transform: rotate(calc(var(--tilt, 0deg) - 8deg));
+  }
+  to {
+    transform: rotate(calc(var(--tilt, 0deg) + 8deg));
+  }
+}
+
+@keyframes iridiumFlare {
+  0%,
+  88%,
+  100% {
+    opacity: 0.5;
+    filter: none;
+  }
+  92% {
+    opacity: 1;
+    filter: brightness(1.6) drop-shadow(0 0 3px white);
+  }
+}
+
+@keyframes orbitBlink {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  85% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes alienBob {
+  from {
+    transform: translateY(-4%);
+  }
+  to {
+    transform: translateY(4%);
+  }
+}
+
+@keyframes alienPulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stratosphere-scene__satellite-arc {
+    animation: none;
+    transform: none;
+  }
+
+  .stratosphere-scene__star-group,
+  .stratosphere-scene__weather,
+  .stratosphere-scene__swirl,
+  .stratosphere-scene__satellite-tumble,
+  .stratosphere-scene__satellite-light,
+  .stratosphere-scene__part--flare {
+    animation: none;
+  }
+}

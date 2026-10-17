@@ -1,0 +1,8 @@
+{
+  "id": "ambient",
+  "name": "Ambient colors",
+  "summary": "Slowly drifting colors with preset and custom palettes, plus palette files you can import.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

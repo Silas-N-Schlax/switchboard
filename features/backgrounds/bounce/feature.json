@@ -1,0 +1,12 @@
+{
+  "id": "bounce",
+  "name": "Bounce",
+  "summary": "A bouncing screensaver logo that celebrates every corner hit.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": {},
+  "entry": "bounce.js",
+  "styles": [
+    "bounce-field.css"
+  ]
+}

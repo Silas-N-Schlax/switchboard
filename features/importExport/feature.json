@@ -1,0 +1,8 @@
+{
+  "id": "importExport",
+  "name": "Backups",
+  "summary": "Export everything to a JSON file and import it on another machine.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

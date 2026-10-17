@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Switchboard Lite">
+  <title>Switchboard Lite</title>
+  <defs>
+    <linearGradient id="sbl-tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4eee4"/>
+      <stop offset="1" stop-color="#d8cdbd"/>
+    </linearGradient>
+    <linearGradient id="sbl-cable" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4b3654"/>
+      <stop offset="1" stop-color="#25182b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#sbl-tile)"/><rect x="3" y="3" width="506" height="506" rx="113" fill="none" stroke="#170f1b" stroke-opacity="0.1" stroke-width="6"/><path d="M150 150 C 150 380, 362 440, 362 290" fill="none" stroke="url(#sbl-cable)" stroke-width="58" stroke-linecap="round"/><circle cx="150" cy="150" r="72" fill="url(#sbl-cable)"/><circle cx="362" cy="290" r="72" fill="url(#sbl-cable)"/><circle cx="150" cy="150" r="24" fill="#f4eee4" fill-opacity="0.65"/><circle cx="362" cy="290" r="24" fill="#f4eee4" fill-opacity="0.65"/>
+</svg>

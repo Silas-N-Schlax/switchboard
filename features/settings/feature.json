@@ -1,0 +1,8 @@
+{
+  "id": "settings",
+  "name": "Settings",
+  "summary": "Fonts, colors, backgrounds, shortcuts, links and data in one panel.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

@@ -56,32 +56,7 @@ your browser: no account, no cloud sync, no tracking.
   (Settings → Data → **Clear everything**). Both ask you to type a phrase first, because
   neither can be undone.
 
-## Install
-
-Switchboard isn't in a store yet, so you load it as an unpacked extension.
-
-1. Clone the repo somewhere permanent (your browser loads it from this folder):
-   ```
-   git clone https://github.com/Silas-N-Schlax/switchboard.git
-   ```
-2. Open your browser's extensions page: `brave://extensions`, `chrome://extensions`,
-   or `edge://extensions`.
-3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and select the `switchboard` folder.
-5. Open a new tab. If the browser asks whether to keep the extension's new tab page,
-   choose **Keep**.
-
-### Updating
-
-```
-cd switchboard
-git pull
-```
-
-Then click the reload icon on Switchboard in the extensions page. Your tabs, links, and
-settings are kept.
-
-### Brave notes
+## Brave notes
 
 - Changing Brave's theme can switch the extension off. If your new tab goes back to
   Brave's default, re-enable Switchboard on `brave://extensions`.
@@ -119,6 +94,8 @@ shortcuts**; press `/` to see the keys currently in effect.
 
 ## Privacy
 
+The full policy ships with the extension (Settings → Data → Privacy policy).
+
 Your tabs, links, settings, and usage stats live in your browser's local extension
 storage and never leave your machine unless you export a backup or bookmarks yourself. Favicons come
 from the browser's own icon cache. The optional history permission (Settings → Links →
@@ -132,9 +109,8 @@ Find icons in your history) is only used locally to find icons for links you've 
 
 ## Feedback
 
-- Bugs and feature requests: [open an issue](https://github.com/Silas-N-Schlax/switchboard/issues)
-- Quick thoughts: the **Send feedback** link at the bottom of Settings, or
-  [this form](https://forms.gle/23ozsD4amrUqTjGe7)
+Bugs, feature requests and quick thoughts all go through the **Send feedback** link at
+the bottom of Settings, or [this form](https://forms.gle/23ozsD4amrUqTjGe7).
 
 When reporting a bug, it helps to include your browser and version, and what you
 expected versus what happened.
@@ -145,7 +121,7 @@ There's no build step: the repo root is the extension. After editing, open a new
 see HTML/CSS/JS changes. Changes to `manifest.json` or `background.js` need the reload
 icon on the extensions page.
 
-For quick UI work outside the extension, `js/storage.js` falls back to `localStorage`
+For quick UI work outside the extension, `core/storage.js` falls back to `localStorage`
 when `chrome.storage` isn't available. Serve the folder and open `switchboard.html`:
 
 ```
@@ -155,8 +131,41 @@ npx serve .
 
 Opening `switchboard.html` over `file://` won't work, because browsers block ES modules there.
 
-To build a zip for sharing without git, run `./scripts/package.sh` (output goes to
-`dist/`).
+### Layout, features and the lite build
+
+- `core/` is the app shell that always loads (boot, state, storage, migrations, base styles).
+- `shared/` holds plumbing many features use (dialogs, form controls, keybind handling).
+- `features/<name>/` keeps one feature's JS, CSS and a `feature.json` together.
+  Backgrounds live in `features/backgrounds/<id>/`, with helpers they share in
+  `features/backgrounds/shared/`.
+
+`features.json` lists every feature folder, and the app reads it at runtime, so adding a
+feature means making its folder and adding one line there. Each `feature.json` looks like:
+
+```json
+{
+  "id": "fish",
+  "name": "Ocean",
+  "summary": "One line for the release notes.",
+  "added": "1.0.0",
+  "lite": false,
+  "changes": { "1.1.0": "What changed in that version." },
+  "entry": "fish.js",
+  "styles": ["fish-field.css"],
+  "requires": ["other-feature-id"]
+}
+```
+
+`entry` and `styles` are only needed for features loaded on demand (backgrounds and the
+release notes); `requires` only when a feature uses another one's files. Release notes
+in Settings come from these files plus `release.json`, which holds each version's date
+and general notes.
+
+To build the store zips, run `node scripts/package.mjs` (or add `full` or `lite`). It
+writes `dist/switchboard-<version>.zip` with everything and
+`dist/switchboard-lite-<version>.zip` without the features marked `"lite": false`, and
+fails if `features.json` and the folders disagree, if `release.json` has no entry for the
+version, or if anything shipped points at a file that was left out.
 
 ### Benchmarks
 
@@ -169,6 +178,7 @@ cd scripts/bench
 npm install && npm run setup
 npm run bench               # everything (about 10 minutes)
 npm run bench -- app,leak   # or pick sections: app, bg, leak, stress, startup, devices
+npm run smoke               # quick check: every background, Settings and Release notes load
 ```
 
 `devices` repeats the key checks with the CPU slowed 4×, 6× and 20× to estimate a

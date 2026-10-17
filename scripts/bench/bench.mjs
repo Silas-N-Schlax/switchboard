@@ -66,7 +66,7 @@ async function seed({ tabs, linksPerTab, groupsPerTab = 0, background = "none", 
   await load();
   await page.evaluate(
     async ({ tabs, linksPerTab, groupsPerTab, background, stats, statsEnabled, style }) => {
-      const { createTab, createLink, createLinkGroup } = await import("/js/schema.js");
+      const { createTab, createLink, createLinkGroup } = await import("/core/schema.js");
       const current = await chrome.storage.local.get(null);
       await chrome.storage.local.clear();
       const T = [], L = [], G = [];
@@ -104,7 +104,7 @@ async function seed({ tabs, linksPerTab, groupsPerTab = 0, background = "none", 
       if (stats) {
         // Spread over the last 30 days and filed under the build's own bucket keys, so an
         // older build (monthly buckets) and a newer one (daily) hold the same history.
-        const { statsBucketKey } = await import("/js/features/stats/recorder.js");
+        const { statsBucketKey } = await import("/features/stats/recorder.js");
         const spacing = (30 * 86400000) / stats;
         for (let i = 0; i < stats; i++) {
           const t = Date.now() - i * spacing;
@@ -186,13 +186,16 @@ if (want("app")) {
 
     // Settings panel open / close, and the shortcuts sheet.
     const dialogs = await page.evaluate(async () => {
-      const t = async (fn) => {
+      // `until` keeps waiting frames for dialogs that open asynchronously (settings loads the
+      // backgrounds list the first time it opens).
+      const t = async (fn, until = () => true) => {
         const t0 = performance.now();
         fn();
-        await __frame();
+        do await __frame();
+        while (!until());
         return performance.now() - t0;
       };
-      const settingsOpen = await t(() => __key(","));
+      const settingsOpen = await t(() => __key(","), () => document.querySelector(".settings-panel--open"));
       const settingsClose = await t(() => __key("Escape", {}, document.querySelector(".settings-panel__dialog") ?? document.body));
       const sheetOpen = await t(() => __key("/"));
       const sheetClose = await t(() => __key("Escape", {}, document.activeElement ?? document.body));
@@ -340,7 +343,7 @@ if (want("stress")) {
 
   // Bookmarks file parse at increasing sizes.
   results.stress.bookmarksParseMs = await page.evaluate(async () => {
-    const { parseBookmarksHtml } = await import("/js/features/bookmarks/tree.js");
+    const { parseBookmarksHtml } = await import("/features/bookmarks/tree.js");
     const out = {};
     for (const n of [1000, 10000, 50000]) {
       const folders = 50;
@@ -361,7 +364,7 @@ if (want("stress")) {
 
   // Importing many bookmarks into one new tab, then rendering that tab.
   results.stress.bookmarksImport = await page.evaluate(async () => {
-    const { importBookmarks } = await import("/js/features/bookmarks/importStore.js");
+    const { importBookmarks } = await import("/features/bookmarks/importStore.js");
     const out = {};
     for (const n of [1000, 5000]) {
       const links = Array.from({ length: n }, (_, i) => ({ title: `Imported ${n}-${i}`, url: `https://imp${n}.example.com/${i}` }));
@@ -391,7 +394,7 @@ if (want("stress")) {
   for (const n of [0, 5000, 20000, 60000]) {
     await seed({ tabs: 3, linksPerTab: 10, stats: n, statsEnabled: true });
     const r = await page.evaluate(async () => {
-      const { recordEvent } = await import("/js/features/stats/recorder.js");
+      const { recordEvent } = await import("/features/stats/recorder.js");
       const times = [];
       for (let i = 0; i < 10; i++) {
         const t0 = performance.now();
@@ -407,7 +410,7 @@ if (want("stress")) {
 
   // Palette file parse.
   results.stress.paletteParseMs = await page.evaluate(async () => {
-    const { parsePaletteFile } = await import("/js/features/settings/colorLibrary.js");
+    const { parsePaletteFile } = await import("/features/settings/colorLibrary.js");
     const hexes = Array.from({ length: 20000 }, (_, i) => `#${(i * 2654435761 >>> 8).toString(16).padStart(6, "0").slice(0, 6)}`).join("\n");
     const t0 = performance.now();
     const parsed = parsePaletteFile("big.hex", hexes);

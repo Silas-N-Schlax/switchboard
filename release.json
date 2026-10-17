@@ -1,0 +1,13 @@
+{
+  "releases": [
+    {
+      "version": "1.0.0",
+      "date": null,
+      "notes": [
+        "The first public release: a calm, keyboard-first new tab that swaps the bookmark bar for named tabs of links, stored only on your computer.",
+        "Bring your bookmarks over from Settings → Data → Browser bookmarks, and press / any time to see every shortcut.",
+        "Switchboard Lite is the same app without the animated backgrounds, for slower computers."
+      ]
+    }
+  ]
+}

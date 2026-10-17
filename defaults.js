@@ -287,7 +287,7 @@ export const linkHealthTimeoutMs = 15000;
 export const linkHealthConcurrency = 4;
 export const statsEnabled = true;
 export const showKeycapHints = true;
-// Takes keyboard focus from the address bar when a new tab opens — see js/main.js.
+// Takes keyboard focus from the address bar when a new tab opens — see core/main.js.
 export const focusPageOnOpen = true;
 // Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
 export const focusSearchOnOpen = false;
@@ -296,7 +296,7 @@ export const clearEverythingPhrase = "clear everything";
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
 
 // ============================================================================
-// Composed defaults — the shapes js/schema.js and js/storage.js actually consume
+// Composed defaults — the shapes core/schema.js and core/storage.js actually consume
 // ============================================================================
 export const defaultAmbientSettings = {
   colorCycleEnabled: ambientColorCycleEnabled,
