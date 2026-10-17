@@ -161,12 +161,17 @@ function buildBoat(surface) {
   return boat;
 }
 
-function scheduleBoats(surface) {
+// Boats are minutes apart, and a pending timer keeps its whole scene in memory. Waiting in
+// short steps lets a replaced scene (a resize, a settings change) go within seconds.
+const BOAT_CHECK_MS = 15000;
+
+function scheduleBoats(surface, waitMs = randomInRange(BOAT_DELAY_MS)) {
   setTimeout(() => {
     if (!surface.isConnected) return;
+    if (waitMs > BOAT_CHECK_MS) return scheduleBoats(surface, waitMs - BOAT_CHECK_MS);
     surface.appendChild(buildBoat(surface));
     scheduleBoats(surface);
-  }, randomInRange(BOAT_DELAY_MS));
+  }, Math.min(waitMs, BOAT_CHECK_MS));
 }
 
 export function createSeaSurface(container) {

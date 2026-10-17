@@ -127,24 +127,18 @@ export function renderAmbient(root = document.body, settings = {}) {
 
   const blendConfig = { colors, colorCycleEnabled, segmentHours };
 
+  // The drift changes every ambientTickIntervalMs, so it waits on a timer rather than
+  // checking the clock every frame. Painting in a frame means a hidden tab does nothing
+  // until it's shown again, then catches up at once.
   function tick() {
     if (myGeneration !== renderGeneration) return; // superseded by a newer render
-    applyPalette(document.documentElement, getCurrentBlend(blendConfig));
-    requestAnimationFrame(scheduleNextTick);
-  }
-  let lastTickAt = 0;
-  function scheduleNextTick(timestamp) {
-    if (myGeneration !== renderGeneration) return; // superseded by a newer render
-    if (timestamp - lastTickAt >= ambientTickIntervalMs) {
-      lastTickAt = timestamp;
-      tick();
-    } else {
-      requestAnimationFrame(scheduleNextTick);
-    }
+    requestAnimationFrame(() => {
+      if (myGeneration !== renderGeneration) return;
+      applyPalette(document.documentElement, getCurrentBlend(blendConfig));
+      setTimeout(tick, ambientTickIntervalMs);
+    });
   }
 
   applyPalette(document.documentElement, getCurrentBlend(blendConfig));
-  if (colorCycleEnabled) {
-    requestAnimationFrame(scheduleNextTick);
-  }
+  if (colorCycleEnabled) setTimeout(tick, ambientTickIntervalMs);
 }

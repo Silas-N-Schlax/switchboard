@@ -21,9 +21,12 @@ export const StatEvent = {
 
 let queue = Promise.resolve();
 
+// One bucket per day keeps each write small: every event re-reads and re-saves its whole
+// bucket, which got slow once a month's bucket held thousands of events.
 export function statsBucketKey(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `stats:${date.getFullYear()}-${month}`;
+  const day = String(date.getDate()).padStart(2, "0");
+  return `stats:${date.getFullYear()}-${month}-${day}`;
 }
 
 // The bucket is re-read on every write rather than cached: several Switchboard tabs can
@@ -43,7 +46,8 @@ export function recordEvent(type, data = {}) {
   return queue;
 }
 
-export const STATS_KEY_PATTERN = /^stats:\d{4}-\d{2}$/;
+// Monthly buckets (stats:2026-10) from before the daily split still count as stats.
+export const STATS_KEY_PATTERN = /^stats:\d{4}-\d{2}(-\d{2})?$/;
 
 export async function loadStatsBuckets() {
   const all = await loadAll();

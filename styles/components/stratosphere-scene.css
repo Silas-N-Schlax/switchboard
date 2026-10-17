@@ -27,12 +27,21 @@
     opacity: 0.75;
   }
 
-  .stratosphere-scene__star {
+  /* A transparent 1px dot whose box-shadows are the stars (see buildStars). Each star's
+     brightness is in its shadow color, so the group only fades between full and 35%. */
+  .stratosphere-scene__star-group {
+    --star-color: color-mix(in oklab, var(--bg-3) 15%, white);
     position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
     border-radius: 50%;
-    background: color-mix(in oklab, var(--bg-3) 15%, white);
-    opacity: var(--star-opacity, 0.5);
     animation: starTwinkle var(--twinkle-duration, 5s) ease-in-out infinite alternate;
+  }
+
+  .stratosphere-scene__stars--still .stratosphere-scene__star-group {
+    animation: none;
   }
 
   /* Height matches BAND_ASPECT and BAND_MIN_VH in js/render/backgrounds/stratosphere.js. */
@@ -296,10 +305,10 @@
 
 @keyframes starTwinkle {
   from {
-    opacity: var(--star-opacity, 0.5);
+    opacity: 1;
   }
   to {
-    opacity: calc(var(--star-opacity, 0.5) * 0.35);
+    opacity: 0.35;
   }
 }
 
@@ -372,7 +381,7 @@
     transform: none;
   }
 
-  .stratosphere-scene__star,
+  .stratosphere-scene__star-group,
   .stratosphere-scene__weather,
   .stratosphere-scene__swirl,
   .stratosphere-scene__satellite-tumble,

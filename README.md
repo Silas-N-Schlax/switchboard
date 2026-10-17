@@ -158,6 +158,24 @@ Opening `switchboard.html` over `file://` won't work, because browsers block ES 
 To build a zip for sharing without git, run `./scripts/package.sh` (output goes to
 `dist/`).
 
+### Benchmarks
+
+`scripts/bench` loads the extension in headless Chromium and measures load time, tab
+switches, search, every background's CPU and frame rate, memory leaks, imports, and
+stats storage, using generated datasets from 30 to 9,000 links:
+
+```
+cd scripts/bench
+npm install && npm run setup
+npm run bench               # everything (about 10 minutes)
+npm run bench -- app,leak   # or pick sections: app, bg, leak, stress, startup, devices
+```
+
+`devices` repeats the key checks with the CPU slowed 4×, 6× and 20× to estimate a
+mid-range laptop, a budget laptop or Chromebook, and an old netbook. Results are written
+to `scripts/bench/results/`. Headless Chromium has no GPU, so
+compare runs with each other rather than with a real browser.
+
 ### Future ideas
 
 - **Split `defaults.js` into categories.** It's the main file for hand-tuning things

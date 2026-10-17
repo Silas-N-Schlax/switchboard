@@ -26,6 +26,13 @@
     }
   }
 
+  /* On long tabs (easy to get from a bookmark import), rows scrolled out of view skip
+     style, layout and paint. See longLinkListThreshold for why short tabs don't. */
+  &.link-list--long .link-list__row {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 44px;
+  }
+
   .link-list__row {
     position: relative;
     display: grid;
@@ -180,6 +187,13 @@
       opacity: 1;
       outline: none;
     }
+  }
+
+  .link-list__more {
+    margin: 0;
+    padding: var(--space-2) var(--space-4);
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
   }
 
   .link-list__add-tile {

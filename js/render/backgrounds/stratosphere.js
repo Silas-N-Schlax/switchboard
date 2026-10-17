@@ -38,22 +38,53 @@ function limbTopVh() {
   return 100 - (limbPx / window.innerHeight) * 100;
 }
 
-function buildStars() {
+// Stars twinkle in a few groups, each one element drawing its stars as box-shadows, so
+// the sky runs TWINKLE_GROUPS animations rather than one per star. Stars are dealt to
+// groups at random, so neighbours still twinkle out of step.
+const TWINKLE_GROUPS = 8;
+
+// Snaps a star to whole pixels the way the browser snaps a small element's box, so tiny
+// stars stay crisp single pixels instead of smearing across their neighbours.
+function snap(startPx, sizePx) {
+  const start = Math.round(startPx);
+  return { start, size: Math.max(1, Math.round(startPx + sizePx) - start) };
+}
+
+function starShadow({ x, y, size, opacity }) {
+  const across = snap((x / 100) * window.innerWidth, size);
+  const down = snap((y / 100) * window.innerHeight, size);
+  // The group element is a 1px dot at the top-left; a shadow offset and spread to cover
+  // the star's snapped box draws the star.
+  const spread = (across.size - 1) / 2;
+  const color = `color-mix(in srgb, var(--star-color) ${(opacity * 100).toFixed(1)}%, transparent)`;
+  return `${across.start + spread}px ${down.start + spread}px 0 ${spread}px ${color}`;
+}
+
+function buildStars({ twinkle = true } = {}) {
   const random = seededRandom(STAR_SEED);
-  const field = document.createElement("div");
-  field.className = "stratosphere-scene__stars";
+  const groups = Array.from({ length: TWINKLE_GROUPS }, () => []);
   for (let i = 0; i < starCount; i++) {
-    const star = document.createElement("div");
-    star.className = "stratosphere-scene__star";
     // Cubed so most stars are pinpricks and only a few are bright.
     const size = 0.8 + random() ** 3 * 2;
-    star.style.left = `${random() * 100}%`;
-    star.style.top = `${random() * 100}%`;
-    star.style.width = star.style.height = `${size}px`;
-    star.style.setProperty("--star-opacity", `${0.25 + random() * 0.6}`);
-    star.style.setProperty("--twinkle-duration", `${3000 + random() * 5000}ms`);
-    star.style.animationDelay = `-${random() * 8000}ms`;
-    field.appendChild(star);
+    const x = random() * 100;
+    const y = random() * 100;
+    const opacity = 0.25 + random() * 0.6;
+    const group = Math.floor(random() * TWINKLE_GROUPS);
+    random(); // keeps the sequence the same as when each star had its own twinkle delay
+    groups[group].push({ x, y, size, opacity });
+  }
+
+  const timing = seededRandom(STAR_SEED + 1);
+  const field = document.createElement("div");
+  field.className = "stratosphere-scene__stars";
+  if (!twinkle) field.classList.add("stratosphere-scene__stars--still");
+  for (const stars of groups.filter((g) => g.length)) {
+    const el = document.createElement("div");
+    el.className = "stratosphere-scene__star-group";
+    el.style.boxShadow = stars.map(starShadow).join(", ");
+    el.style.setProperty("--twinkle-duration", `${3000 + timing() * 5000}ms`);
+    el.style.animationDelay = `-${timing() * 8000}ms`;
+    field.appendChild(el);
   }
   return field;
 }
@@ -160,7 +191,12 @@ export const stratosphere = {
       options: [...planetTypes.map(({ id, label }) => ({ value: id, label })), { value: "none", label: "None" }],
     },
   ],
-  toggles: [{ key: "shootingStars", label: "Shooting stars" }],
+  // Twinkling is most of this scene's cost on slow machines, so it can be turned off;
+  // the stars stay, just still.
+  toggles: [
+    { key: "twinklingStars", label: "Twinkling stars" },
+    { key: "shootingStars", label: "Shooting stars" },
+  ],
   create(container, { count, sizeMultiplier, speedMultiplier, settings = {} }) {
     const scale = sizeMultiplier / stratosphereDefaultSize;
     // Open space above the planet, in vh.
@@ -172,7 +208,7 @@ export const stratosphere = {
     scene.className = "stratosphere-scene";
     const space = document.createElement("div");
     space.className = "stratosphere-scene__space";
-    scene.append(space, buildStars());
+    scene.append(space, buildStars({ twinkle: settings.twinklingStars !== false }));
     if (planetOn) scene.appendChild(buildPlanet(settings.planet, speedMultiplier));
     container.appendChild(scene);
 

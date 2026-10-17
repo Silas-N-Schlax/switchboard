@@ -2,6 +2,7 @@
 // fish near its head dart away. With `eats` on, the shark locks onto one fish, lunges,
 // and eats it if it connects; other fish still dart. Everything rides on each fish's
 // .fish-field__steer layer, on top of the CSS swim, so nothing runs without a shark.
+// Each frame either looks (reads positions) or not, and always writes after reading.
 // A passing submarine (submarine.js) scatters fish ahead of its nose the same way.
 
 import { randomInRange } from "./util.js";
@@ -23,6 +24,10 @@ const LUNGE_RANGE = 2; // shark lengths from its target at which it speeds up
 const LUNGE_BOOST = 1.6;
 const EAT_MS = 220;
 const SUB_SCARE_RADIUS = 0.7; // fraction of sub length, measured from its nose
+// How often sharks and subs look for fish. Reading positions makes the browser restyle
+// every animated fish, so looking every frame cost more than the whole rest of the scene;
+// steering still updates every frame toward the last thing seen.
+const SENSE_MS = 100;
 
 // Keyed by the steer layer, which is rebuilt on every respawn, so state never leaks
 // into a fish's next life.
@@ -70,8 +75,7 @@ function eat(prey, member) {
   }, EAT_MS);
 }
 
-function dart(prey, steer, sharkY, sharkFlip) {
-  const preyY = center(steer.getBoundingClientRect()).y;
+function dart(prey, steer, preyY, sharkY, sharkFlip) {
   const away = preyY === sharkY ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(preyY - sharkY);
   const amount = window.innerHeight * randomInRange(DART_RANGE);
   const room = away < 0 ? preyY - 20 : window.innerHeight - 20 - preyY;
@@ -105,7 +109,9 @@ function easeFleeRates(fishEls, now) {
   return active;
 }
 
-function steerShark(shark, fishEls, dt, { eats, bounds }) {
+// Reads only: decides where a shark should steer next. Fish it scares or eats are queued
+// in `actions`, so nothing is written until every shark and sub has looked.
+function senseShark(shark, fishEls, { eats, bounds }, actions) {
   const steer = steerOf(shark);
   const rect = steer.getBoundingClientRect();
   const flip = Number(shark.dataset.flip);
@@ -136,7 +142,8 @@ function steerShark(shark, fishEls, dt, { eats, bounds }) {
   state.target = locked?.member ?? null;
 
   if (locked && locked.distance < rect.width * CATCH_RADIUS + 8) {
-    eat(locked.prey, locked.member);
+    const { prey, member } = locked;
+    actions.push(() => eat(prey, member));
     state.target = null;
     locked = null;
   }
@@ -146,7 +153,7 @@ function steerShark(shark, fishEls, dt, { eats, bounds }) {
   for (const c of candidates) {
     if (locked && c.prey === locked.prey) continue;
     if (c.distance < scareRadius) {
-      if (!scared.has(c.prey)) dart(c.prey, c.preySteer, head.y, flip);
+      if (!scared.has(c.prey)) actions.push(() => dart(c.prey, c.preySteer, c.p.y, head.y, flip));
       scared.add(c.prey);
     } else if (!nearest || c.distance < nearest.distance) {
       nearest = c;
@@ -154,26 +161,37 @@ function steerShark(shark, fishEls, dt, { eats, bounds }) {
   }
 
   const target = locked?.p ?? nearest?.p;
-  const maxSpeed = locked ? DIVE_STEER_SPEED : STEER_SPEED;
   const limit = window.innerHeight * MAX_STEER;
   const targetY = target
     ? clamp(target.y, window.innerHeight * bounds.top, window.innerHeight * bounds.bottom)
     : head.y;
-  const desired = clamp(state.offset + (targetY - head.y), -limit, limit);
-  const wanted = clamp((desired - state.offset) * STEER_RESPONSE, -maxSpeed, maxSpeed);
+  state.desired = clamp(state.offset + (targetY - head.y), -limit, limit);
+  state.maxSpeed = locked ? DIVE_STEER_SPEED : STEER_SPEED;
+  state.lunging = !!locked && locked.distance < rect.width * LUNGE_RANGE;
+  state.heading = heading;
+  // getAnimations() makes the browser bring every style up to date, so it's looked up
+  // here, with the other reads, rather than every frame in moveShark.
+  state.swim = swimAnimation(shark);
+}
+
+// Writes only: eases a shark toward where it last decided to go.
+function moveShark(shark, dt) {
+  const steer = steerOf(shark);
+  const state = steer && hunters.get(steer);
+  if (!state || state.desired === undefined) return;
+  const wanted = clamp((state.desired - state.offset) * STEER_RESPONSE, -state.maxSpeed, state.maxSpeed);
   state.velocity += (wanted - state.velocity) * Math.min(1, dt * 2);
   state.offset += state.velocity * dt;
 
-  const pitch = clamp((state.velocity / STEER_SPEED) * MAX_PITCH_DEG, -MAX_PITCH_DEG, MAX_PITCH_DEG) * heading;
+  const pitch = clamp((state.velocity / STEER_SPEED) * MAX_PITCH_DEG, -MAX_PITCH_DEG, MAX_PITCH_DEG) * state.heading;
   steer.style.transform = `translateY(${state.offset}px) rotate(${pitch}deg)`;
 
-  const lunging = locked && locked.distance < rect.width * LUNGE_RANGE;
-  state.rate += ((lunging ? LUNGE_BOOST : 1) - state.rate) * Math.min(1, dt * 3);
-  const swim = swimAnimation(shark);
-  if (swim) swim.playbackRate = state.rate;
+  state.rate += ((state.lunging ? LUNGE_BOOST : 1) - state.rate) * Math.min(1, dt * 3);
+  if (state.swim) state.swim.playbackRate = state.rate;
 }
 
-function scareAhead(sub, fishEls) {
+// Reads only, like senseShark: fish near a passing sub's nose are queued to dart.
+function senseSub(sub, fishEls, actions) {
   const rect = sub.getBoundingClientRect();
   const flip = Number(sub.dataset.flip);
   const nose = { x: flip === -1 ? rect.right : rect.left, y: center(rect).y };
@@ -181,36 +199,46 @@ function scareAhead(sub, fishEls) {
   for (const prey of fishEls) {
     const preySteer = steerOf(prey);
     if (!preySteer || escaped.has(preySteer) || prey.classList.contains("fish-field__fish--shark")) continue;
-    const near = membersOf(prey).some((member) => {
-      const p = center(member.getBoundingClientRect());
-      return Math.hypot(p.x - nose.x, p.y - nose.y) < radius;
-    });
-    if (near) dart(prey, preySteer, nose.y, flip);
+    const near = membersOf(prey)
+      .map((member) => center(member.getBoundingClientRect()))
+      .find((p) => Math.hypot(p.x - nose.x, p.y - nose.y) < radius);
+    if (near) actions.push(() => dart(prey, preySteer, near.y, nose.y, flip));
   }
 }
 
 // `bounds` are the top/bottom of open water as viewport-height fractions.
 export function startSharkHunt(field, options) {
   let last = 0;
+  let lastSense = -Infinity;
+  let fishEls = [];
+  let sharks = [];
+  let subs = [];
 
   function frame(now) {
     if (!field.isConnected) return;
     const dt = last ? Math.min(0.1, (now - last) / 1000) : 0;
     last = now;
 
-    const fishEls = [...field.children];
-    const sharks = fishEls.filter(
-      (el) => el.classList.contains("fish-field__fish--shark") && isOnScreen(el.getBoundingClientRect())
-    );
-    sharks.forEach((shark) => steerShark(shark, fishEls, dt, options));
-    const subs = fishEls.filter((el) => el.classList.contains("fish-field__sub"));
-    subs.forEach((sub) => scareAhead(sub, fishEls));
+    if (now - lastSense >= SENSE_MS) {
+      lastSense = now;
+      fishEls = [...field.children];
+      sharks = fishEls.filter(
+        (el) => el.classList.contains("fish-field__fish--shark") && isOnScreen(el.getBoundingClientRect())
+      );
+      subs = fishEls.filter((el) => el.classList.contains("fish-field__sub"));
+      const actions = [];
+      sharks.forEach((shark) => senseShark(shark, fishEls, options, actions));
+      subs.forEach((sub) => senseSub(sub, fishEls, actions));
+      actions.forEach((act) => act());
+    }
+    sharks.forEach((shark) => moveShark(shark, dt));
     const stillFleeing = easeFleeRates(fishEls, now);
 
     if (sharks.length || subs.length || stillFleeing) {
       requestAnimationFrame(frame);
     } else {
       last = 0;
+      lastSense = -Infinity;
       setTimeout(() => requestAnimationFrame(frame), IDLE_CHECK_MS);
     }
   }

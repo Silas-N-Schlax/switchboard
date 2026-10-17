@@ -44,7 +44,16 @@ function buildPaletteSelect(onChange) {
   select.name = "palette";
   select.className = "select-input";
 
+  let filledFor = null;
+
   function fill() {
+    // Only rebuilt when the imported palettes change, not on every refresh.
+    const key = importedPalettes().map((p) => `${p.id}:${p.name}`).join("|");
+    if (key === filledFor) {
+      select.value = selectablePaletteId();
+      return;
+    }
+    filledFor = key;
     select.replaceChildren(...ambientPalettePresets.map(paletteOption));
     if (importedPalettes().length) {
       const imported = document.createElement("optgroup");
