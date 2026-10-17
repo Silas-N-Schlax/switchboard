@@ -32,6 +32,11 @@ GitHub releases or store uploads yourself.
    - gives the top `release.json` entry that version and today's date
    - lists the size of each zip and which features lite leaves out, plus the check
      results and the Release notes screenshot
+   - notes whether `privacy.html` changed since the last release. If it did, the owner
+     copies it to `index.html` in the public
+     [switchboard-privacy](https://github.com/Silas-N-Schlax/switchboard-privacy) repo,
+     which serves the store's privacy policy URL:
+     https://silas-n-schlax.github.io/switchboard-privacy/
 
    Then stop. The agent is done.
 
