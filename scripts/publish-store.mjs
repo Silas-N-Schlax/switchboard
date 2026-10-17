@@ -1,13 +1,14 @@
 // Uploads a zip to an existing Chrome Web Store listing and submits it for review, using the
-// v2 API (https://developer.chrome.com/docs/webstore/using-api).
+// v2 API (https://developer.chrome.com/docs/webstore/using-api). It signs in as a service
+// account (https://developer.chrome.com/docs/webstore/service-accounts) whose email is added
+// in the developer dashboard's Account section.
 // Usage: node scripts/publish-store.mjs <zip> <extension id>
-// Needs CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN and CWS_PUBLISHER_ID in the environment.
+// Needs CWS_SERVICE_ACCOUNT_KEY (the account's JSON key) and CWS_PUBLISHER_ID in the environment.
+import crypto from "node:crypto";
 import fs from "node:fs";
 
 const [zip, extensionId] = process.argv.slice(2);
-const env = Object.fromEntries(
-  ["CWS_CLIENT_ID", "CWS_CLIENT_SECRET", "CWS_REFRESH_TOKEN", "CWS_PUBLISHER_ID"].map((key) => [key, process.env[key]])
-);
+const env = Object.fromEntries(["CWS_SERVICE_ACCOUNT_KEY", "CWS_PUBLISHER_ID"].map((key) => [key, process.env[key]]));
 const missing = [!zip && "a zip path", !extensionId && "an extension id", ...Object.keys(env).filter((key) => !env[key])].filter(Boolean);
 if (missing.length) {
   console.error(`publish-store needs ${missing.join(", ")}`);
@@ -25,13 +26,26 @@ async function call(url, options) {
   return body;
 }
 
+// Trades a JWT signed with the service account's key for an hour-long access token.
+function serviceAccountAssertion({ client_email: email, private_key: key }) {
+  const encode = (value) => Buffer.from(JSON.stringify(value)).toString("base64url");
+  const now = Math.floor(Date.now() / 1000);
+  const unsigned = `${encode({ alg: "RS256", typ: "JWT" })}.${encode({
+    iss: email,
+    scope: "https://www.googleapis.com/auth/chromewebstore",
+    aud: "https://oauth2.googleapis.com/token",
+    iat: now,
+    exp: now + 3600,
+  })}`;
+  const signature = crypto.createSign("RSA-SHA256").update(unsigned).sign(key, "base64url");
+  return `${unsigned}.${signature}`;
+}
+
 const { access_token: token } = await call("https://oauth2.googleapis.com/token", {
   method: "POST",
   body: new URLSearchParams({
-    client_id: env.CWS_CLIENT_ID,
-    client_secret: env.CWS_CLIENT_SECRET,
-    refresh_token: env.CWS_REFRESH_TOKEN,
-    grant_type: "refresh_token",
+    grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    assertion: serviceAccountAssertion(JSON.parse(env.CWS_SERVICE_ACCOUNT_KEY)),
   }),
 });
 const auth = { Authorization: `Bearer ${token}` };
