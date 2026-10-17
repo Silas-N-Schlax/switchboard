@@ -2,7 +2,7 @@ import { state } from "../../state.js";
 import { openContextMenu } from "./contextMenu.js";
 import { openSettings } from "../settings/panel.js";
 import { openCheatsheet } from "../cheatsheet/index.js";
-import { getKeybind } from "../keybinds/registry.js";
+import { getKeybind, registerKeybind } from "../keybinds/registry.js";
 import { confirmTabDelete, confirmTabClear } from "../tabLinks/confirmTabDelete.js";
 import {
   deleteLink,
@@ -297,6 +297,18 @@ function resolveMenuItems(target, onChange) {
   return defaultMenuItems();
 }
 
+// Opens under the focused item, or near the top middle when nothing is focused.
+function openMenuForFocus(onChange) {
+  const focused = document.activeElement ?? document.body;
+  const items = resolveMenuItems(focused, onChange);
+  if (focused === document.body) {
+    openContextMenu(window.innerWidth / 2 - 94, window.innerHeight / 3, items, { returnFocus: focused });
+    return;
+  }
+  const rect = focused.getBoundingClientRect();
+  openContextMenu(rect.left, rect.bottom + 4, items, { returnFocus: focused });
+}
+
 let initialized = false;
 
 export function initGlobalContextMenu(onChange) {
@@ -305,5 +317,9 @@ export function initGlobalContextMenu(onChange) {
   document.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     openContextMenu(e.clientX, e.clientY, resolveMenuItems(e.target, onChange));
+  });
+  registerKeybind("context-menu-open", {
+    description: "Open the menu for the selected item",
+    handler: () => openMenuForFocus(onChange),
   });
 }

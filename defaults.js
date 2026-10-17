@@ -47,6 +47,12 @@ export const ambientCuratedSwatches = [
   "#748038",
 ];
 
+// Palette files imported in Settings, each with the palettes and swatches it added. They
+// sit beside ambientMode, not in it, so Reset appearance keeps them.
+export const colorLibrary = { files: [] };
+export const colorLibraryPaletteLimit = 24;
+export const colorLibrarySwatchLimit = 100;
+
 // ============================================================================
 // Ambient background — style (bubbles, fish, …), each with its own count/size/speed
 // ============================================================================
@@ -185,6 +191,7 @@ export const defaultKeybinds = {
   "search-focus": "s",
   "cheatsheet-open": "/",
   "settings-open": ",",
+  "context-menu-open": "m",
   "launch-group": "l",
   "launch-group-edit": "Shift+L",
   "tab-prev": "[",
@@ -249,7 +256,6 @@ export const showFavicons = false;
 // Requested at 2x the 16px display size so icons stay sharp on high-DPI screens.
 export const faviconFetchSize = 32;
 export const faviconHistoryCandidateLimit = 3;
-export const cacheTrimEnabled = false;
 export const checkLinkHealth = false;
 export const linkHealthIntervalMinutes = 24 * 60;
 export const linkHealthTimeoutMs = 15000;
@@ -278,7 +284,6 @@ export const defaultAmbientSettings = {
 
 export const defaultSettings = {
   showFavicons,
-  cacheTrimEnabled,
   checkLinkHealth,
   statsEnabled,
   showKeycapHints,
@@ -292,6 +297,7 @@ export const defaultSettings = {
   showFullUrl,
   openLinksInNewTab,
   ambientMode: defaultAmbientSettings,
+  colorLibrary,
   backgroundConfig: { mode: "ambient" },
   keybinds: defaultKeybinds,
 };

@@ -298,6 +298,32 @@ async function live(el, ctx, firstLife) {
   }
 }
 
+// Hidden tabs hold back finish events, so on return every overdue rise ends at once and
+// all bubbles restart from the bottom together. play() would rewind a finished animation,
+// so only the ones paused here are resumed. Only one field is live at a time, so a new
+// one drops the listener left by the field it replaced.
+let stopFreezing = null;
+
+function freezeWhileHidden(field) {
+  stopFreezing?.();
+  let frozen = [];
+  function sync() {
+    if (!field.isConnected) {
+      document.removeEventListener("visibilitychange", sync);
+      return;
+    }
+    if (document.visibilityState === "hidden") {
+      frozen = field.getAnimations({ subtree: true }).filter((animation) => animation.playState === "running");
+      for (const animation of frozen) animation.pause();
+      return;
+    }
+    for (const animation of frozen) if (animation.playState === "paused") animation.play();
+    frozen = [];
+  }
+  document.addEventListener("visibilitychange", sync);
+  stopFreezing = () => document.removeEventListener("visibilitychange", sync);
+}
+
 function placeStatic(el, options) {
   const roll = rollBubble({ absorber: true, options: { ...options, pop: false } });
   buildBubble(el, roll);
@@ -331,6 +357,7 @@ export const bubbles = {
       if (prefersReducedMotion) placeStatic(el, options);
       else live(el, ctx, true);
     }
+    if (!prefersReducedMotion) freezeWhileHidden(field);
     return field;
   },
 };

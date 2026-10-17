@@ -12,6 +12,7 @@ import { defaultTab } from "./features/tabLinks/store.js";
 import { initKeybindListener } from "./features/keybinds/registry.js";
 import { initGlobalContextMenu } from "./features/contextMenu/menus.js";
 import { initLinkShortcutListener } from "./features/tabLinks/linkShortcuts.js";
+import { noticeShortcutClashes } from "./features/tabLinks/shortcutClashNotice.js";
 import { initLinkTabbing } from "./features/tabLinks/linkTabbing.js";
 import { initLaunchGroups } from "./features/launchGroups/index.js";
 import { initActionKeybinds } from "./features/tabLinks/actionKeybinds.js";
@@ -55,6 +56,7 @@ async function init() {
   await initLinkHealth(renderTabLinks);
   render();
   if (state.settings.focusPageOnOpen && state.settings.focusSearchOnOpen) focusSearchBar();
+  noticeShortcutClashes();
 }
 
 function render() {
