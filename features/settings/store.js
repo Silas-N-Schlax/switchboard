@@ -2,6 +2,7 @@ import { state } from "../../core/state.js";
 import { save } from "../../core/storage.js";
 import { renderAmbient } from "../ambient/ambient.js";
 import { interfaceFontOptions, monoFontOptions } from "../../defaults.js";
+import { applyLayout } from "../layout/layout.js";
 
 export function ambientMode() {
   return state.settings.ambientMode;
@@ -13,6 +14,7 @@ function fontStack(options, id) {
 
 export function applyDisplaySettings(root = document.body) {
   root.classList.toggle("hide-keycap-hints", !state.settings.showKeycapHints);
+  applyLayout(root);
   const { style } = document.documentElement;
   style.setProperty("--font-ui", fontStack(interfaceFontOptions, state.settings.interfaceFont));
   style.setProperty("--font-mono", fontStack(monoFontOptions, state.settings.monoFont));

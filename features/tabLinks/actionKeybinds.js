@@ -6,7 +6,6 @@ import {
   setActiveTab,
   deleteLink,
   reorderLink,
-  addLink,
   linksInGroup,
   linkGroupIdOf,
   linksForTab,
@@ -29,8 +28,7 @@ import {
 import { hasLaunchGroup, setLinkLaunchGroup, clearLaunchGroup } from "../launchGroups/index.js";
 import { keybindLabel } from "../../shared/keybinds/catalog.js";
 import { beginRenameTab } from "./renameState.js";
-import { openAddLinkModal } from "./linkModal.js";
-import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl } from "./linkActions.js";
+import { openUpdateLinkModal, openLinkInNewTab, copyLinkUrl, startAddLink } from "./linkActions.js";
 import { showToast } from "../../shared/dialog/toast.js";
 import { maxTabs } from "../../defaults.js";
 
@@ -119,14 +117,7 @@ export function initActionKeybinds(onChange) {
   });
   registerKeybind("link-new", {
     description: "New link on this tab",
-    handler: () => {
-      const tabId = activeTab()?.id;
-      if (!tabId) return;
-      openAddLinkModal(document.body, async ({ label, url, shortcutKey }) => {
-        await addLink(tabId, { label, url, shortcutKey });
-        onChange();
-      });
-    },
+    handler: () => startAddLink(onChange),
   });
 
   registerKeybind("link-edit", {

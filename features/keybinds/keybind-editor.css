@@ -54,6 +54,25 @@
     }
   }
 
+  /* Keys a Layout switch has turned off (the tab keys while Tabs is off). They can still
+     be changed, ready for when the switch goes back on. */
+  .keybind-editor__off {
+    display: none;
+    color: var(--ink-faint);
+    font-size: var(--text-xs);
+  }
+
+  .keybind-editor__row--off {
+    .keybind-editor__label,
+    .keybind-editor__key {
+      opacity: 0.45;
+    }
+
+    .keybind-editor__off {
+      display: block;
+    }
+  }
+
   .keybind-editor__key {
     display: inline-flex;
     flex-shrink: 0;

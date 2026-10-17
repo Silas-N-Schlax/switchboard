@@ -1,13 +1,14 @@
 import { state } from "../../core/state.js";
-import { listKeybinds, registerKeybind, getKeybind } from "../../shared/keybinds/registry.js";
+import { listKeybinds, registerKeybind, getKeybind, isKeybindDisabled } from "../../shared/keybinds/registry.js";
 import { keybindSections, tabSwitchSlot } from "../../shared/keybinds/catalog.js";
 import { sortedTabs } from "../tabLinks/store.js";
 import { buildShortcutBadges } from "../../shared/keybinds/shortcutBadges.js";
 import { buildDialogHeader, buildDialogGroup } from "../../shared/dialog/chrome.js";
 
-function buildRow({ description, key, badges = null }) {
+function buildRow({ description, key, badges = null, off = false }) {
   const row = document.createElement("div");
-  row.className = "cheatsheet-panel__row";
+  row.className = off ? "cheatsheet-panel__row cheatsheet-panel__row--off" : "cheatsheet-panel__row";
+  if (off) row.title = "Off while Tabs is off (Settings › Layout)";
 
   const label = document.createElement("span");
   label.className = "cheatsheet-panel__description";
@@ -56,6 +57,7 @@ function collapseTabSwitches(entries) {
     id: "tab-switch",
     description: "Switch to tab",
     badges: buildTabRuns(onDigit.map((e) => tabSwitchSlot(e.id))),
+    off: onDigit.every((e) => e.off),
   };
   const firstIndex = entries.indexOf(onDigit[0]);
   const rest = entries.filter((e) => !onDigit.includes(e));
@@ -101,7 +103,7 @@ function buildPanel() {
     keybindSections.forEach(({ title, actions }) => {
       const entries = actions
         .filter((a) => registered.has(a.id) && getKeybind(a.id))
-        .map((a) => ({ id: a.id, description: describe(a), key: getKeybind(a.id) }));
+        .map((a) => ({ id: a.id, description: describe(a), key: getKeybind(a.id), off: isKeybindDisabled(a.id) }));
       if (entries.length) body.appendChild(buildSection(title, collapseTabSwitches(entries)));
     });
 

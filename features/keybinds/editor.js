@@ -1,7 +1,7 @@
 import { state } from "../../core/state.js";
 import { save } from "../../core/storage.js";
 import { defaultKeybinds } from "../../defaults.js";
-import { getKeybind, getStoredKeybind, setKeybinds } from "../../shared/keybinds/registry.js";
+import { getKeybind, getStoredKeybind, setKeybinds, isKeybindDisabled } from "../../shared/keybinds/registry.js";
 import { keybindSections, tabSwitchSlot } from "../../shared/keybinds/catalog.js";
 import { keybindFromEvent, describeShortcut, comparableShortcut } from "../../shared/keybinds/shortcutFormat.js";
 import { buildShortcutBadges } from "../../shared/keybinds/shortcutBadges.js";
@@ -46,6 +46,7 @@ function renderKey(id) {
   }
   row.button.setAttribute("aria-label", `${row.label}: ${key ? describeShortcut(key) : "no shortcut"}. Press to change.`);
   row.reset.hidden = isDefault(id);
+  row.element.classList.toggle("keybind-editor__row--off", isKeybindDisabled(id));
 }
 
 function renderAllKeys() {
@@ -66,6 +67,11 @@ function startCapturing(id) {
   renderKey(id);
 }
 
+// With Buttons off, the Settings key (and right-click) is the only way into Settings.
+function leavesSettingsWithoutKey(changes) {
+  return !state.settings.showButtons && Object.hasOwn(changes, "settings-open") && changes["settings-open"] === null;
+}
+
 async function commit(changes) {
   await setKeybinds(changes);
   renderAllKeys();
@@ -77,11 +83,21 @@ async function commit(changes) {
 async function assignKey(id, key) {
   stopCapturing();
   if (key === getKeybind(id) || (key === null && getKeybind(id) === null)) return;
-  if (key === null) return commit({ [id]: null });
+  if (key === null) {
+    if (leavesSettingsWithoutKey({ [id]: null })) {
+      setError(id, "Settings needs a key while Buttons is off in Layout");
+      return;
+    }
+    return commit({ [id]: null });
+  }
 
   const owner = findKeyOwner(key, { excludeActionId: id });
   if (owner?.type === "system") {
     setError(id, `${describeShortcut(key)} is reserved by your browser or OS`);
+    return;
+  }
+  if (owner?.type === "app" && leavesSettingsWithoutKey({ [owner.id]: null })) {
+    setError(id, `${describeShortcut(key)} opens Settings, which needs a key while Buttons is off`);
     return;
   }
   if (owner) {
@@ -186,8 +202,13 @@ function buildRow({ id, label }) {
   reset.setAttribute("aria-label", `Reset ${label} to default`);
   reset.addEventListener("click", () => assignKey(id, defaultKeybinds[id] ?? null));
 
+  const off = document.createElement("span");
+  off.className = "keybind-editor__off";
+  off.textContent = "Off while Tabs is off";
+  text.appendChild(off);
+
   row.append(text, button, reset);
-  rows.set(id, { label, button, reset, error });
+  rows.set(id, { element: row, label, button, reset, error });
   return row;
 }
 

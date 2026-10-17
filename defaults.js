@@ -291,6 +291,17 @@ export const showKeycapHints = true;
 export const focusPageOnOpen = true;
 // Only takes effect while focusPageOnOpen is on; the address bar keeps focus otherwise.
 export const focusSearchOnOpen = false;
+// Settings › Layout. Off for Links on the home tab leaves the home tab (slot 1) as just the
+// search bar; core/migrations/homeLinks.js turns it on for anyone who already keeps links there.
+export const showHomeLinks = false;
+export const showAddLinkButton = true;
+// Off hides the tab dock and shows only the home tab; other tabs keep their links.
+export const showTabs = true;
+// Off hides the search bar until the search key brings it up.
+export const showSearchBar = true;
+// Off hides every clickable control that isn't a link: the corner buttons, the tab dock's
+// + and ×, each link's ×, and the Add link tile.
+export const showButtons = true;
 export const clearTabPhrase = "clear links";
 export const clearEverythingPhrase = "clear everything";
 export const feedbackUrl = "https://forms.gle/23ozsD4amrUqTjGe7";
@@ -323,6 +334,13 @@ export const defaultSettings = {
   linkGroupLimit,
   showFullUrl,
   openLinksInNewTab,
+  showHomeLinks,
+  showAddLinkButton,
+  showTabs,
+  showSearchBar,
+  showButtons,
+  // Set once the "how to reach Settings" notice has shown, the first time Buttons goes off.
+  buttonsOffNoticeShown: false,
   ambientMode: defaultAmbientSettings,
   colorLibrary,
   backgroundConfig: { mode: "ambient" },

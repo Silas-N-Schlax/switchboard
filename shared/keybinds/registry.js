@@ -10,6 +10,9 @@ import { serializeShortcutEvent, resolveShortcut } from "./shortcutFormat.js";
 // only tracks handlers, not key assignment.
 const registered = new Map();
 let listenerAttached = false;
+// Keys a setting has switched off (the tab keys while Tabs is off). They don't fire, and the
+// shortcut editor and the shortcuts sheet show them as off.
+let disabledIds = new Set();
 
 // `when` scopes a keybind (e.g. to a focused link); while it returns false the key is
 // left alone, so a link shortcut on the same key still works.
@@ -19,6 +22,14 @@ export function registerKeybind(id, { description, handler, when = null }) {
 
 export function unregisterKeybind(id) {
   registered.delete(id);
+}
+
+export function setDisabledKeybinds(ids) {
+  disabledIds = new Set(ids);
+}
+
+export function isKeybindDisabled(id) {
+  return disabledIds.has(id);
 }
 
 // A stored null means the person cleared the key on purpose, so it must not fall back
@@ -78,6 +89,7 @@ function matchesKey(e, key) {
 
 function findActiveKeybind(e) {
   for (const [id, entry] of registered) {
+    if (disabledIds.has(id)) continue;
     if (matchesKey(e, getKeybind(id)) && (!entry.when || entry.when())) return entry;
   }
   return null;

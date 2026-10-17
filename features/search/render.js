@@ -27,6 +27,8 @@ let barEl = null;
 let inputEl = null;
 let hintEl = null;
 let onChangeRef = null;
+// With the Search bar switch off, the search key brings the bar up until Esc or blur.
+let summoned = false;
 
 function updateFallbackMode() {
   const query = inputEl.value.trim();
@@ -90,15 +92,25 @@ function build(container) {
   });
 
   inputEl.addEventListener("focus", updateHint);
-  inputEl.addEventListener("blur", updateHint);
+  inputEl.addEventListener("blur", (e) => {
+    updateHint();
+    // Moving into the results (arrow keys, Tab) keeps a summoned bar up.
+    if (!summoned || e.relatedTarget?.closest?.(".link-list")) return;
+    summoned = false;
+    if (state.settings.showSearchBar) return;
+    inputEl.value = "";
+    clearSearchQuery();
+    updateFallbackMode();
+    onChangeRef?.();
+  });
 
   registerKeybind("search-focus", {
     description: "Focus search",
     handler: () => {
-      if (!isHomeTab(activeTab())) {
-        setActiveTab(sortedTabs()[0]?.id, "search");
-        onChangeRef?.();
-      }
+      const hidden = !isHomeTab(activeTab()) || !state.settings.showSearchBar;
+      summoned = true;
+      if (!isHomeTab(activeTab())) setActiveTab(sortedTabs()[0]?.id, "search");
+      if (hidden) onChangeRef?.();
       inputEl.focus();
       inputEl.select();
     },
@@ -117,5 +129,5 @@ export function renderSearch(container, onChange) {
   if (!barEl) build(container);
   updateHint();
   barEl.style.setProperty("--search-fallback-border", state.settings.searchFallbackColor);
-  barEl.classList.toggle("search-bar--hidden", !isHomeTab(activeTab()));
+  barEl.classList.toggle("search-bar--hidden", !isHomeTab(activeTab()) || (!state.settings.showSearchBar && !summoned));
 }

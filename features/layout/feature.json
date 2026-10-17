@@ -1,0 +1,8 @@
+{
+  "id": "layout",
+  "name": "Layout",
+  "summary": "Strip the page back: home links, the Add link button, tabs, the search bar and buttons can each be switched off.",
+  "added": "1.0.0",
+  "lite": true,
+  "changes": {}
+}

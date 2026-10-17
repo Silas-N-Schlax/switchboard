@@ -37,6 +37,10 @@
     flex-shrink: 0;
   }
 
+  .cheatsheet-panel__row--off {
+    opacity: 0.45;
+  }
+
   .cheatsheet-panel__range {
     color: var(--ink-faint);
     font-size: var(--text-sm);

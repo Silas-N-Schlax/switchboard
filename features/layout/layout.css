@@ -1,0 +1,15 @@
+/* Settings › Layout switches that only hide things (see layout.js). */
+.layout--no-tabs .tab-dock {
+  display: none;
+}
+
+/* Every clickable control that isn't a link. Right-click and the keyboard still reach all of
+   them, so nothing is lost. */
+.layout--no-buttons {
+  .settings-toggle,
+  .tab-dock__add-wrap,
+  .tab-dock__remove,
+  .link-list__delete {
+    display: none;
+  }
+}
