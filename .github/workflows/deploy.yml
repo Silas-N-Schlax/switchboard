@@ -1,23 +1,25 @@
-# Publishing a GitHub release (tag v1.2.3) builds both zips, attaches them to the release, and
-# sends each to its Chrome Web Store listing for review. A listing is skipped until its
-# extension id is set as a repo variable, and pre-releases only get the zips attached.
+# Merging a release PR (one that changes the version in manifest.json) into main builds both
+# zips, creates the v<version> tag and GitHub release with them attached, and sends each zip
+# to its Chrome Web Store listing for review. Nothing happens if that version's tag already
+# exists, and a listing is skipped until its extension id is set as a repo variable.
+# The whole workflow stays off until the repo variable DEPLOY_ENABLED is set to true.
 #
 # Repo secrets: CWS_CLIENT_ID, CWS_CLIENT_SECRET, CWS_REFRESH_TOKEN, CWS_PUBLISHER_ID
-# Repo variables: CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
+# Repo variables: DEPLOY_ENABLED, CWS_EXTENSION_ID (Switchboard), CWS_LITE_EXTENSION_ID (Switchboard Lite)
 name: Deploy
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+    paths: [manifest.json]
 
 permissions:
   contents: write
 
 jobs:
   deploy:
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -25,25 +27,37 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check the tag matches manifest.json
+      - name: Check this version hasn't been released
+        id: version
         run: |
           version="$(node -p 'require("./manifest.json").version')"
-          if [ "${TAG#v}" != "$version" ]; then
-            echo "::error::Release tag $TAG doesn't match manifest.json version $version"
-            exit 1
-          fi
           echo "VERSION=$version" >> "$GITHUB_ENV"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "v$version is already released; nothing to do."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build the zips
+        if: steps.version.outputs.new == 'true'
         run: node scripts/package.mjs
 
-      - name: Attach the zips to the release
-        run: gh release upload "$TAG" dist/switchboard-$VERSION.zip dist/switchboard-lite-$VERSION.zip --clobber
+      - name: Create the release
+        if: steps.version.outputs.new == 'true'
+        run: |
+          node -e '
+            const { releases } = require("./release.json");
+            const release = releases.find((r) => r.version === process.env.VERSION);
+            console.log((release?.notes ?? []).map((note) => `- ${note}`).join("\n"));
+          ' > notes.md
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --notes-file notes.md \
+            "dist/switchboard-$VERSION.zip" "dist/switchboard-lite-$VERSION.zip"
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Publish Switchboard
-        if: ${{ !github.event.release.prerelease && vars.CWS_EXTENSION_ID != '' }}
+        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-$VERSION.zip" "${{ vars.CWS_EXTENSION_ID }}"
         env:
           CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
@@ -52,7 +66,7 @@ jobs:
           CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
 
       - name: Publish Switchboard Lite
-        if: ${{ !github.event.release.prerelease && vars.CWS_LITE_EXTENSION_ID != '' }}
+        if: ${{ steps.version.outputs.new == 'true' && vars.CWS_LITE_EXTENSION_ID != '' }}
         run: node scripts/publish-store.mjs "dist/switchboard-lite-$VERSION.zip" "${{ vars.CWS_LITE_EXTENSION_ID }}"
         env:
           CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
